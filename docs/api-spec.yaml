@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: ErenlerMarket API
+  title: MarketApp API
   version: 0.1.0
   description: Taslak — endpoint'ler backend planlaması yapıldıkça eklenecek.
 paths: {}

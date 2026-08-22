@@ -1,4 +1,4 @@
-# ErenlerMarket
+# MarketApp
 
 Market için online sipariş sistemi. Monorepo yapısında beş bileşen içerir:
 
