@@ -1,0 +1,48 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+**/.env
+!.env.example
+!**/.env.example
+
+# Node / backend / web
+node_modules/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-error.log*
+
+# Android
+mobile-android/.gradle/
+mobile-android/local.properties
+mobile-android/**/build/
+mobile-android/.idea/
+mobile-android/*.iml
+mobile-android/app/google-services.json
+mobile-android/**/*.jks
+mobile-android/**/*.keystore
+
+# iOS
+mobile-ios/**/DerivedData/
+mobile-ios/**/*.xcuserstate
+mobile-ios/**/xcuserdata/
+mobile-ios/**/GoogleService-Info.plist
+mobile-ios/**/*.p12
+mobile-ios/**/*.mobileprovision
+mobile-ios/Config.xcconfig
+!mobile-ios/Config.example.xcconfig
+
+# Database
+database/**/*.sql
+!database/seeds/fake-data/**/*.sql
