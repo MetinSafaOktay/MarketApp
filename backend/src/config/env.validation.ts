@@ -15,10 +15,11 @@ class EnvironmentVariables {
   @IsString()
   JWT_SECRET: string;
 
+  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(65535)
-  PORT: number;
+  PORT?: number;
 
   @IsOptional()
   @IsString()
