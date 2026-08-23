@@ -9,11 +9,13 @@ Thumbs.db
 
 # Env / secrets
 .env
-.env.local
-.env.*.local
+.env.*
 **/.env
+**/.env.*
 !.env.example
 !**/.env.example
+!.env.*.example
+!**/.env.*.example
 
 # Node / backend / web
 node_modules/
@@ -43,6 +45,7 @@ mobile-ios/**/*.mobileprovision
 mobile-ios/Config.xcconfig
 !mobile-ios/Config.example.xcconfig
 
-# Database
-database/**/*.sql
-!database/seeds/fake-data/**/*.sql
+# Database (gerçek prod veri dump'ları asla commit edilmez; migration/seed SQL dosyaları hariç)
+database/dumps/
+database/**/*dump*.sql
+database/**/*backup*.sql
