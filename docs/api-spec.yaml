@@ -1,6 +1,34 @@
-openapi: 3.0.3
+openapi: 3.0.0
+paths:
+  /:
+    get:
+      operationId: AppController_getHello
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - health
+  /health:
+    get:
+      operationId: AppController_getHealth
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - health
 info:
   title: MarketApp API
+  description: MarketApp backend API dokümantasyonu
   version: 0.1.0
-  description: Taslak — endpoint'ler backend planlaması yapıldıkça eklenecek.
-paths: {}
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas: {}
