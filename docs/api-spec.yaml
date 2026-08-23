@@ -18,6 +18,77 @@ paths:
           description: ''
       tags:
         - health
+  /auth/register:
+    post:
+      operationId: AuthController_register
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - auth
+  /auth/login:
+    post:
+      operationId: AuthController_login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - auth
+  /auth/refresh:
+    post:
+      operationId: AuthController_refresh
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - auth
+  /auth/logout:
+    post:
+      operationId: AuthController_logout
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - auth
+  /auth/me:
+    get:
+      operationId: AuthController_me
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - auth
 info:
   title: MarketApp API
   description: MarketApp backend API dokümantasyonu
@@ -31,4 +102,43 @@ components:
       scheme: bearer
       bearerFormat: JWT
       type: http
-  schemas: {}
+  schemas:
+    RegisterDto:
+      type: object
+      properties:
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+        profile_name:
+          type: string
+          maxLength: 30
+        first_name:
+          type: string
+        last_name:
+          type: string
+      required:
+        - password
+        - profile_name
+        - first_name
+        - last_name
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+      required:
+        - password
+    RefreshDto:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required:
+        - refreshToken

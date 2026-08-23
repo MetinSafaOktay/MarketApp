@@ -1,7 +1,7 @@
 # Veritabanı Şeması
 
 Tek market (single-tenant) mimarisi, tüm primary key'ler `UUID` (tahmin edilebilir sıralı ID riskini önlemek için).
-Kaynak: [`database/migrations/0001_init_schema.sql`](../database/migrations/0001_init_schema.sql)
+Kaynak: [`database/migrations/`](../database/migrations/) (`0001_init_schema.sql` + `0002_refresh_tokens.sql`)
 
 ## Kullanıcı & Hesap
 - **users** — hesap, herkese açık `profile_name`, `role` (customer/admin), `is_private`, `last_active_at`
@@ -9,6 +9,7 @@ Kaynak: [`database/migrations/0001_init_schema.sql`](../database/migrations/0001
 - **addresses** — teslimat adresleri
 - **user_settings** — dil, tema, bildirim tercihleri
 - **push_subscriptions** — Web Push abonelikleri (admin sipariş bildirimi için)
+- **refresh_tokens** — auth modülü: hash'lenmiş refresh token'lar, rotasyon + logout ile iptal desteği (B2'de eklendi)
 
 ## Market Bilgisi
 - **store_profile** — tek satır, "Genel Bilgiler" ekranı (isim, şehir, açıklama, çalışma saatleri)
