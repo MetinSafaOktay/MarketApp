@@ -11,6 +11,10 @@ import { AddressesModule } from './modules/addresses/addresses.module';
 import { UserSettingsModule } from './modules/user-settings/user-settings.module';
 import { StoreModule } from './modules/store/store.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
+import { CartModule } from './modules/cart/cart.module';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
+import { CouponsModule } from './modules/coupons/coupons.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -31,6 +35,10 @@ import { CatalogModule } from './modules/catalog/catalog.module';
     UserSettingsModule,
     StoreModule,
     CatalogModule,
+    CartModule,
+    WishlistModule,
+    CouponsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

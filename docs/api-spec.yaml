@@ -465,6 +465,270 @@ paths:
         - bearer: []
       tags:
         - products
+  /cart:
+    get:
+      operationId: CartController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - cart
+    delete:
+      operationId: CartController_clear
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - cart
+  /cart/items:
+    post:
+      operationId: CartController_addItem
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCartItemDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - cart
+  /cart/items/{productId}:
+    patch:
+      operationId: CartController_updateItem
+      parameters:
+        - name: productId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCartItemDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - cart
+    delete:
+      operationId: CartController_removeItem
+      parameters:
+        - name: productId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - cart
+  /wishlist:
+    get:
+      operationId: WishlistController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - wishlist
+  /wishlist/items:
+    post:
+      operationId: WishlistController_addItem
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddWishlistItemDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - wishlist
+  /wishlist/items/{productId}:
+    delete:
+      operationId: WishlistController_removeItem
+      parameters:
+        - name: productId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - wishlist
+  /coupons:
+    get:
+      operationId: CouponsController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - coupons
+    post:
+      operationId: CouponsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCouponDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - coupons
+  /coupons/{code}:
+    get:
+      operationId: CouponsController_findByCode
+      parameters:
+        - name: code
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - coupons
+  /coupons/{id}:
+    patch:
+      operationId: CouponsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCouponDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - coupons
+    delete:
+      operationId: CouponsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - coupons
+  /orders:
+    post:
+      operationId: OrdersController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - orders
+    get:
+      operationId: OrdersController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - orders
+  /orders/{id}:
+    get:
+      operationId: OrdersController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - orders
+  /orders/{id}/status:
+    patch:
+      operationId: OrdersController_updateStatus
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderStatusDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - orders
 info:
   title: MarketApp API
   description: MarketApp backend API dokümantasyonu
@@ -696,3 +960,123 @@ components:
           default: 0
       required:
         - image_url
+    AddCartItemDto:
+      type: object
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: number
+          default: 1
+      required:
+        - product_id
+    UpdateCartItemDto:
+      type: object
+      properties:
+        quantity:
+          type: number
+      required:
+        - quantity
+    AddWishlistItemDto:
+      type: object
+      properties:
+        product_id:
+          type: string
+      required:
+        - product_id
+    CreateCouponDto:
+      type: object
+      properties:
+        code:
+          type: string
+        discount_type:
+          type: string
+          enum:
+            - percentage
+            - fixed
+        discount_value:
+          type: number
+          description: percentage ise 0-100 arası, fixed ise TL
+        min_order_amount:
+          type: number
+          default: 0
+        usage_limit_per_user:
+          type: number
+          default: 1
+        valid_from:
+          type: string
+        valid_until:
+          type: string
+        is_active:
+          type: boolean
+          default: true
+      required:
+        - code
+        - discount_type
+        - discount_value
+    UpdateCouponDto:
+      type: object
+      properties:
+        code:
+          type: string
+        discount_type:
+          type: string
+          enum:
+            - percentage
+            - fixed
+        discount_value:
+          type: number
+          description: percentage ise 0-100 arası, fixed ise TL
+        min_order_amount:
+          type: number
+          default: 0
+        usage_limit_per_user:
+          type: number
+          default: 1
+        valid_from:
+          type: string
+        valid_until:
+          type: string
+        is_active:
+          type: boolean
+          default: true
+    OrderItemInputDto:
+      type: object
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: number
+      required:
+        - product_id
+        - quantity
+    CreateOrderDto:
+      type: object
+      properties:
+        address_id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemInputDto'
+        coupon_code:
+          type: string
+      required:
+        - address_id
+        - items
+    UpdateOrderStatusDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - preparing
+            - out_for_delivery
+            - delivered
+            - cancelled
+        note:
+          type: string
+      required:
+        - status
