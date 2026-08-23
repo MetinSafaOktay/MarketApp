@@ -89,6 +89,382 @@ paths:
         - bearer: []
       tags:
         - auth
+  /users/me:
+    patch:
+      operationId: UsersController_updateMe
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - users
+  /users/{id}:
+    get:
+      operationId: UsersController_getProfile
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - users
+  /users/{id}/follow:
+    post:
+      operationId: UsersController_follow
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - users
+    delete:
+      operationId: UsersController_unfollow
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - users
+  /addresses:
+    get:
+      operationId: AddressesController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - addresses
+    post:
+      operationId: AddressesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAddressDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - addresses
+  /addresses/{id}:
+    patch:
+      operationId: AddressesController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAddressDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - addresses
+    delete:
+      operationId: AddressesController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - addresses
+  /users/me/settings:
+    get:
+      operationId: UserSettingsController_get
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - user-settings
+    patch:
+      operationId: UserSettingsController_update
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - user-settings
+  /store:
+    get:
+      operationId: StoreController_get
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - store
+    patch:
+      operationId: StoreController_update
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStoreDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - store
+  /categories:
+    get:
+      operationId: CategoriesController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - categories
+    post:
+      operationId: CategoriesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - categories
+  /categories/{id}:
+    get:
+      operationId: CategoriesController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - categories
+    patch:
+      operationId: CategoriesController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - categories
+    delete:
+      operationId: CategoriesController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - categories
+  /products:
+    get:
+      operationId: ProductsController_list
+      parameters:
+        - name: categoryId
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - products
+    post:
+      operationId: ProductsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - products
+  /products/{id}:
+    get:
+      operationId: ProductsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - products
+    patch:
+      operationId: ProductsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - products
+    delete:
+      operationId: ProductsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - products
+  /products/{id}/images:
+    post:
+      operationId: ProductsController_addImage
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddProductImageDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - products
+  /products/{id}/images/{imageId}:
+    delete:
+      operationId: ProductsController_removeImage
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: imageId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - products
 info:
   title: MarketApp API
   description: MarketApp backend API dokümantasyonu
@@ -142,3 +518,181 @@ components:
           type: string
       required:
         - refreshToken
+    UpdateProfileDto:
+      type: object
+      properties:
+        profile_name:
+          type: string
+          maxLength: 30
+        bio:
+          type: string
+        profile_photo_url:
+          type: string
+    CreateAddressDto:
+      type: object
+      properties:
+        label:
+          type: string
+          maxLength: 50
+          example: Ev
+        full_address:
+          type: string
+        city:
+          type: string
+          maxLength: 100
+        district:
+          type: string
+          maxLength: 100
+        is_default:
+          type: boolean
+      required:
+        - label
+        - full_address
+        - city
+        - district
+    UpdateAddressDto:
+      type: object
+      properties:
+        label:
+          type: string
+          maxLength: 50
+          example: Ev
+        full_address:
+          type: string
+        city:
+          type: string
+          maxLength: 100
+        district:
+          type: string
+          maxLength: 100
+        is_default:
+          type: boolean
+    UpdateSettingsDto:
+      type: object
+      properties:
+        language:
+          type: string
+          example: tr
+        theme:
+          type: string
+          example: dark
+        push_notifications_enabled:
+          type: boolean
+        order_notifications_enabled:
+          type: boolean
+    UpdateStoreDto:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 150
+        city:
+          type: string
+          maxLength: 100
+        tagline:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        logo_url:
+          type: string
+        cover_image_url:
+          type: string
+        phone:
+          type: string
+          maxLength: 20
+        address:
+          type: string
+        working_hours:
+          type: object
+          description: Gün bazlı çalışma saatleri (serbest JSON)
+    CreateCategoryDto:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        image_url:
+          type: string
+        display_order:
+          type: number
+          default: 0
+      required:
+        - name
+    UpdateCategoryDto:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        image_url:
+          type: string
+        display_order:
+          type: number
+          default: 0
+    CreateProductDto:
+      type: object
+      properties:
+        category_id:
+          type: string
+        name:
+          type: string
+        sku:
+          type: string
+          description: Stok kodu (SKU), benzersiz olmalı
+        description:
+          type: string
+        price:
+          type: number
+        original_price:
+          type: number
+          description: Doluysa ve price'tan büyükse ürün indirimli sayılır
+        is_new_arrival:
+          type: boolean
+          default: false
+        stock_quantity:
+          type: number
+          default: 0
+        images:
+          description: Başlangıç ürün görseli URL listesi
+          type: array
+          items:
+            type: string
+      required:
+        - category_id
+        - name
+        - sku
+        - price
+    UpdateProductDto:
+      type: object
+      properties:
+        category_id:
+          type: string
+        name:
+          type: string
+        sku:
+          type: string
+          description: Stok kodu (SKU), benzersiz olmalı
+        description:
+          type: string
+        price:
+          type: number
+        original_price:
+          type: number
+          description: Doluysa ve price'tan büyükse ürün indirimli sayılır
+        is_new_arrival:
+          type: boolean
+          default: false
+        stock_quantity:
+          type: number
+          default: 0
+    AddProductImageDto:
+      type: object
+      properties:
+        image_url:
+          type: string
+        display_order:
+          type: number
+          default: 0
+      required:
+        - image_url
