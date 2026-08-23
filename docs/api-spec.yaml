@@ -729,6 +729,223 @@ paths:
         - bearer: []
       tags:
         - orders
+  /notifications/me:
+    get:
+      operationId: NotificationsController_listMine
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - notifications
+  /notifications/{id}/read:
+    patch:
+      operationId: NotificationsController_markRead
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - notifications
+  /notifications/me/read-all:
+    patch:
+      operationId: NotificationsController_markAllRead
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - notifications
+  /push/subscribe:
+    post:
+      operationId: PushController_subscribe
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscribeDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - push
+    delete:
+      operationId: PushController_unsubscribe
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - push
+  /announcements:
+    get:
+      operationId: AnnouncementsController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - announcements
+    post:
+      operationId: AnnouncementsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnnouncementDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - announcements
+  /announcements/{id}:
+    get:
+      operationId: AnnouncementsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - announcements
+    patch:
+      operationId: AnnouncementsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAnnouncementDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - announcements
+    delete:
+      operationId: AnnouncementsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - announcements
+  /conversations/me:
+    get:
+      operationId: MessagingController_getMyMessages
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - messaging
+  /conversations/me/messages:
+    post:
+      operationId: MessagingController_sendMyMessage
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - messaging
+  /conversations:
+    get:
+      operationId: MessagingController_listAllConversations
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - messaging
+  /conversations/{id}:
+    get:
+      operationId: MessagingController_getConversationMessages
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - messaging
+  /conversations/{id}/messages:
+    post:
+      operationId: MessagingController_reply
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - messaging
 info:
   title: MarketApp API
   description: MarketApp backend API dokümantasyonu
@@ -1080,3 +1297,45 @@ components:
           type: string
       required:
         - status
+    SubscribeDto:
+      type: object
+      properties:
+        endpoint:
+          type: string
+        p256dh_key:
+          type: string
+        auth_key:
+          type: string
+      required:
+        - endpoint
+        - p256dh_key
+        - auth_key
+    CreateAnnouncementDto:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        content:
+          type: string
+        image_url:
+          type: string
+      required:
+        - content
+    UpdateAnnouncementDto:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        content:
+          type: string
+        image_url:
+          type: string
+    SendMessageDto:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content

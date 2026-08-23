@@ -6,8 +6,18 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CouponsService } from '../coupons/coupons.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Sipariş Alındı',
+  confirmed: 'Sipariş Onaylandı',
+  preparing: 'Hazırlanıyor',
+  out_for_delivery: 'Yolda',
+  delivered: 'Teslim Edildi',
+  cancelled: 'İptal Edildi',
+};
 
 const WITH_DETAILS = {
   order_items: { include: { products: true } },
@@ -20,6 +30,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(userId: string, dto: CreateOrderDto) {
@@ -141,7 +152,7 @@ export class OrdersService {
     });
     if (!order) throw new NotFoundException('Sipariş bulunamadı');
 
-    return this.prisma.$transaction(async (tx) => {
+    const updated = await this.prisma.$transaction(async (tx) => {
       await tx.orders.update({
         where: { id: orderId },
         data: { status: dto.status, updated_at: new Date() },
@@ -159,5 +170,16 @@ export class OrdersService {
         include: WITH_DETAILS,
       });
     });
+
+    const statusLabel = STATUS_LABELS[dto.status] ?? dto.status;
+    await this.notificationsService.create({
+      user_id: order.user_id,
+      type: 'order_status_update',
+      title: statusLabel,
+      body: dto.note ?? `Siparişinizin durumu güncellendi: ${statusLabel}`,
+      related_order_id: orderId,
+    });
+
+    return updated;
   }
 }

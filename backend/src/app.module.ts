@@ -15,6 +15,10 @@ import { CartModule } from './modules/cart/cart.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { AnnouncementsModule } from './modules/announcements/announcements.module';
+import { MessagingModule } from './modules/messaging/messaging.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PushModule } from './modules/push/push.module';
 
 @Module({
   imports: [
@@ -39,6 +43,10 @@ import { OrdersModule } from './modules/orders/orders.module';
     WishlistModule,
     CouponsModule,
     OrdersModule,
+    AnnouncementsModule,
+    MessagingModule,
+    NotificationsModule,
+    PushModule,
   ],
   controllers: [AppController],
   providers: [AppService],
