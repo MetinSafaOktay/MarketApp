@@ -1,16 +1,22 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
+import { IsOptional, IsUrl } from 'class-validator';
+import { IsTranslatedText } from '../../../common/i18n/is-translated-text.validator';
+import type { TranslatedText } from '../../../common/i18n/locales';
 
 export class CreateAnnouncementDto {
-  @ApiPropertyOptional({ maxLength: 255 })
+  @ApiPropertyOptional({
+    description: 'Çok dilli başlık, ör. { "tr": "...", "en": "..." }',
+  })
   @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  title?: string;
+  @IsTranslatedText({ maxLength: 255 })
+  title?: TranslatedText;
 
-  @ApiProperty()
-  @IsString()
-  content: string;
+  @ApiProperty({
+    description: 'Çok dilli içerik — tr zorunlu',
+    example: { tr: 'Kupon Kodu: ilksiparis10' },
+  })
+  @IsTranslatedText({ requireDefault: true })
+  content: TranslatedText;
 
   @ApiPropertyOptional()
   @IsOptional()

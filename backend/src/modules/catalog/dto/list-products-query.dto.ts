@@ -3,12 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsBoolean, IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
-export const PRODUCT_SORTS = [
-  'newest',
-  'price_asc',
-  'price_desc',
-  'name',
-] as const;
+export const PRODUCT_SORTS = ['newest', 'price_asc', 'price_desc'] as const;
 export type ProductSort = (typeof PRODUCT_SORTS)[number];
 
 const toBool = ({ value }: { value: unknown }) =>
@@ -49,4 +44,16 @@ export class ListProductsQueryDto extends PaginationQueryDto {
   @Transform(toBool)
   @IsBoolean()
   inStock?: boolean;
+
+  // Aşağıdakiler @Lang() / controller tarafından okunur; burada sadece
+  // whitelist doğrulamasının isteği reddetmemesi için tanımlı.
+  @ApiPropertyOptional({ description: 'Dil kodu (tr/en/de/fr/ar/nl)' })
+  @IsOptional()
+  @IsString()
+  lang?: string;
+
+  @ApiPropertyOptional({ description: 'true → ham çok dilli map döndür' })
+  @IsOptional()
+  @IsString()
+  raw?: string;
 }

@@ -6,6 +6,8 @@ import {
   IsUrl,
   MaxLength,
 } from 'class-validator';
+import { IsTranslatedText } from '../../../common/i18n/is-translated-text.validator';
+import type { TranslatedText } from '../../../common/i18n/locales';
 
 export class UpdateStoreDto {
   @ApiPropertyOptional({ maxLength: 150 })
@@ -20,16 +22,15 @@ export class UpdateStoreDto {
   @MaxLength(100)
   city?: string;
 
-  @ApiPropertyOptional({ maxLength: 255 })
+  @ApiPropertyOptional({ description: 'Çok dilli slogan' })
   @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  tagline?: string;
+  @IsTranslatedText({ maxLength: 255 })
+  tagline?: TranslatedText;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Çok dilli açıklama' })
   @IsOptional()
-  @IsString()
-  description?: string;
+  @IsTranslatedText()
+  description?: TranslatedText;
 
   @ApiPropertyOptional()
   @IsOptional()

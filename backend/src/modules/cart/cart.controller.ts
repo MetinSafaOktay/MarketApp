@@ -18,6 +18,8 @@ import { CheckoutPreviewDto } from './dto/checkout-preview.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
+import { Lang } from '../../common/i18n/lang.decorator';
+import type { Locale } from '../../common/i18n/locales';
 
 @ApiTags('cart')
 @ApiBearerAuth()
@@ -27,8 +29,8 @@ export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Get()
-  list(@CurrentUser() currentUser: CurrentUserPayload) {
-    return this.cartService.list(currentUser.userId);
+  list(@CurrentUser() currentUser: CurrentUserPayload, @Lang() lang: Locale) {
+    return this.cartService.list(currentUser.userId, lang);
   }
 
   @Post('items')
@@ -66,7 +68,8 @@ export class CartController {
   checkoutPreview(
     @CurrentUser() currentUser: CurrentUserPayload,
     @Body() dto: CheckoutPreviewDto,
+    @Lang() lang: Locale,
   ) {
-    return this.cartService.checkoutPreview(currentUser.userId, dto);
+    return this.cartService.checkoutPreview(currentUser.userId, dto, lang);
   }
 }

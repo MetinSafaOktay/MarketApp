@@ -255,7 +255,16 @@ paths:
   /store:
     get:
       operationId: StoreController_get
-      parameters: []
+      parameters:
+        - name: raw
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: lang
+          required: false
+          in: query
+          schema: {}
       responses:
         '200':
           description: ''
@@ -280,7 +289,16 @@ paths:
   /categories:
     get:
       operationId: CategoriesController_list
-      parameters: []
+      parameters:
+        - name: raw
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: lang
+          required: false
+          in: query
+          schema: {}
       responses:
         '200':
           description: ''
@@ -311,6 +329,15 @@ paths:
           in: path
           schema:
             type: string
+        - name: raw
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: lang
+          required: false
+          in: query
+          schema: {}
       responses:
         '200':
           description: ''
@@ -393,7 +420,6 @@ paths:
               - newest
               - price_asc
               - price_desc
-              - name
         - name: onlyDiscounted
           required: false
           in: query
@@ -412,6 +438,25 @@ paths:
           description: Sadece stokta olanlar
           schema:
             type: boolean
+        - name: lang
+          required: false
+          in: query
+          description: Dil kodu (tr/en/de/fr/ar/nl)
+          schema:
+            enum:
+              - tr
+              - en
+              - de
+              - fr
+              - ar
+              - nl
+            type: string
+        - name: raw
+          required: false
+          in: query
+          description: true → ham çok dilli map
+          schema:
+            type: string
       responses:
         '200':
           description: ''
@@ -442,6 +487,15 @@ paths:
           in: path
           schema:
             type: string
+        - name: raw
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: lang
+          required: false
+          in: query
+          schema: {}
       responses:
         '200':
           description: ''
@@ -916,7 +970,16 @@ paths:
   /announcements:
     get:
       operationId: AnnouncementsController_list
-      parameters: []
+      parameters:
+        - name: raw
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: lang
+          required: false
+          in: query
+          schema: {}
       responses:
         '200':
           description: ''
@@ -947,6 +1010,15 @@ paths:
           in: path
           schema:
             type: string
+        - name: raw
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: lang
+          required: false
+          in: query
+          schema: {}
       responses:
         '200':
           description: ''
@@ -1283,10 +1355,11 @@ components:
           type: string
           maxLength: 100
         tagline:
-          type: string
-          maxLength: 255
+          type: object
+          description: Çok dilli slogan
         description:
-          type: string
+          type: object
+          description: Çok dilli açıklama
         logo_url:
           type: string
         cover_image_url:
@@ -1303,8 +1376,11 @@ components:
       type: object
       properties:
         name:
-          type: string
-          maxLength: 100
+          type: object
+          description: Çok dilli kategori adı — tr zorunlu
+          example:
+            tr: Atıştırmalık
+            en: Snacks
         image_url:
           type: string
         display_order:
@@ -1316,8 +1392,11 @@ components:
       type: object
       properties:
         name:
-          type: string
-          maxLength: 100
+          type: object
+          description: Çok dilli kategori adı — tr zorunlu
+          example:
+            tr: Atıştırmalık
+            en: Snacks
         image_url:
           type: string
         display_order:
@@ -1329,12 +1408,16 @@ components:
         category_id:
           type: string
         name:
-          type: string
+          type: object
+          description: 'Çok dilli ürün adı, ör. { "tr": "...", "en": "..." } — tr zorunlu'
+          example:
+            tr: Koska Sade Tahin Helvası 200 Gr
         sku:
           type: string
           description: Stok kodu (SKU), benzersiz olmalı
         description:
-          type: string
+          type: object
+          description: 'Çok dilli açıklama, ör. { "tr": "...", "de": "..." }'
         price:
           type: number
         original_price:
@@ -1362,12 +1445,16 @@ components:
         category_id:
           type: string
         name:
-          type: string
+          type: object
+          description: 'Çok dilli ürün adı, ör. { "tr": "...", "en": "..." } — tr zorunlu'
+          example:
+            tr: Koska Sade Tahin Helvası 200 Gr
         sku:
           type: string
           description: Stok kodu (SKU), benzersiz olmalı
         description:
-          type: string
+          type: object
+          description: 'Çok dilli açıklama, ör. { "tr": "...", "de": "..." }'
         price:
           type: number
         original_price:
@@ -1538,10 +1625,13 @@ components:
       type: object
       properties:
         title:
-          type: string
-          maxLength: 255
+          type: object
+          description: 'Çok dilli başlık, ör. { "tr": "...", "en": "..." }'
         content:
-          type: string
+          type: object
+          description: Çok dilli içerik — tr zorunlu
+          example:
+            tr: 'Kupon Kodu: ilksiparis10'
         image_url:
           type: string
       required:
@@ -1550,10 +1640,13 @@ components:
       type: object
       properties:
         title:
-          type: string
-          maxLength: 255
+          type: object
+          description: 'Çok dilli başlık, ör. { "tr": "...", "en": "..." }'
         content:
-          type: string
+          type: object
+          description: Çok dilli içerik — tr zorunlu
+          example:
+            tr: 'Kupon Kodu: ilksiparis10'
         image_url:
           type: string
     SendMessageDto:

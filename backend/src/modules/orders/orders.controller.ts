@@ -19,6 +19,8 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
+import { Lang } from '../../common/i18n/lang.decorator';
+import type { Locale } from '../../common/i18n/locales';
 
 @ApiTags('orders')
 @ApiBearerAuth()
@@ -31,21 +33,23 @@ export class OrdersController {
   create(
     @CurrentUser() currentUser: CurrentUserPayload,
     @Body() dto: CreateOrderDto,
+    @Lang() lang: Locale,
   ) {
-    return this.ordersService.create(currentUser.userId, dto);
+    return this.ordersService.create(currentUser.userId, dto, lang);
   }
 
   @Get()
-  list(@CurrentUser() currentUser: CurrentUserPayload) {
-    return this.ordersService.list(currentUser);
+  list(@CurrentUser() currentUser: CurrentUserPayload, @Lang() lang: Locale) {
+    return this.ordersService.list(currentUser, lang);
   }
 
   @Get(':id')
   findOne(
     @CurrentUser() currentUser: CurrentUserPayload,
     @Param('id') id: string,
+    @Lang() lang: Locale,
   ) {
-    return this.ordersService.findOne(id, currentUser);
+    return this.ordersService.findOne(id, currentUser, lang);
   }
 
   @Patch(':id/cancel')
@@ -54,8 +58,9 @@ export class OrdersController {
     @CurrentUser() currentUser: CurrentUserPayload,
     @Param('id') id: string,
     @Body() dto: CancelOrderDto,
+    @Lang() lang: Locale,
   ) {
-    return this.ordersService.cancel(id, currentUser, dto);
+    return this.ordersService.cancel(id, currentUser, dto, lang);
   }
 
   @Patch(':id/status')
@@ -65,7 +70,8 @@ export class OrdersController {
     @CurrentUser() currentUser: CurrentUserPayload,
     @Param('id') id: string,
     @Body() dto: UpdateOrderStatusDto,
+    @Lang() lang: Locale,
   ) {
-    return this.ordersService.updateStatus(id, currentUser.userId, dto);
+    return this.ordersService.updateStatus(id, currentUser.userId, dto, lang);
   }
 }

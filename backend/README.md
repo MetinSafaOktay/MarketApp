@@ -25,5 +25,17 @@ NestJS + Prisma (driver adapter: `@prisma/adapter-pg`) + PostgreSQL. Şema kayna
 
 Katalog listesi (`GET /products`) arama (`q`), sıralama (`sort`), sayfalama (`page`/`pageSize`) ve filtre (`onlyDiscounted`/`onlyNew`/`inStock`/`categoryId`) parametreleri alır; yanıt `{ data, meta }` biçimindedir.
 
+### Çok dilli içerik (i18n)
+Desteklenen diller: `tr` (varsayılan), `en`, `de`, `fr`, `ar`, `nl`. Çevrilebilir alanlar
+(`products.name`/`description`, `categories.name`, `announcements.title`/`content`,
+`store_profile.tagline`/`description`) DB'de jsonb map olarak tutulur (`{"tr": "...", "en": "..."}`).
+
+- **Storefront GET** endpoint'leri (`/products`, `/categories`, `/announcements`, `/store`,
+  `/cart`, `/wishlist`, `/orders`) `?lang=xx` veya `Accept-Language` başlığına göre metni
+  tek dile çözer; çeviri yoksa `tr`'ye düşer.
+- `?raw=true` → çözmeden ham jsonb map döndürür (admin editörü için).
+- **Admin POST/PATCH** DTO'ları map bekler; `name`/`content` için `tr` anahtarı zorunlu,
+  diğer diller opsiyoneldir. PATCH map'i olduğu gibi değiştirir (merge etmez).
+
 - `GET /` — health/hello
 - `GET /health` — DB bağlantısını doğrular

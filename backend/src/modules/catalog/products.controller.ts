@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -18,6 +18,11 @@ import { ListProductsQueryDto } from './dto/list-products-query.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Lang } from '../../common/i18n/lang.decorator';
+import type { Locale } from '../../common/i18n/locales';
+
+/** `raw=true|1` → çok dilli alanları çözmeden ham jsonb map döndür (admin editör için). */
+const isRaw = (v?: string) => v === 'true' || v === '1';
 
 @ApiTags('products')
 @Controller('products')
@@ -25,19 +30,44 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  list(@Query() query: ListProductsQueryDto) {
-    return this.productsService.list(query);
+  @ApiQuery({
+    name: 'lang',
+    required: false,
+    enum: ['tr', 'en', 'de', 'fr', 'ar', 'nl'],
+  })
+  @ApiQuery({
+    name: 'raw',
+    required: false,
+    description: 'true → ham çok dilli map',
+  })
+  list(
+    @Query() query: ListProductsQueryDto,
+    @Lang() lang: Locale,
+    @Query('raw') raw?: string,
+  ) {
+    return this.productsService.list(query, lang, isRaw(raw));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  @ApiQuery({ name: 'lang', required: false })
+  @ApiQuery({ name: 'raw', required: false })
+  findOne(
+    @Param('id') id: string,
+    @Lang() lang: Locale,
+    @Query('raw') raw?: string,
+  ) {
+    return this.productsService.findOne(id, lang, isRaw(raw));
   }
 
   @Get(':id/similar')
-  listSimilar(@Param('id') id: string, @Query('limit') limit?: string) {
+  listSimilar(
+    @Param('id') id: string,
+    @Lang() lang: Locale,
+    @Query('limit') limit?: string,
+  ) {
     return this.productsService.listSimilar(
       id,
+      lang,
       limit ? Number(limit) : undefined,
     );
   }

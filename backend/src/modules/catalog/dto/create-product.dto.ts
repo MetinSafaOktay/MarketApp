@@ -10,24 +10,32 @@ import {
   IsUrl,
   Min,
 } from 'class-validator';
+import { IsTranslatedText } from '../../../common/i18n/is-translated-text.validator';
+import type { TranslatedText } from '../../../common/i18n/locales';
 
 export class CreateProductDto {
   @ApiProperty()
   @IsUUID()
   category_id: string;
 
-  @ApiProperty()
-  @IsString()
-  name: string;
+  @ApiProperty({
+    description:
+      'Çok dilli ürün adı, ör. { "tr": "...", "en": "..." } — tr zorunlu',
+    example: { tr: 'Koska Sade Tahin Helvası 200 Gr' },
+  })
+  @IsTranslatedText({ requireDefault: true, maxLength: 255 })
+  name: TranslatedText;
 
   @ApiProperty({ description: 'Stok kodu (SKU), benzersiz olmalı' })
   @IsString()
   sku: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'Çok dilli açıklama, ör. { "tr": "...", "de": "..." }',
+  })
   @IsOptional()
-  @IsString()
-  description?: string;
+  @IsTranslatedText()
+  description?: TranslatedText;
 
   @ApiProperty()
   @IsNumber()

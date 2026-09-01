@@ -1,18 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUrl,
-  MaxLength,
-  Min,
-} from 'class-validator';
+import { IsInt, IsOptional, IsUrl, Min } from 'class-validator';
+import { IsTranslatedText } from '../../../common/i18n/is-translated-text.validator';
+import type { TranslatedText } from '../../../common/i18n/locales';
 
 export class CreateCategoryDto {
-  @ApiProperty({ maxLength: 100 })
-  @IsString()
-  @MaxLength(100)
-  name: string;
+  @ApiProperty({
+    description: 'Çok dilli kategori adı — tr zorunlu',
+    example: { tr: 'Atıştırmalık', en: 'Snacks' },
+  })
+  @IsTranslatedText({ requireDefault: true, maxLength: 100 })
+  name: TranslatedText;
 
   @ApiPropertyOptional()
   @IsOptional()

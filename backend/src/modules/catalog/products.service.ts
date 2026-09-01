@@ -9,27 +9,50 @@ import {
   ProductSort,
 } from './dto/list-products-query.dto';
 import { paginate, toSkipTake } from '../../common/pagination';
+import { DEFAULT_LOCALE, Locale } from '../../common/i18n/locales';
+import { localizeFields, localizeList } from '../../common/i18n/localize';
 
 const WITH_IMAGES = {
   product_images: { orderBy: { display_order: 'asc' as const } },
 };
 
+/** Çok dilli (jsonb) alanlar. */
+const I18N_FIELDS = ['name', 'description'] as const;
+
 const SORT_MAP: Record<ProductSort, Prisma.productsOrderByWithRelationInput> = {
   newest: { created_at: 'desc' },
   price_asc: { price: 'asc' },
   price_desc: { price: 'desc' },
-  name: { name: 'asc' },
 };
 
 @Injectable()
 export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(query: ListProductsQueryDto) {
+  async list(
+    query: ListProductsQueryDto,
+    locale: Locale = DEFAULT_LOCALE,
+    raw = false,
+  ) {
     const { skip, take, page, pageSize } = toSkipTake(
       query.page,
       query.pageSize,
     );
+
+    // jsonb name araması: tüm dillerde, büyük/küçük harf duyarsız
+    let searchIds: string[] | undefined;
+    if (query.q) {
+      const like = `%${query.q}%`;
+      const rows = await this.prisma.$queryRaw<{ id: string }[]>`
+        SELECT id FROM products
+        WHERE is_active = true
+          AND (name::text ILIKE ${like} OR sku ILIKE ${like})
+      `;
+      searchIds = rows.map((r) => r.id);
+      if (searchIds.length === 0) {
+        return paginate([], 0, page, pageSize);
+      }
+    }
 
     const where: Prisma.productsWhereInput = {
       is_active: true,
@@ -39,14 +62,7 @@ export class ProductsService {
       ...(query.onlyDiscounted
         ? { original_price: { gt: this.prisma.products.fields.price } }
         : {}),
-      ...(query.q
-        ? {
-            OR: [
-              { name: { contains: query.q, mode: 'insensitive' } },
-              { sku: { contains: query.q, mode: 'insensitive' } },
-            ],
-          }
-        : {}),
+      ...(searchIds ? { id: { in: searchIds } } : {}),
     };
 
     const [data, total] = await Promise.all([
@@ -60,12 +76,17 @@ export class ProductsService {
       this.prisma.products.count({ where }),
     ]);
 
-    return paginate(data, total, page, pageSize);
+    return paginate(
+      raw ? data : localizeList(data, locale, I18N_FIELDS),
+      total,
+      page,
+      pageSize,
+    );
   }
 
-  async listSimilar(id: string, limit = 8) {
-    const product = await this.findOne(id);
-    return this.prisma.products.findMany({
+  async listSimilar(id: string, locale: Locale = DEFAULT_LOCALE, limit = 8) {
+    const product = await this.getOrThrow(id);
+    const rows = await this.prisma.products.findMany({
       where: {
         is_active: true,
         category_id: product.category_id,
@@ -75,15 +96,21 @@ export class ProductsService {
       orderBy: { created_at: 'desc' },
       take: Math.min(24, Math.max(1, limit)),
     });
+    return localizeList(rows, locale, I18N_FIELDS);
   }
 
-  async findOne(id: string) {
+  private async getOrThrow(id: string) {
     const product = await this.prisma.products.findUnique({
       where: { id },
       include: WITH_IMAGES,
     });
     if (!product) throw new NotFoundException('Ürün bulunamadı');
     return product;
+  }
+
+  async findOne(id: string, locale: Locale = DEFAULT_LOCALE, raw = false) {
+    const product = await this.getOrThrow(id);
+    return raw ? product : localizeFields(product, locale, I18N_FIELDS);
   }
 
   create(dto: CreateProductDto) {
@@ -100,7 +127,7 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto) {
-    await this.findOne(id);
+    await this.getOrThrow(id);
     return this.prisma.products.update({
       where: { id },
       data: dto,
@@ -109,13 +136,13 @@ export class ProductsService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
+    await this.getOrThrow(id);
     await this.prisma.products.delete({ where: { id } });
     return { success: true };
   }
 
   async addImage(productId: string, dto: AddProductImageDto) {
-    await this.findOne(productId);
+    await this.getOrThrow(productId);
     return this.prisma.product_images.create({
       data: { ...dto, product_id: productId },
     });

@@ -10,6 +10,35 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
+import {
+  DEFAULT_LOCALE,
+  Locale,
+  pickTranslation,
+} from '../../common/i18n/locales';
+import { localizeFields } from '../../common/i18n/localize';
+
+const PRODUCT_I18N = ['name', 'description'] as const;
+
+/** order_items[].products içindeki çok dilli alanları çözer. */
+function localizeOrder<T extends { order_items?: unknown[] }>(
+  order: T,
+  locale: Locale,
+): T {
+  const items = order.order_items;
+  if (!Array.isArray(items)) return order;
+  return {
+    ...order,
+    order_items: items.map((oi) => {
+      const item = oi as { products?: Record<string, unknown> | null };
+      return item.products
+        ? {
+            ...item,
+            products: localizeFields(item.products, locale, PRODUCT_I18N),
+          }
+        : item;
+    }),
+  };
+}
 
 /** Müşterinin kendi iptal edebileceği durumlar (hazırlanmaya başlamadan önce). */
 const CUSTOMER_CANCELLABLE: string[] = ['pending', 'confirmed'];
@@ -37,7 +66,11 @@ export class OrdersService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async create(userId: string, dto: CreateOrderDto) {
+  async create(
+    userId: string,
+    dto: CreateOrderDto,
+    locale: Locale = DEFAULT_LOCALE,
+  ) {
     const address = await this.prisma.addresses.findUnique({
       where: { id: dto.address_id },
     });
@@ -57,7 +90,9 @@ export class OrdersService {
         throw new NotFoundException(`Ürün bulunamadı: ${item.product_id}`);
       }
       if (product.stock_quantity < item.quantity) {
-        throw new BadRequestException(`Stok yetersiz: ${product.name}`);
+        throw new BadRequestException(
+          `Stok yetersiz: ${pickTranslation(product.name, locale)}`,
+        );
       }
     }
 
@@ -80,7 +115,7 @@ export class OrdersService {
 
     const totalAmount = subtotal - discountAmount;
 
-    return this.prisma.$transaction(async (tx) => {
+    const created = await this.prisma.$transaction(async (tx) => {
       const order = await tx.orders.create({
         data: {
           user_id: userId,
@@ -120,20 +155,27 @@ export class OrdersService {
 
       return order;
     });
+
+    return localizeOrder(created, locale);
   }
 
-  list(currentUser: { userId: string; role: string }) {
-    return this.prisma.orders.findMany({
+  async list(
+    currentUser: { userId: string; role: string },
+    locale: Locale = DEFAULT_LOCALE,
+  ) {
+    const rows = await this.prisma.orders.findMany({
       where:
         currentUser.role === 'admin' ? {} : { user_id: currentUser.userId },
       include: WITH_DETAILS,
       orderBy: { created_at: 'desc' },
     });
+    return rows.map((o) => localizeOrder(o, locale));
   }
 
   async findOne(
     orderId: string,
     currentUser: { userId: string; role: string },
+    locale: Locale = DEFAULT_LOCALE,
   ) {
     const order = await this.prisma.orders.findUnique({
       where: { id: orderId },
@@ -143,13 +185,14 @@ export class OrdersService {
     if (currentUser.role !== 'admin' && order.user_id !== currentUser.userId) {
       throw new ForbiddenException('Bu sipariş size ait değil');
     }
-    return order;
+    return localizeOrder(order, locale);
   }
 
   async updateStatus(
     orderId: string,
     adminUserId: string,
     dto: UpdateOrderStatusDto,
+    locale: Locale = DEFAULT_LOCALE,
   ) {
     const order = await this.prisma.orders.findUnique({
       where: { id: orderId },
@@ -184,7 +227,7 @@ export class OrdersService {
       related_order_id: orderId,
     });
 
-    return updated;
+    return localizeOrder(updated, locale);
   }
 
   /**
@@ -196,6 +239,7 @@ export class OrdersService {
     orderId: string,
     currentUser: { userId: string; role: string },
     dto: CancelOrderDto,
+    locale: Locale = DEFAULT_LOCALE,
   ) {
     const order = await this.prisma.orders.findUnique({
       where: { id: orderId },
@@ -261,6 +305,6 @@ export class OrdersService {
       });
     }
 
-    return updated;
+    return localizeOrder(updated, locale);
   }
 }

@@ -4,6 +4,14 @@ import { CouponsService } from '../coupons/coupons.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { CheckoutPreviewDto } from './dto/checkout-preview.dto';
+import {
+  DEFAULT_LOCALE,
+  Locale,
+  pickTranslation,
+} from '../../common/i18n/locales';
+import { localizeFields } from '../../common/i18n/localize';
+
+const PRODUCT_I18N = ['name', 'description'] as const;
 
 @Injectable()
 export class CartService {
@@ -12,12 +20,16 @@ export class CartService {
     private readonly couponsService: CouponsService,
   ) {}
 
-  list(userId: string) {
-    return this.prisma.cart_items.findMany({
+  async list(userId: string, locale: Locale = DEFAULT_LOCALE) {
+    const items = await this.prisma.cart_items.findMany({
       where: { user_id: userId },
       include: { products: { include: { product_images: true } } },
       orderBy: { added_at: 'desc' },
     });
+    return items.map((item) => ({
+      ...item,
+      products: localizeFields(item.products, locale, PRODUCT_I18N),
+    }));
   }
 
   async addItem(userId: string, dto: AddCartItemDto) {
@@ -67,7 +79,11 @@ export class CartService {
    * Sipariş vermeden önce sepet tutarını + kupon indirimini önizler.
    * Geçersiz kupon 400 döndürmez; coupon_error olarak yumuşak bilgilendirir.
    */
-  async checkoutPreview(userId: string, dto: CheckoutPreviewDto) {
+  async checkoutPreview(
+    userId: string,
+    dto: CheckoutPreviewDto,
+    locale: Locale = DEFAULT_LOCALE,
+  ) {
     const items = await this.prisma.cart_items.findMany({
       where: { user_id: userId },
       include: { products: { include: { product_images: true } } },
@@ -79,7 +95,7 @@ export class CartService {
       const lineTotal = unitPrice * item.quantity;
       return {
         product_id: item.product_id,
-        name: item.products.name,
+        name: pickTranslation(item.products.name, locale),
         quantity: item.quantity,
         unit_price: unitPrice,
         line_total: lineTotal,
