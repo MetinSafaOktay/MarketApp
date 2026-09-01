@@ -106,6 +106,16 @@ paths:
         - bearer: []
       tags:
         - users
+    delete:
+      operationId: UsersController_deleteMe
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - users
   /users/{id}:
     get:
       operationId: UsersController_getProfile
@@ -346,11 +356,62 @@ paths:
     get:
       operationId: ProductsController_list
       parameters:
-        - name: categoryId
-          required: true
+        - name: page
+          required: false
           in: query
           schema:
+            minimum: 1
+            default: 1
+            type: number
+        - name: pageSize
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 20
+            type: number
+        - name: categoryId
+          required: false
+          in: query
+          description: Kategori ID filtresi
+          schema:
             type: string
+        - name: q
+          required: false
+          in: query
+          description: Ad veya stok kodunda arama
+          schema:
+            type: string
+        - name: sort
+          required: false
+          in: query
+          schema:
+            default: newest
+            type: string
+            enum:
+              - newest
+              - price_asc
+              - price_desc
+              - name
+        - name: onlyDiscounted
+          required: false
+          in: query
+          description: Sadece indirimli ürünler (original_price > price)
+          schema:
+            type: boolean
+        - name: onlyNew
+          required: false
+          in: query
+          description: Sadece yeni ürünler
+          schema:
+            type: boolean
+        - name: inStock
+          required: false
+          in: query
+          description: Sadece stokta olanlar
+          schema:
+            type: boolean
       responses:
         '200':
           description: ''
@@ -420,6 +481,25 @@ paths:
           description: ''
       security:
         - bearer: []
+      tags:
+        - products
+  /products/{id}/similar:
+    get:
+      operationId: ProductsController_listSimilar
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
       tags:
         - products
   /products/{id}/images:
@@ -540,50 +620,23 @@ paths:
         - bearer: []
       tags:
         - cart
-  /wishlist:
-    get:
-      operationId: WishlistController_list
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      security:
-        - bearer: []
-      tags:
-        - wishlist
-  /wishlist/items:
+  /cart/checkout-preview:
     post:
-      operationId: WishlistController_addItem
+      operationId: CartController_checkoutPreview
       parameters: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddWishlistItemDto'
-      responses:
-        '201':
-          description: ''
-      security:
-        - bearer: []
-      tags:
-        - wishlist
-  /wishlist/items/{productId}:
-    delete:
-      operationId: WishlistController_removeItem
-      parameters:
-        - name: productId
-          required: true
-          in: path
-          schema:
-            type: string
+              $ref: '#/components/schemas/CheckoutPreviewDto'
       responses:
         '200':
           description: ''
       security:
         - bearer: []
       tags:
-        - wishlist
+        - cart
   /coupons:
     get:
       operationId: CouponsController_list
@@ -664,6 +717,50 @@ paths:
         - bearer: []
       tags:
         - coupons
+  /wishlist:
+    get:
+      operationId: WishlistController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - wishlist
+  /wishlist/items:
+    post:
+      operationId: WishlistController_addItem
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddWishlistItemDto'
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - wishlist
+  /wishlist/items/{productId}:
+    delete:
+      operationId: WishlistController_removeItem
+      parameters:
+        - name: productId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - wishlist
   /orders:
     post:
       operationId: OrdersController_create
@@ -700,6 +797,28 @@ paths:
           in: path
           schema:
             type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - orders
+  /orders/{id}/cancel:
+    patch:
+      operationId: OrdersController_cancel
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOrderDto'
       responses:
         '200':
           description: ''
@@ -946,6 +1065,99 @@ paths:
         - bearer: []
       tags:
         - messaging
+  /admin/stats:
+    get:
+      operationId: AdminController_stats
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - admin
+  /admin/customers:
+    get:
+      operationId: AdminController_listCustomers
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            default: 1
+            type: number
+        - name: pageSize
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 20
+            type: number
+        - name: q
+          required: false
+          in: query
+          description: Ad, profil adı, e-posta veya telefonda arama
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - admin
+  /admin/products/low-stock:
+    get:
+      operationId: AdminController_lowStock
+      parameters:
+        - name: threshold
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - admin
+  /uploads/product-image:
+    post:
+      operationId: StorageController_productImage
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUploadUrlDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - uploads
+  /uploads/avatar:
+    post:
+      operationId: StorageController_avatar
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUploadUrlDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - uploads
 info:
   title: MarketApp API
   description: MarketApp backend API dokümantasyonu
@@ -1194,13 +1406,12 @@ components:
           type: number
       required:
         - quantity
-    AddWishlistItemDto:
+    CheckoutPreviewDto:
       type: object
       properties:
-        product_id:
+        coupon_code:
           type: string
-      required:
-        - product_id
+          description: Uygulanacak kupon kodu (opsiyonel)
     CreateCouponDto:
       type: object
       properties:
@@ -1257,6 +1468,13 @@ components:
         is_active:
           type: boolean
           default: true
+    AddWishlistItemDto:
+      type: object
+      properties:
+        product_id:
+          type: string
+      required:
+        - product_id
     OrderItemInputDto:
       type: object
       properties:
@@ -1281,6 +1499,12 @@ components:
       required:
         - address_id
         - items
+    CancelOrderDto:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: İptal nedeni (opsiyonel)
     UpdateOrderStatusDto:
       type: object
       properties:
@@ -1339,3 +1563,22 @@ components:
           type: string
       required:
         - content
+    CreateUploadUrlDto:
+      type: object
+      properties:
+        ext:
+          type: string
+          enum:
+            - jpg
+            - jpeg
+            - png
+            - webp
+        content_type:
+          type: string
+          enum:
+            - image/jpeg
+            - image/png
+            - image/webp
+      required:
+        - ext
+        - content_type

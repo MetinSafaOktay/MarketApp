@@ -9,6 +9,10 @@ import { CouponsService } from '../coupons/coupons.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { CancelOrderDto } from './dto/cancel-order.dto';
+
+/** Müşterinin kendi iptal edebileceği durumlar (hazırlanmaya başlamadan önce). */
+const CUSTOMER_CANCELLABLE: string[] = ['pending', 'confirmed'];
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Sipariş Alındı',
@@ -179,6 +183,83 @@ export class OrdersService {
       body: dto.note ?? `Siparişinizin durumu güncellendi: ${statusLabel}`,
       related_order_id: orderId,
     });
+
+    return updated;
+  }
+
+  /**
+   * Siparişi iptal eder ve stokları geri yükler.
+   * Müşteri yalnızca hazırlanmaya başlamamış (pending/confirmed) siparişini
+   * iptal edebilir; admin her aktif siparişi iptal edebilir.
+   */
+  async cancel(
+    orderId: string,
+    currentUser: { userId: string; role: string },
+    dto: CancelOrderDto,
+  ) {
+    const order = await this.prisma.orders.findUnique({
+      where: { id: orderId },
+      include: { order_items: true },
+    });
+    if (!order) throw new NotFoundException('Sipariş bulunamadı');
+
+    const isAdmin = currentUser.role === 'admin';
+    if (!isAdmin && order.user_id !== currentUser.userId) {
+      throw new ForbiddenException('Bu sipariş size ait değil');
+    }
+    if (order.status === 'cancelled') {
+      throw new BadRequestException('Sipariş zaten iptal edilmiş');
+    }
+    if (order.status === 'delivered') {
+      throw new BadRequestException('Teslim edilmiş sipariş iptal edilemez');
+    }
+    if (!isAdmin && !CUSTOMER_CANCELLABLE.includes(order.status)) {
+      throw new BadRequestException(
+        'Sipariş hazırlanmaya başladığı için iptal edilemez, mağaza ile iletişime geçin',
+      );
+    }
+
+    const note = dto.reason
+      ? `İptal nedeni: ${dto.reason}`
+      : isAdmin
+        ? 'Mağaza tarafından iptal edildi'
+        : 'Müşteri tarafından iptal edildi';
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await tx.orders.update({
+        where: { id: orderId },
+        data: { status: 'cancelled', updated_at: new Date() },
+      });
+      await tx.order_status_history.create({
+        data: {
+          order_id: orderId,
+          status: 'cancelled',
+          changed_by: currentUser.userId,
+          note,
+        },
+      });
+      for (const item of order.order_items) {
+        await tx.products.update({
+          where: { id: item.product_id },
+          data: { stock_quantity: { increment: item.quantity } },
+        });
+      }
+      return tx.orders.findUniqueOrThrow({
+        where: { id: orderId },
+        include: WITH_DETAILS,
+      });
+    });
+
+    // Müşteriye bildirim yalnızca mağaza iptal ettiyse (kendi iptalinde gerekmez)
+    if (isAdmin) {
+      await this.notificationsService.create({
+        user_id: order.user_id,
+        type: 'order_status_update',
+        title: STATUS_LABELS.cancelled,
+        body: note,
+        related_order_id: orderId,
+      });
+    }
 
     return updated;
   }

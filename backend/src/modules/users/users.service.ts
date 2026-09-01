@@ -71,4 +71,47 @@ export class UsersService {
     });
     return { success: true };
   }
+
+  /**
+   * Hesabı yumuşak siler: kimlik alanlarını anonimleştirir, oturumları iptal
+   * eder, sepet/istek listesi/takip/push aboneliklerini temizler.
+   * Siparişler ve mesajlar işletme kaydı olarak korunur.
+   */
+  async deleteAccount(userId: string) {
+    const user = await this.prisma.users.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Kullanıcı bulunamadı');
+
+    await this.prisma.$transaction([
+      this.prisma.cart_items.deleteMany({ where: { user_id: userId } }),
+      this.prisma.wishlist_items.deleteMany({ where: { user_id: userId } }),
+      this.prisma.push_subscriptions.deleteMany({ where: { user_id: userId } }),
+      this.prisma.follows.deleteMany({
+        where: {
+          OR: [{ follower_id: userId }, { following_id: userId }],
+        },
+      }),
+      this.prisma.refresh_tokens.updateMany({
+        where: { user_id: userId, revoked_at: null },
+        data: { revoked_at: new Date() },
+      }),
+      this.prisma.users.update({
+        where: { id: userId },
+        data: {
+          is_active: false,
+          email: null,
+          phone: null,
+          password_hash: '',
+          profile_name: 'Silinmiş Kullanıcı',
+          first_name: '',
+          last_name: '',
+          bio: null,
+          profile_photo_url: null,
+          is_private: true,
+          updated_at: new Date(),
+        },
+      }),
+    ]);
+
+    return { success: true };
+  }
 }

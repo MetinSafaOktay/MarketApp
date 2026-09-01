@@ -19,6 +19,8 @@ import { AnnouncementsModule } from './modules/announcements/announcements.modul
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PushModule } from './modules/push/push.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -47,6 +49,8 @@ import { PushModule } from './modules/push/push.module';
     MessagingModule,
     NotificationsModule,
     PushModule,
+    AdminModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

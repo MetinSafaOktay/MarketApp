@@ -32,6 +32,18 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   VAPID_SUBJECT?: string;
+
+  @IsOptional()
+  @IsString()
+  SUPABASE_URL?: string;
+
+  @IsOptional()
+  @IsString()
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  SUPABASE_STORAGE_BUCKET?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

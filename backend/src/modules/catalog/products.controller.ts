@@ -14,6 +14,7 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AddProductImageDto } from './dto/add-product-image.dto';
+import { ListProductsQueryDto } from './dto/list-products-query.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -24,13 +25,21 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  list(@Query('categoryId') categoryId?: string) {
-    return this.productsService.list(categoryId);
+  list(@Query() query: ListProductsQueryDto) {
+    return this.productsService.list(query);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);
+  }
+
+  @Get(':id/similar')
+  listSimilar(@Param('id') id: string, @Query('limit') limit?: string) {
+    return this.productsService.listSimilar(
+      id,
+      limit ? Number(limit) : undefined,
+    );
   }
 
   @Post()

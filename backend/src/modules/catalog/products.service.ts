@@ -1,25 +1,79 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AddProductImageDto } from './dto/add-product-image.dto';
+import {
+  ListProductsQueryDto,
+  ProductSort,
+} from './dto/list-products-query.dto';
+import { paginate, toSkipTake } from '../../common/pagination';
 
 const WITH_IMAGES = {
   product_images: { orderBy: { display_order: 'asc' as const } },
+};
+
+const SORT_MAP: Record<ProductSort, Prisma.productsOrderByWithRelationInput> = {
+  newest: { created_at: 'desc' },
+  price_asc: { price: 'asc' },
+  price_desc: { price: 'desc' },
+  name: { name: 'asc' },
 };
 
 @Injectable()
 export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(categoryId?: string) {
+  async list(query: ListProductsQueryDto) {
+    const { skip, take, page, pageSize } = toSkipTake(
+      query.page,
+      query.pageSize,
+    );
+
+    const where: Prisma.productsWhereInput = {
+      is_active: true,
+      ...(query.categoryId ? { category_id: query.categoryId } : {}),
+      ...(query.onlyNew ? { is_new_arrival: true } : {}),
+      ...(query.inStock ? { stock_quantity: { gt: 0 } } : {}),
+      ...(query.onlyDiscounted
+        ? { original_price: { gt: this.prisma.products.fields.price } }
+        : {}),
+      ...(query.q
+        ? {
+            OR: [
+              { name: { contains: query.q, mode: 'insensitive' } },
+              { sku: { contains: query.q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.products.findMany({
+        where,
+        include: WITH_IMAGES,
+        orderBy: SORT_MAP[query.sort ?? 'newest'],
+        skip,
+        take,
+      }),
+      this.prisma.products.count({ where }),
+    ]);
+
+    return paginate(data, total, page, pageSize);
+  }
+
+  async listSimilar(id: string, limit = 8) {
+    const product = await this.findOne(id);
     return this.prisma.products.findMany({
       where: {
         is_active: true,
-        ...(categoryId ? { category_id: categoryId } : {}),
+        category_id: product.category_id,
+        id: { not: id },
       },
       include: WITH_IMAGES,
       orderBy: { created_at: 'desc' },
+      take: Math.min(24, Math.max(1, limit)),
     });
   }
 

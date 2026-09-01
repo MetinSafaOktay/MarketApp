@@ -101,8 +101,15 @@ export class AuthService {
       where: { OR: this.identifierWhere(dto) },
     });
 
-    if (!user || !(await bcrypt.compare(dto.password, user.password_hash))) {
+    if (
+      !user ||
+      !user.password_hash ||
+      !(await bcrypt.compare(dto.password, user.password_hash))
+    ) {
       throw new UnauthorizedException('Geçersiz kimlik bilgileri');
+    }
+    if (!user.is_active) {
+      throw new UnauthorizedException('Bu hesap kapatılmış');
     }
 
     await this.prisma.users.update({
@@ -138,6 +145,9 @@ export class AuthService {
     const user = await this.prisma.users.findUniqueOrThrow({
       where: { id: stored.user_id },
     });
+    if (!user.is_active) {
+      throw new UnauthorizedException('Bu hesap kapatılmış');
+    }
 
     return this.issueTokens(user.id, user.role);
   }

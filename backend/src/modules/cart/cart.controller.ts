@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -12,6 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CartService } from './cart.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { CheckoutPreviewDto } from './dto/checkout-preview.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
@@ -56,5 +59,14 @@ export class CartController {
   @Delete()
   clear(@CurrentUser() currentUser: CurrentUserPayload) {
     return this.cartService.clear(currentUser.userId);
+  }
+
+  @Post('checkout-preview')
+  @HttpCode(HttpStatus.OK)
+  checkoutPreview(
+    @CurrentUser() currentUser: CurrentUserPayload,
+    @Body() dto: CheckoutPreviewDto,
+  ) {
+    return this.cartService.checkoutPreview(currentUser.userId, dto);
   }
 }
