@@ -6,7 +6,7 @@ Market için online sipariş sistemi. Monorepo yapısında beş bileşen içerir
 |---|---|---|
 | [`backend/`](backend/) | API sunucusu | Node.js + TypeScript (NestJS) |
 | [`database/`](database/) | Şema, migration, seed | PostgreSQL |
-| [`web/`](web/) | Web uygulaması | (belirlenecek) |
+| [`web/`](web/) | Web uygulaması (storefront + /admin) | Next.js 16 + TypeScript + Tailwind |
 | [`mobile-android/`](mobile-android/) | Android uygulaması | Java |
 | [`mobile-ios/`](mobile-ios/) | iOS uygulaması | Swift |
 

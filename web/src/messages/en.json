@@ -1,0 +1,63 @@
+{
+  "Common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "empty": "No results found",
+    "search": "Search",
+    "all": "All",
+    "price": "Price",
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of stock",
+    "quantity": "Qty",
+    "viewAll": "View All"
+  },
+  "Nav": {
+    "home": "Home",
+    "store": "Store",
+    "categories": "Categories",
+    "cart": "Cart",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "account": "My Account",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "searchPlaceholder": "Search products..."
+  },
+  "Home": {
+    "orderNow": "Order Now",
+    "generalInfo": "Get General Info",
+    "tagline": "Order online, pay at the door!",
+    "discountedProducts": "Discounted Products",
+    "newProducts": "New Products",
+    "announcements": "Announcements",
+    "couponCode": "Coupon Code",
+    "showMore": "Show More"
+  },
+  "Product": {
+    "stockCode": "Stock code",
+    "similarProducts": "Similar Products",
+    "description": "Description",
+    "newBadge": "New Product",
+    "discountBadge": "Sale"
+  },
+  "Category": {
+    "title": "Categories",
+    "allProducts": "All Products"
+  },
+  "Footer": {
+    "about": "About Us",
+    "contact": "Contact",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy"
+  },
+  "LocaleSwitcher": {
+    "label": "Language",
+    "tr": "Turkish",
+    "en": "English",
+    "de": "German",
+    "fr": "French",
+    "ar": "Arabic",
+    "nl": "Dutch"
+  }
+}

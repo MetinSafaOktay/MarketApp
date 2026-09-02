@@ -1,0 +1,63 @@
+{
+  "Common": {
+    "loading": "Yükleniyor...",
+    "error": "Bir şeyler ters gitti",
+    "retry": "Tekrar dene",
+    "empty": "Sonuç bulunamadı",
+    "search": "Ara",
+    "all": "Tümü",
+    "price": "Fiyat",
+    "addToCart": "Sepete Ekle",
+    "outOfStock": "Tükendi",
+    "quantity": "Adet",
+    "viewAll": "Tümünü Görüntüle"
+  },
+  "Nav": {
+    "home": "Ana Sayfa",
+    "store": "Mağaza",
+    "categories": "Kategoriler",
+    "cart": "Sepet",
+    "messages": "Mesajlar",
+    "notifications": "Bildirimler",
+    "account": "Hesabım",
+    "signIn": "Giriş Yap",
+    "signOut": "Çıkış Yap",
+    "searchPlaceholder": "Ürün ara..."
+  },
+  "Home": {
+    "orderNow": "Sipariş Ver",
+    "generalInfo": "Genel Bilgiler",
+    "tagline": "Online sipariş ver, kapıda öde!",
+    "discountedProducts": "İndirimli Ürünler",
+    "newProducts": "Yeni Ürünler",
+    "announcements": "Duyurular",
+    "couponCode": "Kupon Kodu",
+    "showMore": "Daha Fazla Göster"
+  },
+  "Product": {
+    "stockCode": "Stok kodu",
+    "similarProducts": "Benzer Ürünler",
+    "description": "Açıklama",
+    "newBadge": "Yeni Ürün",
+    "discountBadge": "İndirim"
+  },
+  "Category": {
+    "title": "Kategoriler",
+    "allProducts": "Tüm Ürünler"
+  },
+  "Footer": {
+    "about": "Hakkımızda",
+    "contact": "İletişim",
+    "terms": "Kullanım Şartları",
+    "privacy": "Gizlilik Politikası"
+  },
+  "LocaleSwitcher": {
+    "label": "Dil",
+    "tr": "Türkçe",
+    "en": "İngilizce",
+    "de": "Almanca",
+    "fr": "Fransızca",
+    "ar": "Arapça",
+    "nl": "Hollandaca"
+  }
+}
