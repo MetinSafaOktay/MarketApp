@@ -17,8 +17,8 @@ Monorepo, altı bileşen:
 | `backend/` | REST API | NestJS + Prisma + PostgreSQL |
 | `database/` | Şema + migration + seed | Ham SQL migration'lar |
 | `web/` | Müşteri arayüzü + `/admin` paneli | Next.js 16 (App Router) + TypeScript + Tailwind |
-| `mobile-android/` | Android uygulaması | Java (henüz başlanmadı) |
-| `mobile-ios/` | iOS uygulaması | Swift (henüz başlanmadı) |
+| `mobile-android/` | Android uygulaması | Kotlin + Jetpack Compose |
+| `mobile-ios/` | iOS uygulaması | Swift + SwiftUI |
 | `docs/` | Mimari, ER diyagramı, OpenAPI sözleşmesi | — |
 
 Tüm istemciler backend'e HTTP/JSON ile bağlanır. API sözleşmesi
@@ -31,8 +31,8 @@ de bu sözleşmeye göre geliştirilir.
 flowchart LR
   subgraph Clients
     W[Web<br/>Next.js / Vercel]
-    A[Android<br/>Java]
-    I[iOS<br/>Swift]
+    A[Android<br/>Kotlin / Compose]
+    I[iOS<br/>Swift / SwiftUI]
   end
   subgraph Vercel
     BE[Backend<br/>NestJS serverless]
@@ -103,6 +103,25 @@ hesap (6 tablo), mağaza bilgisi (1), katalog (3), alışveriş akışı (6), et
   locale yönlendirmesi `src/proxy.ts` içinde.
 - **Tema**: `next-themes`, `data-theme` attribute'u; token'lar `globals.css`.
 
+### Mobil — iOS (SwiftUI) + Android (Kotlin / Compose)
+
+İki native istemci, aynı backend sözleşmesi, birbirini birebir yansıtan
+milestone'lar (iOS M1–M6 ≈ Android A1–A6).
+
+- **iOS**: Swift 6, %100 SwiftUI, `@Observable` + Swift Concurrency (Combine yok),
+  yerel Swift Package modülleri (Tuist), görsel için Nuke, dar kapsamlı SwiftData
+  (son gezilenler + katalog cache).
+- **Android**: **Kotlin + Jetpack Compose** (başlangıçta Java düşünülmüştü —
+  ilanlarda Kotlin ağırlıkta, daha az boilerplate ve SwiftUI mimarisini birebir
+  taşıyor). Tek Gradle modülü + temiz paketler, Hilt (DI), Coroutines + Flow /
+  StateFlow, Retrofit + OkHttp + kotlinx.serialization, Coil, Room (son gezilenler
+  + çevrimdışı cache), DataStore (token + tema).
+- **Ortak kararlar**: kimlik `access + rotating refresh` token; 401'de sessiz
+  yenileme (iOS `TokenProviding`, Android OkHttp `Authenticator`). Mesaj/bildirim
+  **polling** (web ile aynı, Vercel serverless nedeniyle). Arapça dahil tüm diller
+  **soldan sağa** (mağaza sahibinin tercihi). Sepet/istek listesi sunucuda tutulur.
+- **Push**: FCM/APNs ertelendi; mobil v1 web gibi polling kullanır.
+
 ## Kimlik & Yetkilendirme
 
 - **Access token**: JWT, 15 dk, payload `{ sub, role }`.
@@ -161,7 +180,8 @@ Yalnızca içerik metin blokları `dir="auto"` ile render edilir.
 | jsonb i18n içerik | Ayrı çeviri tabloları | Daha az join, tek satır güncelleme |
 | İmzalı upload URL | Backend'den proxy upload | Fonksiyon payload/süre limiti |
 | localStorage token | httpOnly cookie | SSR'sız istemciler (mobil) için tek model; XSS riski kabul edildi |
-| RxJava yok (Android planı) | RxJava | LiveData + Coroutines yeterli, daha basit |
+| Android: Kotlin + Compose | Java + XML/Views | İş ilanlarında Kotlin ağırlıkta; daha az boilerplate; SwiftUI mimarisini birebir yansıtıyor |
+| Android: Coroutines + Flow | RxJava / LiveData | StateFlow + Compose yeterli, daha az bağımlılık |
 
 ## Bilinen Sınırlar
 
@@ -170,4 +190,5 @@ Yalnızca içerik metin blokları `dir="auto"` ile render edilir.
 - Ödeme "kapıda nakit/kart" ile sınırlı — gerçek ödeme sağlayıcısı entegre değil.
 - Web push kurulumu backend'de hazır, web istemcisinde service worker henüz yok.
 - Admin dashboard sadece sayısal kart; grafik yok.
-- Mobil uygulamalar başlanmadı.
+- iOS istemcisi v1 tamam; Android istemcisi sürüyor (A6 — çevrimdışı — kaldı).
+- Mobil push (FCM/APNs) yok; polling ile çalışır.

@@ -11,8 +11,8 @@ dilli (6 dil). Monorepo yapısında beş bileşen içerir.
 | [`backend/`](backend/) | API sunucusu | Node.js + TypeScript (NestJS) |
 | [`database/`](database/) | Şema, migration, seed | PostgreSQL |
 | [`web/`](web/) | Web uygulaması (storefront + /admin) | Next.js 16 + TypeScript + Tailwind |
-| [`mobile-android/`](mobile-android/) | Android uygulaması | Java |
-| [`mobile-ios/`](mobile-ios/) | iOS uygulaması | Swift |
+| [`mobile-android/`](mobile-android/) | Android uygulaması | Kotlin + Jetpack Compose |
+| [`mobile-ios/`](mobile-ios/) | iOS uygulaması | Swift + SwiftUI |
 
 Mimari detaylar için [docs/architecture.md](docs/architecture.md).
 
@@ -23,8 +23,8 @@ Mimari detaylar için [docs/architecture.md](docs/architecture.md).
 | `backend/` | Tamam — 16 modül, JWT auth, çok dilli içerik, Vercel'de canlı |
 | `database/` | Tamam — 20 tablo, 3 migration; prod: Supabase |
 | `web/` | Tamam (v1) — storefront + hesap + sepet/sipariş + mesajlaşma + admin paneli + 6 dil + tema; Vercel'de canlı |
-| `mobile-android/` | Başlanmadı |
-| `mobile-ios/` | Başlanmadı |
+| `mobile-ios/` | Tamam (v1) — M1–M6: katalog, auth, sepet/ödeme/sipariş, mesaj/bildirim/ayarlar, çevrimdışı cache |
+| `mobile-android/` | Sürüyor — A1–A5 tamam (iskelet, katalog, auth, ticaret, mesaj/ayarlar); A6 (Room/çevrimdışı) kaldı |
 
 Mimari kararlar ve gerekçeleri: [docs/architecture.md](docs/architecture.md).
 Veritabanı şeması: [docs/er-diagram.md](docs/er-diagram.md).
