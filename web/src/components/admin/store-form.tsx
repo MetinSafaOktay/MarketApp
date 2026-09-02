@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { useAdminStore, useUpdateStore } from '@/lib/use-admin';
 import type { TranslatedText } from '@/lib/admin-types';
 import { TranslationInput } from './translation-input';
+import { ImageUpload } from './image-upload';
 
 export function StoreForm() {
   const t = useTranslations('Admin');
@@ -70,9 +72,10 @@ function StoreFormInner({
         <Field label={t('phone')} value={phone} onChange={setPhone} />
       </div>
       <Field label={t('address')} value={address} onChange={setAddress} />
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="logo_url" value={logoUrl} onChange={setLogoUrl} />
-        <Field label="cover_image_url" value={coverUrl} onChange={setCoverUrl} />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ImagePicker label="Logo" value={logoUrl} onChange={setLogoUrl} deleteLabel={t('delete')} />
+        <ImagePicker label="Kapak" value={coverUrl} onChange={setCoverUrl} deleteLabel={t('delete')} />
       </div>
       <TranslationInput label={t('tagline')} value={tagline} onChange={setTagline} />
       <TranslationInput
@@ -91,6 +94,41 @@ function StoreFormInner({
         {t('save')}
       </button>
     </form>
+  );
+}
+
+function ImagePicker({
+  label,
+  value,
+  onChange,
+  deleteLabel,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  deleteLabel: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 text-sm">
+      <span className="text-text-muted">{label}</span>
+      <div className="flex items-center gap-3">
+        {value && (
+          <div className="relative size-16 shrink-0 overflow-hidden rounded-lg border border-border bg-white">
+            <Image src={value} alt="" fill sizes="64px" className="object-cover" />
+          </div>
+        )}
+        <ImageUpload onUploaded={onChange} />
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="text-xs text-text-muted hover:text-danger"
+          >
+            {deleteLabel}
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 

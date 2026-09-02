@@ -9,6 +9,8 @@ import {
 } from '@/lib/use-admin';
 import type { AdminCategory, TranslatedText } from '@/lib/admin-types';
 import { TranslationInput } from './translation-input';
+import { ImageUpload } from './image-upload';
+import Image from 'next/image';
 
 export function CategoriesManager() {
   const t = useTranslations('Admin');
@@ -109,25 +111,37 @@ function CategoryForm({
       className="space-y-3 rounded-card border border-border bg-surface p-4"
     >
       <TranslationInput label={t('name')} value={name} onChange={setName} required />
-      <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="text-text-muted">{t('imageUrl')}</span>
-          <input
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            className="rounded-lg border border-border bg-surface-2 px-3 py-2 outline-none focus:ring-2 focus:ring-accent/40"
-          />
-        </label>
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="text-text-muted">{t('displayOrder')}</span>
-          <input
-            type="number"
-            value={order}
-            onChange={(e) => setOrder(e.target.value)}
-            className="rounded-lg border border-border bg-surface-2 px-3 py-2 outline-none focus:ring-2 focus:ring-accent/40"
-          />
-        </label>
+
+      <div className="flex flex-col gap-1.5 text-sm">
+        <span className="text-text-muted">{t('images')}</span>
+        <div className="flex items-center gap-3">
+          {imageUrl && (
+            <div className="relative size-16 overflow-hidden rounded-lg border border-border bg-white">
+              <Image src={imageUrl} alt="" fill sizes="64px" className="object-cover" />
+            </div>
+          )}
+          <ImageUpload onUploaded={setImageUrl} />
+          {imageUrl && (
+            <button
+              type="button"
+              onClick={() => setImageUrl('')}
+              className="text-xs text-text-muted hover:text-danger"
+            >
+              {t('delete')}
+            </button>
+          )}
+        </div>
       </div>
+
+      <label className="flex max-w-[8rem] flex-col gap-1.5 text-sm">
+        <span className="text-text-muted">{t('displayOrder')}</span>
+        <input
+          type="number"
+          value={order}
+          onChange={(e) => setOrder(e.target.value)}
+          className="rounded-lg border border-border bg-surface-2 px-3 py-2 outline-none focus:ring-2 focus:ring-accent/40"
+        />
+      </label>
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex gap-2">
         <button
