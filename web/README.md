@@ -27,7 +27,8 @@ Erenler Market müşteri arayüzü (storefront) + `/admin` paneli. Backend API's
 src/
   app/[locale]/
     (shop)/         # storefront — header + kategori menüsü + footer
-    (admin)/        # /admin paneli — ayrı layout (henüz eklenmedi)
+    admin/          # yönetim paneli — ayrı layout (ürün, kategori, sipariş,
+                    #   kupon, duyuru, müşteri, mesaj, mağaza ayarları)
   components/
   i18n/             # routing, request config, navigation helper'ları
   lib/              # api client, tipler, formatlayıcılar
@@ -36,6 +37,11 @@ src/
 ```
 
 ## i18n notları
-- Arayüz metinleri: `src/messages/*.json`. `de/fr/ar/nl` şu an İngilizce kopya — çevrilecek.
+- Arayüz metinleri: `src/messages/*.json` — 6 dilin hepsi çevrili.
 - İçerik (ürün adı vb.): backend `?lang=` ile tek dile çözer; `apiFetch` locale'i otomatik ekler.
 - Tam RTL layout yok; Arapça metin blokları `dir="auto"` ile sağdan sola akar.
+
+## Bilinen eksikler
+- Otomatik test yok.
+- Web push istemcisi yok (service worker + abonelik) — bildirimler polling ile gelir.
+- `terms` / `privacy` sayfaları placeholder metin.

@@ -438,6 +438,12 @@ paths:
           description: Sadece stokta olanlar
           schema:
             type: boolean
+        - name: includeInactive
+          required: false
+          in: query
+          description: Pasif ürünleri de dahil et (admin listesi için)
+          schema:
+            type: boolean
         - name: lang
           required: false
           in: query
@@ -1231,8 +1237,8 @@ paths:
       tags:
         - uploads
 info:
-  title: MarketApp API
-  description: MarketApp backend API dokümantasyonu
+  title: Erenler Market API
+  description: Erenler Market backend API dokümantasyonu
   version: 0.1.0
   contact: {}
 tags: []
@@ -1293,6 +1299,8 @@ components:
           type: string
         profile_photo_url:
           type: string
+        is_private:
+          type: boolean
     CreateAddressDto:
       type: object
       properties:
@@ -1426,6 +1434,10 @@ components:
         is_new_arrival:
           type: boolean
           default: false
+        is_active:
+          type: boolean
+          default: true
+          description: false → ürün storefront listesinde görünmez
         stock_quantity:
           type: number
           default: 0
@@ -1463,6 +1475,10 @@ components:
         is_new_arrival:
           type: boolean
           default: false
+        is_active:
+          type: boolean
+          default: true
+          description: false → ürün storefront listesinde görünmez
         stock_quantity:
           type: number
           default: 0
@@ -1583,6 +1599,12 @@ components:
             $ref: '#/components/schemas/OrderItemInputDto'
         coupon_code:
           type: string
+        payment_method:
+          type: string
+          enum:
+            - cash_on_delivery
+            - card
+          default: cash_on_delivery
       required:
         - address_id
         - items

@@ -166,7 +166,10 @@ Yalnızca içerik metin blokları `dir="auto"` ile render edilir.
   Kritik: `DATABASE_URL`, `JWT_SECRET`, `SUPABASE_URL`,
   `SUPABASE_SERVICE_ROLE_KEY`, `VAPID_*`, `NEXT_PUBLIC_API_BASE_URL`.
 - **CORS**: backend `enableCors()` (tüm origin) — web farklı domain'den çağırır.
-- **CI/otomatik test**: henüz yok (bilinen eksik).
+- **CI**: `.github/workflows/ci.yml` — `main`'e push / PR'da backend (lint + jest + build),
+  web (lint + build) ve android (unit test + lint + assembleDebug) çalışır. iOS CI yok
+  (macOS runner gerekir). Rate limiting: `ThrottlerModule` global `ThrottlerGuard` ile
+  aktif (kimlik uçlarında dk/10); serverless'ta bellek-içi depo instance başına.
 
 ## Önemli Kararlar Günlüğü
 
@@ -185,7 +188,8 @@ Yalnızca içerik metin blokları `dir="auto"` ile render edilir.
 
 ## Bilinen Sınırlar
 
-- Otomatik test kapsamı çok düşük.
+- Otomatik test kapsamı dengesiz: mobil iyi (Android 83, iOS 51), backend zayıf
+  (yalnızca auth + kupon servis testleri), web'de test yok.
 - Şifre sıfırlama yok.
 - Ödeme "kapıda nakit/kart" ile sınırlı — gerçek ödeme sağlayıcısı entegre değil.
 - Web push kurulumu backend'de hazır, web istemcisinde service worker henüz yok.

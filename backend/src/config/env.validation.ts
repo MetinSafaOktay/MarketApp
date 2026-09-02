@@ -3,6 +3,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  MinLength,
   Min,
   Max,
   validateSync,
@@ -13,6 +14,7 @@ class EnvironmentVariables {
   DATABASE_URL: string;
 
   @IsString()
+  @MinLength(32, { message: 'JWT_SECRET en az 32 karakter olmalı' })
   JWT_SECRET: string;
 
   @IsOptional()
