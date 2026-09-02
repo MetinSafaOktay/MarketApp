@@ -1,3 +1,4 @@
+import Data
 import Domain
 import Foundation
 import Networking
@@ -263,7 +264,7 @@ enum TestFixtures {
 @MainActor
 enum TestDeps {
     static func make(
-        catalog: StubCatalog = StubCatalog(),
+        catalog: any CatalogRepository = StubCatalog(),
         storefront: StubStorefront = StubStorefront(),
         auth: StubAuth = StubAuth(),
         cart: any CartRepository = StubCart(),
@@ -273,6 +274,7 @@ enum TestDeps {
         messaging: any MessagingRepository = StubMessaging(),
         notifications: any NotificationsRepository = StubNotifications(),
         settings: any SettingsRepository = StubSettings(),
+        local: LocalCatalogStore? = nil,
         session: SessionStore? = nil
     ) -> AppDependencies {
         let session = session ??
@@ -293,6 +295,7 @@ enum TestDeps {
             cartStore: CartStore(repository: cart, session: session, language: "tr"),
             wishlistStore: WishlistStore(repository: wishlist, session: session, language: "tr"),
             notificationsStore: NotificationsStore(repository: notifications, session: session),
+            localCatalog: local ?? LocalCatalogStore(inMemory: true),
             language: "tr"
         )
     }

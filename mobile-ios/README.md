@@ -60,4 +60,5 @@ swiftformat --lint .
   yöntemi, sipariş onayı), siparişler + sipariş takibi, favoriler ✅
 - **M5** — mesajlar (polling), bildirimler (zil rozeti), ayarlar (tema,
   bildirim tercihleri, hesap silme), profil düzenleme, hakkında ✅
-- M6 — SwiftData/cila
+- **M6** — SwiftData (son gezilenler + çevrimdışı katalog önbelleği),
+  çevrimdışı şerit + kayıtlı içerik, uygulama ikonu ✅ · **v1 tamam**

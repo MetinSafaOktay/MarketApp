@@ -1,3 +1,4 @@
+import Data
 import Domain
 import Networking
 import Observation
@@ -9,23 +10,51 @@ final class HomeModel {
         let id: String
         let title: String
         let products: [Product]
-        let seeAll: ProductQuery
+        let seeAll: ProductQuery?
     }
 
     private(set) var store: StoreProfile?
     private(set) var announcements: [Announcement] = []
     private(set) var rails: [Rail] = []
     private(set) var isLoading = true
+    private(set) var isOffline = false
     private(set) var errorMessage: String?
 
     private let catalog: any CatalogRepository
     private let storefront: any StorefrontRepository
+    private let local: LocalCatalogStore
     private let language: String
     private var hasLoadedOnce = false
+
+    private struct RailSpec {
+        let id: String
+        let title: String
+        let query: ProductQuery
+    }
+
+    /// Ana sayfada gösterilen çevrimiçi raflar.
+    private static let onlineRails: [RailSpec] = [
+        RailSpec(
+            id: "discounted",
+            title: "İndirimdekiler",
+            query: ProductQuery(pageSize: 10, onlyDiscounted: true)
+        ),
+        RailSpec(
+            id: "new",
+            title: "Yeni Gelenler",
+            query: ProductQuery(pageSize: 10, onlyNew: true)
+        ),
+        RailSpec(
+            id: "latest",
+            title: "Tüm Ürünler",
+            query: ProductQuery(pageSize: 10)
+        )
+    ]
 
     init(deps: AppDependencies) {
         catalog = deps.catalog
         storefront = deps.storefront
+        local = deps.localCatalog
         language = deps.language
     }
 
@@ -42,46 +71,75 @@ final class HomeModel {
 
         async let storeTask = loadStore()
         async let announcementsTask = loadAnnouncements()
-        async let discountedTask = products(ProductQuery(pageSize: 10, onlyDiscounted: true))
-        async let newArrivalsTask = products(ProductQuery(pageSize: 10, onlyNew: true))
-        async let latestTask = products(ProductQuery(pageSize: 10))
+        async let discountedTask = products(Self.onlineRails[0].query)
+        async let newArrivalsTask = products(Self.onlineRails[1].query)
+        async let latestTask = products(Self.onlineRails[2].query)
 
         store = await storeTask
         announcements = await announcementsTask
-        let discounted = await discountedTask
-        let newArrivals = await newArrivalsTask
-        let latest = await latestTask
+        let fetched = await [discountedTask, newArrivalsTask, latestTask]
+        let anyLoaded = fetched.contains { !$0.isEmpty }
 
         var built: [Rail] = []
-        if !discounted.isEmpty {
-            built.append(Rail(
-                id: "discounted",
-                title: "İndirimdekiler",
-                products: discounted,
-                seeAll: ProductQuery(onlyDiscounted: true)
-            ))
-        }
-        if !newArrivals.isEmpty {
-            built.append(Rail(
-                id: "new",
-                title: "Yeni Gelenler",
-                products: newArrivals,
-                seeAll: ProductQuery(onlyNew: true)
-            ))
-        }
-        if !latest.isEmpty {
-            built.append(Rail(
-                id: "latest",
-                title: built.isEmpty ? "Ürünler" : "Tüm Ürünler",
-                products: latest,
-                seeAll: ProductQuery()
-            ))
-        }
-        rails = built
+        addRecentlyViewedRail(to: &built)
 
-        if store == nil, built.isEmpty {
+        if anyLoaded {
+            isOffline = false
+            for (index, group) in fetched.enumerated() where !group.isEmpty {
+                let spec = Self.onlineRails[index]
+                local.cache(products: group, railID: spec.id)
+                built.append(Rail(
+                    id: spec.id, title: spec.title, products: group,
+                    seeAll: strippedQuery(spec.query)
+                ))
+            }
+        } else {
+            // Çevrimdışı: kayıtlı katalog anlık görüntüsünü göster.
+            for spec in Self.onlineRails {
+                let cached = local.cachedProducts(railID: spec.id)
+                if !cached.isEmpty {
+                    built.append(Rail(
+                        id: spec.id,
+                        title: spec.title,
+                        products: cached,
+                        seeAll: nil
+                    ))
+                }
+            }
+            isOffline = built.contains { $0.id != "recent" }
+        }
+
+        rails = built
+        if store == nil, rails.isEmpty {
             errorMessage = "İçerik yüklenemedi. Bağlantını kontrol et."
         }
+    }
+
+    private func addRecentlyViewedRail(to rails: inout [Rail]) {
+        let recent = local.recentProducts(limit: 10)
+        guard !recent.isEmpty else { return }
+        rails.append(Rail(id: "recent", title: "Son Gezdiklerin", products: recent, seeAll: nil))
+    }
+
+    /// Ana sayfaya her dönüşte "Son Gezdiklerin" rafını ucuzca tazeler.
+    func syncRecentRail() {
+        guard hasLoadedOnce else { return }
+        let recent = local.recentProducts(limit: 10)
+        var updated = rails.filter { $0.id != "recent" }
+        if !recent.isEmpty {
+            updated.insert(
+                Rail(id: "recent", title: "Son Gezdiklerin", products: recent, seeAll: nil),
+                at: 0
+            )
+        }
+        rails = updated
+    }
+
+    private func strippedQuery(_ query: ProductQuery) -> ProductQuery {
+        ProductQuery(
+            onlyDiscounted: query.onlyDiscounted,
+            onlyNew: query.onlyNew
+        )
     }
 
     private func loadStore() async -> StoreProfile? {

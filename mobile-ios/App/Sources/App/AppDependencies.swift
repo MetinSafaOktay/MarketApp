@@ -21,6 +21,7 @@ struct AppDependencies {
     let cartStore: CartStore
     let wishlistStore: WishlistStore
     let notificationsStore: NotificationsStore
+    let localCatalog: LocalCatalogStore
 
     /// Backend'e gönderilecek dil kodu (tr/en/de/fr/ar/nl).
     let language: String
@@ -65,6 +66,7 @@ struct AppDependencies {
                 language: language
             ),
             notificationsStore: NotificationsStore(repository: notifications, session: session),
+            localCatalog: LocalCatalogStore(),
             language: language
         )
     }

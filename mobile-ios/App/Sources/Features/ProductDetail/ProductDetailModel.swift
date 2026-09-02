@@ -1,3 +1,4 @@
+import Data
 import Domain
 import Networking
 import Observation
@@ -16,12 +17,14 @@ final class ProductDetailModel {
 
     private let productID: String
     private let catalog: any CatalogRepository
+    private let local: LocalCatalogStore
     private let language: String
     private var hasLoadedOnce = false
 
     init(productID: String, deps: AppDependencies) {
         self.productID = productID
         catalog = deps.catalog
+        local = deps.localCatalog
         language = deps.language
     }
 
@@ -34,7 +37,9 @@ final class ProductDetailModel {
     func load() async {
         phase = .loading
         do {
-            phase = try await .loaded(catalog.product(id: productID, language: language))
+            let product = try await catalog.product(id: productID, language: language)
+            phase = .loaded(product)
+            local.recordView(product)
         } catch {
             phase = .failed((error as? APIError)?.displayMessage ?? "Ürün yüklenemedi")
             return

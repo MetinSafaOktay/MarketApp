@@ -1,3 +1,4 @@
+import Data
 import Domain
 import Networking
 import Observation
@@ -12,13 +13,16 @@ final class CategoriesModel {
     }
 
     private(set) var phase: Phase = .loading
+    private(set) var isOffline = false
 
     private let catalog: any CatalogRepository
+    private let local: LocalCatalogStore
     private let language: String
     private var hasLoadedOnce = false
 
     init(deps: AppDependencies) {
         catalog = deps.catalog
+        local = deps.localCatalog
         language = deps.language
     }
 
@@ -32,9 +36,18 @@ final class CategoriesModel {
         phase = .loading
         do {
             let categories = try await catalog.categories(language: language)
-            phase = .loaded(categories.sorted { $0.displayOrder < $1.displayOrder })
+                .sorted { $0.displayOrder < $1.displayOrder }
+            isOffline = false
+            local.cache(categories: categories)
+            phase = .loaded(categories)
         } catch {
-            phase = .failed((error as? APIError)?.displayMessage ?? "Kategoriler yüklenemedi")
+            let cached = local.cachedCategories()
+            if cached.isEmpty {
+                phase = .failed((error as? APIError)?.displayMessage ?? "Kategoriler yüklenemedi")
+            } else {
+                isOffline = true
+                phase = .loaded(cached)
+            }
         }
     }
 }

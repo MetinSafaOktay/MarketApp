@@ -48,6 +48,9 @@ private struct Inner: View {
                 .padding(.top, Spacing.xxl)
             } else {
                 VStack(spacing: Spacing.xl) {
+                    if model.isOffline {
+                        OfflineBanner()
+                    }
                     HeroCard(store: model.store)
                     if !model.announcements.isEmpty {
                         AnnouncementList(announcements: Array(model.announcements.prefix(3)))
@@ -62,6 +65,7 @@ private struct Inner: View {
         .background(Palette.background)
         .refreshable { await model.load() }
         .task { await model.loadIfNeeded() }
+        .onAppear { model.syncRecentRail() }
     }
 }
 
@@ -130,12 +134,14 @@ private struct ProductRail: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             SectionHeader(rail.title) {
-                NavigationLink(value: CatalogRoute.productList(
-                    ProductListSpec(title: rail.title, query: rail.seeAll)
-                )) {
-                    Text("Tümü")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Palette.accent)
+                if let seeAll = rail.seeAll {
+                    NavigationLink(value: CatalogRoute.productList(
+                        ProductListSpec(title: rail.title, query: seeAll)
+                    )) {
+                        Text("Tümü")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Palette.accent)
+                    }
                 }
             }
             ScrollView(.horizontal, showsIndicators: false) {

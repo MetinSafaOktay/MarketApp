@@ -56,12 +56,17 @@ private struct Inner: View {
 
     private func grid(_ categories: [ProductCategory]) -> some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: Spacing.md) {
-                ForEach(categories) { category in
-                    NavigationLink(value: route(for: category)) {
-                        CategoryTile(category: category)
+            VStack(spacing: Spacing.md) {
+                if model.isOffline {
+                    OfflineBanner()
+                }
+                LazyVGrid(columns: columns, spacing: Spacing.md) {
+                    ForEach(categories) { category in
+                        NavigationLink(value: route(for: category)) {
+                            CategoryTile(category: category)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
             .padding(Spacing.lg)
