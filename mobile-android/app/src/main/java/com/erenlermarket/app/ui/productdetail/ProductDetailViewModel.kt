@@ -3,6 +3,7 @@ package com.erenlermarket.app.ui.productdetail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.erenlermarket.app.data.local.LocalCatalogStore
 import com.erenlermarket.app.data.remote.ApiException
 import com.erenlermarket.app.data.session.CartStore
 import com.erenlermarket.app.domain.model.Product
@@ -25,6 +26,7 @@ sealed interface ProductDetailUiState {
 class ProductDetailViewModel @Inject constructor(
     private val catalog: CatalogRepository,
     private val cart: CartStore,
+    private val localCatalog: LocalCatalogStore,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -57,6 +59,7 @@ class ProductDetailViewModel @Inject constructor(
             try {
                 val product = catalog.product(productId)
                 _state.value = ProductDetailUiState.Ready(product, emptyList())
+                runCatching { localCatalog.recordView(product) }
                 val similar = runCatching { catalog.similarProducts(productId) }.getOrDefault(emptyList())
                 _state.update {
                     if (it is ProductDetailUiState.Ready) it.copy(similar = similar) else it

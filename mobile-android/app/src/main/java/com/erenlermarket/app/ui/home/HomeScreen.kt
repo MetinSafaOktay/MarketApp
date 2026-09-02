@@ -40,6 +40,7 @@ import com.erenlermarket.app.ui.common.ErrorState
 import com.erenlermarket.app.ui.common.LoadingState
 import com.erenlermarket.app.ui.common.MessagesActionButton
 import com.erenlermarket.app.ui.common.NotificationsActionButton
+import com.erenlermarket.app.ui.common.OfflineBanner
 import com.erenlermarket.app.ui.common.ProductCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,8 +77,10 @@ fun HomeScreen(
             is HomeUiState.Loading -> LoadingState(Modifier.padding(padding))
             is HomeUiState.Error ->
                 ErrorState(current.message, onRetry = viewModel::load, modifier = Modifier.padding(padding))
-            is HomeUiState.Ready ->
-                HomeContent(current, Modifier.padding(padding), onProduct, onRailSeeAll)
+            is HomeUiState.Ready -> Column(Modifier.padding(padding)) {
+                if (current.isOffline) OfflineBanner()
+                HomeContent(current, Modifier, onProduct, onRailSeeAll)
+            }
         }
     }
 }
@@ -94,7 +97,7 @@ private fun HomeContent(
         contentPadding = PaddingValues(Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(Spacing.xl),
     ) {
-        item { HeroCard(state.store) }
+        state.store?.let { item { HeroCard(it) } }
 
         if (state.announcements.isNotEmpty()) {
             items(state.announcements.take(3)) { AnnouncementCard(it) }
@@ -103,8 +106,10 @@ private fun HomeContent(
         items(state.rails, key = { it.id }) { rail ->
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
                 SectionHeader(rail.title) {
-                    TextButton(onClick = { onRailSeeAll(rail) }) {
-                        Text("Tümü", style = MaterialTheme.typography.labelLarge)
+                    if (rail.showSeeAll) {
+                        TextButton(onClick = { onRailSeeAll(rail) }) {
+                            Text("Tümü", style = MaterialTheme.typography.labelLarge)
+                        }
                     }
                 }
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {

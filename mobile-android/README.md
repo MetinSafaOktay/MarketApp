@@ -49,4 +49,5 @@ psql marketapp -f ../database/seeds/fake-data/catalog.sql
   sipariş listesi/detayı + iptal, istek listesi + kalp) ✅
 - **A5** — mesajlaşma (5 sn poll), bildirimler (zil rozeti), ayarlar (tema,
   bildirim tercihleri, hesap silme), profil düzenleme, hakkında ✅
-- A6 — Room/çevrimdışı/cila
+- **A6** — Room (son gezilenler + çevrimdışı katalog önbelleği), çevrimdışı
+  banner + önbellekli içerik, ikon cilası, test artışı ✅ — **v1 tamam**

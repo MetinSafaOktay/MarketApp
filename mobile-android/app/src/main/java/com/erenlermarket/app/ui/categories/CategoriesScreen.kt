@@ -30,6 +30,7 @@ import com.erenlermarket.app.designsystem.cardSurface
 import com.erenlermarket.app.domain.model.ProductCategory
 import com.erenlermarket.app.ui.common.ErrorState
 import com.erenlermarket.app.ui.common.LoadingState
+import com.erenlermarket.app.ui.common.OfflineBanner
 
 @Composable
 fun CategoriesScreen(
@@ -41,14 +42,17 @@ fun CategoriesScreen(
     when (val current = state) {
         is CategoriesUiState.Loading -> LoadingState()
         is CategoriesUiState.Error -> ErrorState(current.message, onRetry = viewModel::load)
-        is CategoriesUiState.Ready -> LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(Spacing.lg),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.md),
-        ) {
-            items(current.categories, key = { it.id }) { category ->
-                CategoryTile(category) { onCategory(category.id, category.name) }
+        is CategoriesUiState.Ready -> Column {
+            if (current.isOffline) OfflineBanner()
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(Spacing.lg),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md),
+            ) {
+                items(current.categories, key = { it.id }) { category ->
+                    CategoryTile(category) { onCategory(category.id, category.name) }
+                }
             }
         }
     }

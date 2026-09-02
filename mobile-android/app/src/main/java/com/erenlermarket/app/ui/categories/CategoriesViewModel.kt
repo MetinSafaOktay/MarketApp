@@ -2,6 +2,7 @@ package com.erenlermarket.app.ui.categories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.erenlermarket.app.data.local.LocalCatalogStore
 import com.erenlermarket.app.data.remote.ApiException
 import com.erenlermarket.app.domain.model.ProductCategory
 import com.erenlermarket.app.domain.repository.CatalogRepository
@@ -14,13 +15,14 @@ import javax.inject.Inject
 
 sealed interface CategoriesUiState {
     data object Loading : CategoriesUiState
-    data class Ready(val categories: List<ProductCategory>) : CategoriesUiState
+    data class Ready(val categories: List<ProductCategory>, val isOffline: Boolean = false) : CategoriesUiState
     data class Error(val message: String) : CategoriesUiState
 }
 
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
     private val catalog: CatalogRepository,
+    private val localCatalog: LocalCatalogStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CategoriesUiState>(CategoriesUiState.Loading)
@@ -32,9 +34,16 @@ class CategoriesViewModel @Inject constructor(
         _state.value = CategoriesUiState.Loading
         viewModelScope.launch {
             _state.value = try {
-                CategoriesUiState.Ready(catalog.categories())
+                val categories = catalog.categories()
+                localCatalog.cacheCategories(categories)
+                CategoriesUiState.Ready(categories)
             } catch (error: ApiException) {
-                CategoriesUiState.Error(error.message)
+                val cached = localCatalog.cachedCategories()
+                if (cached.isNotEmpty()) {
+                    CategoriesUiState.Ready(cached, isOffline = true)
+                } else {
+                    CategoriesUiState.Error(error.message)
+                }
             }
         }
     }
