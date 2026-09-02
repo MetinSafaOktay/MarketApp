@@ -35,7 +35,7 @@ class CatalogRepositoryImpl @Inject constructor(
         put("pageSize", pageSize.toString())
         put("sort", sort.apiValue)
         categoryId?.let { put("categoryId", it) }
-        search?.takeIf { it.isNotBlank() }?.let { put("q", it) }
+        search?.trim()?.takeIf { it.isNotEmpty() }?.let { put("q", it) }
         if (onlyDiscounted) put("onlyDiscounted", "true")
         if (onlyNew) put("onlyNew", "true")
         if (inStock) put("inStock", "true")

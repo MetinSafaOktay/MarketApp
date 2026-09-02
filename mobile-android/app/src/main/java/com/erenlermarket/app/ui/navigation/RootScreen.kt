@@ -1,6 +1,7 @@
 package com.erenlermarket.app.ui.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GridView
@@ -17,23 +18,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.erenlermarket.app.R
 import com.erenlermarket.app.ui.categories.CategoriesScreen
 import com.erenlermarket.app.ui.home.HomeScreen
-import com.erenlermarket.app.ui.store.StoreScreen
+import com.erenlermarket.app.ui.productdetail.ProductDetailScreen
+import com.erenlermarket.app.ui.productlist.ProductListScreen
 
 private enum class TopDestination(
     val route: String,
     @StringRes val labelRes: Int,
     val icon: ImageVector,
 ) {
-    HOME("home", R.string.tab_home, Icons.Filled.Home),
-    STORE("store", R.string.tab_store, Icons.Filled.Storefront),
-    CATEGORIES("categories", R.string.tab_categories, Icons.Filled.GridView),
+    HOME(Routes.HOME, R.string.tab_home, Icons.Filled.Home),
+    STORE(Routes.STORE, R.string.tab_store, Icons.Filled.Storefront),
+    CATEGORIES(Routes.CATEGORIES, R.string.tab_categories, Icons.Filled.GridView),
 }
 
 @Composable
@@ -42,36 +46,86 @@ fun RootScreen() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
+    val toProduct = { id: String, name: String -> navController.navigate(Routes.product(id, name)) }
+
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                TopDestination.entries.forEach { destination ->
-                    NavigationBarItem(
-                        selected = currentRoute == destination.route,
-                        onClick = {
-                            navController.navigate(destination.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            AnimatedVisibility(visible = currentRoute in Routes.topLevel) {
+                NavigationBar {
+                    TopDestination.entries.forEach { destination ->
+                        NavigationBarItem(
+                            selected = currentRoute == destination.route,
+                            onClick = {
+                                navController.navigate(destination.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(destination.icon, contentDescription = null) },
-                        label = { Text(stringResource(destination.labelRes)) },
-                    )
+                            },
+                            icon = { Icon(destination.icon, contentDescription = null) },
+                            label = { Text(stringResource(destination.labelRes)) },
+                        )
+                    }
                 }
             }
         },
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = TopDestination.HOME.route,
+            startDestination = Routes.HOME,
             modifier = Modifier.padding(padding),
         ) {
-            composable(TopDestination.HOME.route) { HomeScreen() }
-            composable(TopDestination.STORE.route) { StoreScreen() }
-            composable(TopDestination.CATEGORIES.route) { CategoriesScreen() }
+            composable(Routes.HOME) {
+                HomeScreen(
+                    onProduct = toProduct,
+                    onRailSeeAll = { rail ->
+                        navController.navigate(
+                            Routes.productList(
+                                title = rail.title,
+                                onlyDiscounted = rail.onlyDiscounted,
+                                onlyNew = rail.onlyNew,
+                            ),
+                        )
+                    },
+                )
+            }
+            composable(Routes.STORE) {
+                ProductListScreen(onProduct = toProduct, onBack = null)
+            }
+            composable(Routes.CATEGORIES) {
+                CategoriesScreen(
+                    onCategory = { id, name ->
+                        navController.navigate(Routes.productList(title = name, categoryId = id))
+                    },
+                )
+            }
+            composable(
+                route = Routes.PRODUCT,
+                arguments = listOf(
+                    navArgument("productId") { type = NavType.StringType },
+                    navArgument("name") { type = NavType.StringType; defaultValue = "" },
+                ),
+            ) {
+                ProductDetailScreen(
+                    onBack = navController::popBackStack,
+                    onProduct = toProduct,
+                )
+            }
+            composable(
+                route = Routes.PRODUCT_LIST,
+                arguments = listOf(
+                    navArgument("title") { type = NavType.StringType; defaultValue = "Ürünler" },
+                    navArgument("categoryId") {
+                        type = NavType.StringType; nullable = true; defaultValue = null
+                    },
+                    navArgument("onlyDiscounted") { type = NavType.BoolType; defaultValue = false },
+                    navArgument("onlyNew") { type = NavType.BoolType; defaultValue = false },
+                ),
+            ) {
+                ProductListScreen(onProduct = toProduct, onBack = navController::popBackStack)
+            }
         }
     }
 }

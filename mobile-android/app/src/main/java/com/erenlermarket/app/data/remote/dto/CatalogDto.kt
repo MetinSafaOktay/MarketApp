@@ -1,24 +1,28 @@
 package com.erenlermarket.app.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// Anahtarlar JsonNamingStrategy.SnakeCase ile eşlenir (camelCase property -> snake_case JSON).
+// Backend ürün alanlarını snake_case, `meta` alanını camelCase döndürüyor.
+// Global naming strategy tutarsız kaldığı için anahtarlar tek tek @SerialName ile verilir.
 
 @Serializable
-data class ProductImageDto(val imageUrl: String)
+data class ProductImageDto(
+    @SerialName("image_url") val imageUrl: String,
+)
 
 @Serializable
 data class ProductDto(
     val id: String,
-    val categoryId: String,
+    @SerialName("category_id") val categoryId: String,
     val name: String,
     val sku: String,
     val description: String? = null,
     val price: String,
-    val originalPrice: String? = null,
-    val isNewArrival: Boolean = false,
-    val stockQuantity: Int = 0,
-    val productImages: List<ProductImageDto>? = null,
+    @SerialName("original_price") val originalPrice: String? = null,
+    @SerialName("is_new_arrival") val isNewArrival: Boolean = false,
+    @SerialName("stock_quantity") val stockQuantity: Int = 0,
+    @SerialName("product_images") val productImages: List<ProductImageDto>? = null,
 )
 
 @Serializable
@@ -30,8 +34,8 @@ data class MetaDto(
 )
 
 @Serializable
-data class PaginatedDto<T>(
-    val data: List<T>,
+data class ProductPageDto(
+    val data: List<ProductDto>,
     val meta: MetaDto,
 )
 
@@ -39,8 +43,8 @@ data class PaginatedDto<T>(
 data class CategoryDto(
     val id: String,
     val name: String,
-    val imageUrl: String? = null,
-    val displayOrder: Int = 0,
+    @SerialName("image_url") val imageUrl: String? = null,
+    @SerialName("display_order") val displayOrder: Int = 0,
 )
 
 @Serializable
@@ -51,8 +55,8 @@ data class StoreProfileDto(
     val description: String? = null,
     val phone: String? = null,
     val address: String? = null,
-    val logoUrl: String? = null,
-    val coverImageUrl: String? = null,
+    @SerialName("logo_url") val logoUrl: String? = null,
+    @SerialName("cover_image_url") val coverImageUrl: String? = null,
 )
 
 @Serializable
@@ -60,5 +64,5 @@ data class AnnouncementDto(
     val id: String,
     val title: String,
     val content: String,
-    val imageUrl: String? = null,
+    @SerialName("image_url") val imageUrl: String? = null,
 )

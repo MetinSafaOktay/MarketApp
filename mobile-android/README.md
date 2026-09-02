@@ -41,4 +41,6 @@ psql marketapp -f ../database/seeds/fake-data/catalog.sql
 ## Milestone durumu
 - **A1** — iskelet (Gradle/Compose/Hilt, Retrofit/OkHttp ağ katmanı, DI,
   3 sekme bottom-nav, design system, 6 dil, adaptive icon) ✅
-- A2 — katalog · A3 — auth · A4 — sepet/ödeme/sipariş · A5 — mesaj/bildirim/ayarlar · A6 — Room/çevrimdışı/cila
+- **A2** — katalog (ana sayfa rafları, mağaza listesi: arama + filtre + sayfalama,
+  kategori ızgarası ve kırılımı, ürün detayı + benzer ürünler) ✅
+- A3 — auth · A4 — sepet/ödeme/sipariş · A5 — mesaj/bildirim/ayarlar · A6 — Room/çevrimdışı/cila

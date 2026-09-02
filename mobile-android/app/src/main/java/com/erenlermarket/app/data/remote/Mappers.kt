@@ -2,7 +2,7 @@ package com.erenlermarket.app.data.remote
 
 import com.erenlermarket.app.data.remote.dto.AnnouncementDto
 import com.erenlermarket.app.data.remote.dto.CategoryDto
-import com.erenlermarket.app.data.remote.dto.PaginatedDto
+import com.erenlermarket.app.data.remote.dto.ProductPageDto
 import com.erenlermarket.app.data.remote.dto.ProductDto
 import com.erenlermarket.app.data.remote.dto.StoreProfileDto
 import com.erenlermarket.app.domain.model.Announcement
@@ -28,7 +28,7 @@ fun ProductDto.toDomain(): Product = Product(
     imageUrls = productImages.orEmpty().map { it.imageUrl },
 )
 
-fun PaginatedDto<ProductDto>.toDomain(): Page<Product> = Page(
+fun ProductPageDto.toDomain(): Page<Product> = Page(
     items = data.map { it.toDomain() },
     page = meta.page,
     pageSize = meta.pageSize,

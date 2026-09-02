@@ -2,7 +2,7 @@ package com.erenlermarket.app.data.remote
 
 import com.erenlermarket.app.data.remote.dto.AnnouncementDto
 import com.erenlermarket.app.data.remote.dto.CategoryDto
-import com.erenlermarket.app.data.remote.dto.PaginatedDto
+import com.erenlermarket.app.data.remote.dto.ProductPageDto
 import com.erenlermarket.app.data.remote.dto.ProductDto
 import com.erenlermarket.app.data.remote.dto.StoreProfileDto
 import retrofit2.http.GET
@@ -12,7 +12,7 @@ import retrofit2.http.QueryMap
 interface ErenlerApi {
 
     @GET("products")
-    suspend fun products(@QueryMap params: Map<String, String>): PaginatedDto<ProductDto>
+    suspend fun products(@QueryMap params: Map<String, String>): ProductPageDto
 
     @GET("products/{id}")
     suspend fun product(@Path("id") id: String): ProductDto
