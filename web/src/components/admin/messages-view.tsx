@@ -56,11 +56,9 @@ export function MessagesView() {
 function Thread({ id }: { id: string }) {
   const t = useTranslations('Admin');
   const locale = useLocale();
-  const { data } = useConversation(id);
+  const { data: messages = [] } = useConversation(id);
   const reply = useReplyToConversation(id);
   const [text, setText] = useState('');
-
-  const messages = data?.messages ?? [];
 
   function send(e: React.FormEvent) {
     e.preventDefault();

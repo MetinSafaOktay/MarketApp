@@ -17,10 +17,12 @@ export interface Conversation {
   id: string;
   user_id: string;
   created_at: string;
-  users?: { profile_name: string };
+  users?: { id: string; profile_name: string; profile_photo_url: string | null };
+  /** GET /conversations listesinde son mesaj (take: 1). */
   messages?: Message[];
 }
 
+/** GET /conversations → tüm sohbetler (admin), her biri son mesajıyla. */
 export function useConversations() {
   const isAuthenticated = useIsAuthenticated();
   return useQuery({
@@ -31,11 +33,12 @@ export function useConversations() {
   });
 }
 
+/** GET /conversations/:id → o sohbetin düz Message[] dizisi (admin). */
 export function useConversation(id: string | null) {
   const isAuthenticated = useIsAuthenticated();
   return useQuery({
     queryKey: ['admin', 'conversations', id],
-    queryFn: () => authedApi<Conversation>(`/conversations/${id}`),
+    queryFn: () => authedApi<Message[]>(`/conversations/${id}`),
     enabled: isAuthenticated && !!id,
     refetchInterval: 10_000,
   });

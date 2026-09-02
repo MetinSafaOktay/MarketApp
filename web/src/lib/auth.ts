@@ -87,7 +87,10 @@ export async function refreshSession(): Promise<boolean> {
   }
 }
 
-/** auth:true çağrısı; 401'de bir kez refresh dener. */
+/**
+ * auth:true çağrısı; 401 (süresi dolmuş) veya 403 (bayat rol — ör. yeni admin
+ * yapılmış kullanıcının eski token'ı) durumunda bir kez refresh deneyip tekrar dener.
+ */
 export async function authedApi<T>(
   path: string,
   init: Parameters<typeof clientApi>[1] = {},
@@ -95,7 +98,11 @@ export async function authedApi<T>(
   try {
     return await clientApi<T>(path, { ...init, auth: true });
   } catch (err) {
-    if (err instanceof ClientApiError && err.status === 401 && getToken()) {
+    if (
+      err instanceof ClientApiError &&
+      (err.status === 401 || err.status === 403) &&
+      getToken()
+    ) {
       const ok = await refreshSession();
       if (ok) return clientApi<T>(path, { ...init, auth: true });
     }
