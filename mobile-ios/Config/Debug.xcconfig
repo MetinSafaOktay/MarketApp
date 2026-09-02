@@ -1,0 +1,3 @@
+// Debug yapılandırması
+// xcconfig'de "//" yorum başlangıcı olduğu için URL'de $() hilesi kullanılır.
+API_BASE_URL = https:/$()/backend-ruby-xi.vercel.app

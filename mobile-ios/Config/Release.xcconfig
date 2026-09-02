@@ -1,0 +1,2 @@
+// Release yapılandırması
+API_BASE_URL = https:/$()/backend-ruby-xi.vercel.app

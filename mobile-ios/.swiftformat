@@ -1,0 +1,18 @@
+# SwiftFormat — Erenler Market iOS
+
+--swiftversion 6.0
+--exclude Derived,.build,Tuist/.build
+
+--self remove
+--importgrouping testable-bottom
+--trimwhitespace always
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--maxwidth 100
+--commas inline
+--decimalgrouping 3,6
+--extensionacl on-declarations
+--patternlet inline
+--redundanttype inferred
+--emptybraces spaced
