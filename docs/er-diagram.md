@@ -1,7 +1,10 @@
 # Veritabanı Şeması
 
 Tek market (single-tenant) mimarisi, tüm primary key'ler `UUID` (tahmin edilebilir sıralı ID riskini önlemek için).
-Kaynak: [`database/migrations/`](../database/migrations/) (`0001_init_schema.sql` + `0002_refresh_tokens.sql`)
+Kaynak: [`database/migrations/`](../database/migrations/)
+- `0001_init_schema.sql` — ilk şema (20 tablo)
+- `0002_refresh_tokens.sql` — auth: hash'lenmiş refresh token'lar
+- `0003_translatable_content.sql` — çevrilebilir alanları jsonb'ye taşır (ürün/kategori/duyuru/mağaza adı+açıklama)
 
 ## Kullanıcı & Hesap
 - **users** — hesap, herkese açık `profile_name`, `role` (customer/admin), `is_private`, `last_active_at`
@@ -15,8 +18,8 @@ Kaynak: [`database/migrations/`](../database/migrations/) (`0001_init_schema.sql
 - **store_profile** — tek satır, "Genel Bilgiler" ekranı (isim, şehir, açıklama, çalışma saatleri)
 
 ## Katalog
-- **categories**
-- **products** — `sku`, `price`/`original_price` (indirim), `is_new_arrival`, `stock_quantity`
+- **categories** — `name` jsonb (çok dilli), `image_url`, `display_order`
+- **products** — `name`/`description` jsonb (çok dilli), `sku`, `price`/`original_price` (indirim), `is_new_arrival`, `stock_quantity`, `is_active`
 - **product_images**
 
 ## Alışveriş Akışı
@@ -28,11 +31,11 @@ Kaynak: [`database/migrations/`](../database/migrations/) (`0001_init_schema.sql
 - **order_status_history** — durum değişikliği denetimi + müşteri sipariş takibi
 
 ## Etkileşim
-- **announcements** — ana sayfa duyuru/kupon postları
-- **conversations** / **messages** — Gelen Kutusu
-- **notifications** — uygulama içi bildirimler
+- **announcements** — ana sayfa duyuru/kupon postları (`title`/`content` jsonb)
+- **conversations** / **messages** — müşteri ↔ mağaza sohbeti (`sender_type`)
+- **notifications** — uygulama içi bildirimler (`related_order_id`)
 
-## Sonraki adımlar (production notu)
-- Local geliştirme: Homebrew PostgreSQL (`marketapp` veritabanı) kullanılıyor.
-- Vercel'e deploy edilirken serverless fonksiyonlar local veritabanına erişemeyeceği için Neon/Supabase gibi bulut PostgreSQL sağlayıcısına geçilecek.
-- Gerçek zamanlı mesajlaşma (Gelen Kutusu) Vercel serverless'ta WebSocket desteklemediği için polling veya üçüncü parti realtime servisiyle çözülecek (backend planlaması sırasında netleşecek).
+## Production notu (uygulandı)
+- Local: Homebrew PostgreSQL (`marketapp`). Prod: Supabase, transaction pooler + TLS.
+- Mesajlaşma/bildirim: Vercel serverless'ta WebSocket olmadığı için **polling** ile çözüldü.
+- Mimari kararların gerekçeleri: [`architecture.md`](architecture.md).
