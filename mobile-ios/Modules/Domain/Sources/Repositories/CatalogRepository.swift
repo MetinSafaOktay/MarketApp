@@ -6,7 +6,7 @@ public enum ProductSort: String, Sendable, CaseIterable {
     case priceDescending = "price_desc"
 }
 
-public struct ProductQuery: Sendable, Equatable {
+public struct ProductQuery: Sendable, Equatable, Hashable {
     public var page: Int
     public var pageSize: Int
     public var categoryID: String?
@@ -34,6 +34,11 @@ public struct ProductQuery: Sendable, Equatable {
         self.onlyDiscounted = onlyDiscounted
         self.onlyNew = onlyNew
         self.inStock = inStock
+    }
+
+    /// Sıralama dışında bir filtre etkin mi? (filtre düğmesi rozetini belirler)
+    public var hasActiveFilters: Bool {
+        onlyDiscounted || onlyNew || inStock || sort != .newest
     }
 }
 

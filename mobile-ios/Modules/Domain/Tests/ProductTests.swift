@@ -28,4 +28,11 @@ struct ProductTests {
         #expect(make(price: 1, original: nil, stock: 0).isInStock == false)
         #expect(make(price: 1, original: nil, stock: 1).isInStock)
     }
+
+    @Test func queryHasActiveFilters() {
+        #expect(!ProductQuery().hasActiveFilters)
+        #expect(ProductQuery(sort: .priceAscending).hasActiveFilters)
+        #expect(ProductQuery(onlyDiscounted: true).hasActiveFilters)
+        #expect(ProductQuery(inStock: true).hasActiveFilters)
+    }
 }

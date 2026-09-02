@@ -31,7 +31,15 @@ open ErenlerMarket.xcworkspace
 
 ## Yapılandırma
 `Config/{Debug,Release}.xcconfig` içindeki `API_BASE_URL` → Info.plist `APIBaseURL`.
-Varsayılan: `https://backend-ruby-xi.vercel.app`. Local backend için Debug.xcconfig'i değiştir.
+- **Debug** → `http://localhost:3000` (yerel backend; `NSAllowsLocalNetworking` ile HTTP açık)
+- **Release** → `https://backend-ruby-xi.vercel.app`
+
+Debug'da çalıştırmadan önce backend'i ayağa kaldır ve katalog seed'ini uygula:
+```bash
+cd ../backend && npm run start:dev
+psql marketapp -f ../database/seeds/fake-data/catalog.sql   # showcase katalog
+```
+Prod veritabanı boşsa aynı `catalog.sql`'i Supabase SQL Editor'da çalıştır.
 
 ## Komutlar
 ```bash
@@ -44,5 +52,6 @@ swiftformat --lint .
 
 ## Milestone durumu
 - **M1** — iskelet (Tuist + 4 modül + 3-tab shell) ✅
-- M2 — networking + katalog ekranları
+- **M2** — networking + katalog: Ana Sayfa (hero + duyuru + raflar), Mağaza
+  (arama + filtre + sayfalama), Kategoriler grid, Ürün detay (galeri + benzerler) ✅
 - M3 — auth · M4 — sepet/ödeme/sipariş · M5 — mesaj/bildirim/ayarlar · M6 — SwiftData/cila

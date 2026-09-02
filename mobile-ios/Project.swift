@@ -34,7 +34,7 @@ func module(
             deploymentTargets: deploymentTargets,
             sources: ["Modules/\(name)/Tests/**"],
             dependencies: [.target(name: name)]
-        ),
+        )
     ]
 }
 
@@ -46,7 +46,7 @@ let project = Project(
         base: ["SWIFT_VERSION": "6.0"],
         configurations: [
             .debug(name: "Debug", xcconfig: "Config/Debug.xcconfig"),
-            .release(name: "Release", xcconfig: "Config/Release.xcconfig"),
+            .release(name: "Release", xcconfig: "Config/Release.xcconfig")
         ]
     ),
     targets: [
@@ -64,6 +64,8 @@ let project = Project(
                 "APIBaseURL": "$(API_BASE_URL)",
                 "CFBundleLocalizations": ["tr", "en", "de", "fr", "ar", "nl"],
                 "CFBundleDevelopmentRegion": "tr",
+                // Debug'da yerel HTTP backend'e izin ver (loopback/.local ile sınırlı).
+                "NSAppTransportSecurity": ["NSAllowsLocalNetworking": true]
             ]),
             sources: ["App/Sources/**"],
             resources: ["App/Resources/**"],
@@ -71,7 +73,7 @@ let project = Project(
                 .target(name: "DesignSystem"),
                 .target(name: "Networking"),
                 .target(name: "Domain"),
-                .target(name: "Data"),
+                .target(name: "Data")
             ],
             settings: .settings(base: ["SWIFT_STRICT_CONCURRENCY": "complete"])
         ),
@@ -92,13 +94,13 @@ let project = Project(
             deploymentTargets: deploymentTargets,
             sources: ["App/UITests/**"],
             dependencies: [.target(name: appName)]
-        ),
+        )
     ]
         + module("DesignSystem", dependencies: [.external(name: "NukeUI")])
         + module("Networking")
         + module("Domain")
         + module("Data", dependencies: [
             .target(name: "Domain"),
-            .target(name: "Networking"),
+            .target(name: "Networking")
         ])
 )

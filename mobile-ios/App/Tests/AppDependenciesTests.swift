@@ -3,9 +3,11 @@ import Testing
 @testable import ErenlerMarket
 
 struct AppDependenciesTests {
-    @Test func previewDependenciesExposeCatalogRepository() {
-        let repo: any CatalogRepository = AppDependencies.preview.catalogRepository
-        _ = repo
+    @Test func previewDependenciesExposeRepositories() {
+        let catalog: any CatalogRepository = AppDependencies.preview.catalog
+        let storefront: any StorefrontRepository = AppDependencies.preview.storefront
+        _ = (catalog, storefront)
+        #expect(AppDependencies.preview.language == "tr")
     }
 
     @Test func appearanceColorSchemeMapping() {

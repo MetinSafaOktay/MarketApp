@@ -1,19 +1,22 @@
-import DesignSystem
+import Domain
 import SwiftUI
 
-/// M1 yer tutucu. M2'de ürün listesi + arama + filtre + sayfalama.
+/// Mağaza sekmesi: arama + filtre + sayfalı tüm ürün listesi.
 struct StoreView: View {
     var body: some View {
         NavigationStack {
-            ContentUnavailableView(
-                "Mağaza",
-                systemImage: "bag",
-                description: Text("Ürün listesi yakında (M2)")
+            ProductListScreen(
+                spec: ProductListSpec(
+                    title: "Mağaza",
+                    query: ProductQuery(),
+                    showsControls: true
+                )
             )
-            .background(Palette.background)
-            .navigationTitle("Mağaza")
+            .catalogDestinations()
         }
     }
 }
 
-#Preview { StoreView() }
+#Preview {
+    StoreView().environment(\.dependencies, .preview)
+}
