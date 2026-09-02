@@ -1,14 +1,20 @@
 package com.erenlermarket.app.ui.profile
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,6 +42,8 @@ import com.erenlermarket.app.ui.common.LoadingState
 fun ProfileScreen(
     onBack: () -> Unit,
     onSignIn: () -> Unit,
+    onOrders: () -> Unit,
+    onWishlist: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -56,7 +65,14 @@ fun ProfileScreen(
             is SessionState.Loading -> LoadingState(Modifier.padding(padding))
             is SessionState.SignedOut -> SignedOut(Modifier.padding(padding), onSignIn)
             is SessionState.SignedIn ->
-                SignedIn(current.user, signingOut, Modifier.padding(padding), viewModel::signOut)
+                SignedIn(
+                    current.user,
+                    signingOut,
+                    Modifier.padding(padding),
+                    onOrders,
+                    onWishlist,
+                    viewModel::signOut,
+                )
         }
     }
 }
@@ -86,6 +102,8 @@ private fun SignedIn(
     user: User,
     signingOut: Boolean,
     modifier: Modifier,
+    onOrders: () -> Unit,
+    onWishlist: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     Column(
@@ -115,6 +133,12 @@ private fun SignedIn(
             }
         }
 
+        Column(Modifier.fillMaxWidth().cardSurface()) {
+            ProfileRow(Icons.Outlined.Receipt, "Siparişlerim", onOrders)
+            HorizontalDivider()
+            ProfileRow(Icons.Outlined.FavoriteBorder, "İstek listem", onWishlist)
+        }
+
         OutlinedButton(
             onClick = onSignOut,
             enabled = !signingOut,
@@ -122,5 +146,18 @@ private fun SignedIn(
         ) {
             Text("Çıkış yap")
         }
+    }
+}
+
+@Composable
+private fun ProfileRow(icon: ImageVector, label: String, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(Spacing.lg),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+    ) {
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

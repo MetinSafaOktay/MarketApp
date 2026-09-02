@@ -35,6 +35,7 @@ fun ProductCard(
     product: Product,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showWishlist: Boolean = false,
 ) {
     Column(
         modifier = modifier
@@ -69,6 +70,12 @@ fun ProductCard(
                     "Stok yok",
                     Modifier.align(Alignment.BottomEnd).padding(Spacing.xs),
                     BadgeStyle.NEUTRAL,
+                )
+            }
+            if (showWishlist) {
+                WishlistIconButton(
+                    productId = product.id,
+                    modifier = Modifier.align(Alignment.TopEnd),
                 )
             }
         }

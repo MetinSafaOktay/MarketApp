@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erenlermarket.app.data.remote.ApiException
+import com.erenlermarket.app.data.session.CartStore
 import com.erenlermarket.app.domain.model.Product
 import com.erenlermarket.app.domain.repository.CatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ sealed interface ProductDetailUiState {
 @HiltViewModel
 class ProductDetailViewModel @Inject constructor(
     private val catalog: CatalogRepository,
+    private val cart: CartStore,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -32,7 +34,22 @@ class ProductDetailViewModel @Inject constructor(
     private val _state = MutableStateFlow<ProductDetailUiState>(ProductDetailUiState.Loading)
     val state: StateFlow<ProductDetailUiState> = _state.asStateFlow()
 
+    private val _addedToCart = MutableStateFlow(false)
+    val addedToCart: StateFlow<Boolean> = _addedToCart.asStateFlow()
+
     init { load() }
+
+    fun addToCart() {
+        val product = (_state.value as? ProductDetailUiState.Ready)?.product ?: return
+        viewModelScope.launch {
+            cart.add(product)
+            _addedToCart.value = true
+        }
+    }
+
+    fun consumeAddedToCart() {
+        _addedToCart.value = false
+    }
 
     fun load() {
         _state.value = ProductDetailUiState.Loading

@@ -45,4 +45,6 @@ psql marketapp -f ../database/seeds/fake-data/catalog.sql
   kategori ızgarası ve kırılımı, ürün detayı + benzer ürünler) ✅
 - **A3** — auth (giriş/kayıt, DataStore token deposu, OkHttp `Authenticator` ile
   sessiz 401 yenileme, açılışta oturum geri yükleme, "Hesabım" ekranı) ✅
-- A4 — sepet/ödeme/sipariş · A5 — mesaj/bildirim/ayarlar · A6 — Room/çevrimdışı/cila
+- **A4** — ticaret (sepet + rozet, ödeme: adres + kupon önizleme + sipariş,
+  sipariş listesi/detayı + iptal, istek listesi + kalp) ✅
+- A5 — mesaj/bildirim/ayarlar · A6 — Room/çevrimdışı/cila

@@ -35,6 +35,7 @@ import com.erenlermarket.app.designsystem.Spacing
 import com.erenlermarket.app.designsystem.cardSurface
 import com.erenlermarket.app.domain.model.Announcement
 import com.erenlermarket.app.domain.model.StoreProfile
+import com.erenlermarket.app.ui.common.CartActionButton
 import com.erenlermarket.app.ui.common.ErrorState
 import com.erenlermarket.app.ui.common.LoadingState
 import com.erenlermarket.app.ui.common.ProductCard
@@ -44,6 +45,7 @@ import com.erenlermarket.app.ui.common.ProductCard
 fun HomeScreen(
     onProduct: (id: String, name: String) -> Unit,
     onAccount: () -> Unit,
+    onCart: () -> Unit,
     onRailSeeAll: (rail: HomeRail) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -58,6 +60,7 @@ fun HomeScreen(
                         Icon(Icons.Outlined.AccountCircle, "Hesabım")
                     }
                 },
+                actions = { CartActionButton(onClick = onCart) },
             )
         },
     ) { padding ->

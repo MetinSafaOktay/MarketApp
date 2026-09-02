@@ -27,11 +27,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.erenlermarket.app.R
 import com.erenlermarket.app.ui.auth.AuthScreen
+import com.erenlermarket.app.ui.cart.CartScreen
 import com.erenlermarket.app.ui.categories.CategoriesScreen
+import com.erenlermarket.app.ui.checkout.CheckoutScreen
+import com.erenlermarket.app.ui.checkout.OrderPlacedScreen
 import com.erenlermarket.app.ui.home.HomeScreen
+import com.erenlermarket.app.ui.orders.OrderDetailScreen
+import com.erenlermarket.app.ui.orders.OrdersScreen
 import com.erenlermarket.app.ui.productdetail.ProductDetailScreen
 import com.erenlermarket.app.ui.productlist.ProductListScreen
 import com.erenlermarket.app.ui.profile.ProfileScreen
+import com.erenlermarket.app.ui.wishlist.WishlistScreen
 
 private enum class TopDestination(
     val route: String,
@@ -53,6 +59,8 @@ fun RootScreen() {
     val currentRoute = backStackEntry?.destination?.route
 
     val toProduct = { id: String, name: String -> navController.navigate(Routes.product(id, name)) }
+    val toCart = { navController.navigate(Routes.CART) }
+    val toAuth = { navController.navigate(Routes.AUTH) }
 
     Scaffold(
         bottomBar = {
@@ -87,6 +95,7 @@ fun RootScreen() {
                 HomeScreen(
                     onProduct = toProduct,
                     onAccount = { navController.navigate(Routes.PROFILE) },
+                    onCart = toCart,
                     onRailSeeAll = { rail ->
                         navController.navigate(
                             Routes.productList(
@@ -99,7 +108,7 @@ fun RootScreen() {
                 )
             }
             composable(Routes.STORE) {
-                ProductListScreen(onProduct = toProduct, onBack = null)
+                ProductListScreen(onProduct = toProduct, onBack = null, onCart = toCart)
             }
             composable(Routes.CATEGORIES) {
                 CategoriesScreen(
@@ -111,7 +120,9 @@ fun RootScreen() {
             composable(Routes.PROFILE) {
                 ProfileScreen(
                     onBack = navController::popBackStack,
-                    onSignIn = { navController.navigate(Routes.AUTH) },
+                    onSignIn = toAuth,
+                    onOrders = { navController.navigate(Routes.ORDERS) },
+                    onWishlist = { navController.navigate(Routes.WISHLIST) },
                 )
             }
             composable(Routes.AUTH) {
@@ -119,6 +130,52 @@ fun RootScreen() {
                     onBack = navController::popBackStack,
                     onAuthenticated = navController::popBackStack,
                 )
+            }
+            composable(Routes.CART) {
+                CartScreen(
+                    onBack = navController::popBackStack,
+                    onCheckout = { navController.navigate(Routes.CHECKOUT) },
+                    onSignIn = toAuth,
+                )
+            }
+            composable(Routes.CHECKOUT) {
+                CheckoutScreen(
+                    onBack = navController::popBackStack,
+                    onOrderPlaced = { orderId ->
+                        navController.navigate(Routes.orderPlaced(orderId)) {
+                            popUpTo(Routes.HOME)
+                        }
+                    },
+                )
+            }
+            composable(
+                route = Routes.ORDER_PLACED,
+                arguments = listOf(navArgument("orderId") { type = NavType.StringType }),
+            ) { entry ->
+                val orderId = entry.arguments?.getString("orderId").orEmpty()
+                OrderPlacedScreen(
+                    onViewOrder = {
+                        navController.navigate(Routes.orderDetail(orderId)) {
+                            popUpTo(Routes.HOME)
+                        }
+                    },
+                    onContinueShopping = { navController.popBackStack(Routes.HOME, inclusive = false) },
+                )
+            }
+            composable(Routes.ORDERS) {
+                OrdersScreen(
+                    onBack = navController::popBackStack,
+                    onOrder = { navController.navigate(Routes.orderDetail(it)) },
+                )
+            }
+            composable(
+                route = Routes.ORDER_DETAIL,
+                arguments = listOf(navArgument("orderId") { type = NavType.StringType }),
+            ) {
+                OrderDetailScreen(onBack = navController::popBackStack)
+            }
+            composable(Routes.WISHLIST) {
+                WishlistScreen(onBack = navController::popBackStack, onProduct = toProduct)
             }
             composable(
                 route = Routes.PRODUCT,

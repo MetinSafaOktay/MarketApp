@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.erenlermarket.app.designsystem.Spacing
+import com.erenlermarket.app.ui.common.CartActionButton
 import com.erenlermarket.app.ui.common.ErrorState
 import com.erenlermarket.app.ui.common.LoadingState
 import com.erenlermarket.app.ui.common.ProductCard
@@ -49,6 +50,7 @@ fun ProductListScreen(
     onProduct: (id: String, name: String) -> Unit,
     onBack: (() -> Unit)?,
     viewModel: ProductListViewModel = hiltViewModel(),
+    onCart: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showFilters by remember { mutableStateOf(false) }
@@ -69,6 +71,9 @@ fun ProductListScreen(
                         IconButton(onClick = { showFilters = true }) {
                             Icon(Icons.Filled.FilterList, "Filtrele")
                         }
+                    }
+                    if (onCart != null) {
+                        CartActionButton(onClick = onCart)
                     }
                 },
             )
@@ -136,6 +141,7 @@ private fun ProductGrid(
             ProductCard(
                 product = product,
                 onClick = { onProduct(product.id, product.name) },
+                showWishlist = true,
             )
         }
         if (state.loadingMore) {

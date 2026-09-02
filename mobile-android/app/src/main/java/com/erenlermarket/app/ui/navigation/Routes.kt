@@ -9,6 +9,14 @@ object Routes {
 
     const val PROFILE = "profile"
     const val AUTH = "auth"
+    const val CART = "cart"
+    const val CHECKOUT = "checkout"
+    const val ORDER_PLACED = "order-placed/{orderId}"
+    fun orderPlaced(orderId: String): String = "order-placed/$orderId"
+    const val ORDERS = "orders"
+    const val ORDER_DETAIL = "orders/{orderId}"
+    fun orderDetail(orderId: String): String = "orders/$orderId"
+    const val WISHLIST = "wishlist"
 
     const val PRODUCT = "product/{productId}?name={name}"
     fun product(id: String, name: String): String =
