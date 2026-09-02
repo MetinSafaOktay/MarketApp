@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Erenler Market</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_store">Winkel</string>
+    <string name="tab_categories">Categorieën</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Erenler Market</string>
+    <string name="tab_home">الرئيسية</string>
+    <string name="tab_store">المتجر</string>
+    <string name="tab_categories">الفئات</string>
+</resources>
