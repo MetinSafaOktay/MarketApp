@@ -58,6 +58,30 @@
     "title": "Kategoriler",
     "allProducts": "Tüm Ürünler"
   },
+  "Auth": {
+    "loginTitle": "Giriş Yap",
+    "registerTitle": "Hesap Oluştur",
+    "email": "E-posta",
+    "password": "Şifre",
+    "profileName": "Görünen ad",
+    "firstName": "Ad",
+    "lastName": "Soyad",
+    "loginCta": "Giriş Yap",
+    "registerCta": "Kayıt Ol",
+    "noAccount": "Hesabın yok mu?",
+    "haveAccount": "Zaten hesabın var mı?",
+    "createOne": "Hesap oluştur",
+    "signInInstead": "Giriş yap",
+    "genericError": "İşlem tamamlanamadı, bilgileri kontrol et"
+  },
+  "Account": {
+    "title": "Hesabım",
+    "orders": "Siparişlerim",
+    "wishlist": "İstek Listem",
+    "addresses": "Adreslerim",
+    "settings": "Ayarlar",
+    "profile": "Profil"
+  },
   "Footer": {
     "about": "Hakkımızda",
     "contact": "İletişim",

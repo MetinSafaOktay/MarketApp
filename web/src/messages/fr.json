@@ -58,6 +58,30 @@
     "title": "Categories",
     "allProducts": "All Products"
   },
+  "Auth": {
+    "loginTitle": "Sign In",
+    "registerTitle": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "profileName": "Display name",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "loginCta": "Sign In",
+    "registerCta": "Sign Up",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "createOne": "Create one",
+    "signInInstead": "Sign in",
+    "genericError": "Could not complete, check your details"
+  },
+  "Account": {
+    "title": "My Account",
+    "orders": "My Orders",
+    "wishlist": "My Wishlist",
+    "addresses": "My Addresses",
+    "settings": "Settings",
+    "profile": "Profile"
+  },
   "Footer": {
     "about": "About Us",
     "contact": "Contact",
