@@ -32,11 +32,16 @@ import com.erenlermarket.app.ui.categories.CategoriesScreen
 import com.erenlermarket.app.ui.checkout.CheckoutScreen
 import com.erenlermarket.app.ui.checkout.OrderPlacedScreen
 import com.erenlermarket.app.ui.home.HomeScreen
+import com.erenlermarket.app.ui.messages.MessagesScreen
+import com.erenlermarket.app.ui.notifications.NotificationsScreen
 import com.erenlermarket.app.ui.orders.OrderDetailScreen
 import com.erenlermarket.app.ui.orders.OrdersScreen
 import com.erenlermarket.app.ui.productdetail.ProductDetailScreen
 import com.erenlermarket.app.ui.productlist.ProductListScreen
 import com.erenlermarket.app.ui.profile.ProfileScreen
+import com.erenlermarket.app.ui.settings.AboutScreen
+import com.erenlermarket.app.ui.settings.EditProfileScreen
+import com.erenlermarket.app.ui.settings.SettingsScreen
 import com.erenlermarket.app.ui.wishlist.WishlistScreen
 
 private enum class TopDestination(
@@ -96,6 +101,8 @@ fun RootScreen() {
                     onProduct = toProduct,
                     onAccount = { navController.navigate(Routes.PROFILE) },
                     onCart = toCart,
+                    onNotifications = { navController.navigate(Routes.NOTIFICATIONS) },
+                    onMessages = { navController.navigate(Routes.MESSAGES) },
                     onRailSeeAll = { rail ->
                         navController.navigate(
                             Routes.productList(
@@ -123,6 +130,7 @@ fun RootScreen() {
                     onSignIn = toAuth,
                     onOrders = { navController.navigate(Routes.ORDERS) },
                     onWishlist = { navController.navigate(Routes.WISHLIST) },
+                    onSettings = { navController.navigate(Routes.SETTINGS) },
                 )
             }
             composable(Routes.AUTH) {
@@ -176,6 +184,31 @@ fun RootScreen() {
             }
             composable(Routes.WISHLIST) {
                 WishlistScreen(onBack = navController::popBackStack, onProduct = toProduct)
+            }
+            composable(Routes.MESSAGES) {
+                MessagesScreen(onBack = navController::popBackStack)
+            }
+            composable(Routes.NOTIFICATIONS) {
+                NotificationsScreen(
+                    onBack = navController::popBackStack,
+                    onOrder = { navController.navigate(Routes.orderDetail(it)) },
+                )
+            }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(
+                    onBack = navController::popBackStack,
+                    onEditProfile = { navController.navigate(Routes.EDIT_PROFILE) },
+                    onAbout = { navController.navigate(Routes.ABOUT) },
+                    onAccountDeleted = {
+                        navController.popBackStack(Routes.HOME, inclusive = false)
+                    },
+                )
+            }
+            composable(Routes.EDIT_PROFILE) {
+                EditProfileScreen(onBack = navController::popBackStack)
+            }
+            composable(Routes.ABOUT) {
+                AboutScreen(onBack = navController::popBackStack)
             }
             composable(
                 route = Routes.PRODUCT,

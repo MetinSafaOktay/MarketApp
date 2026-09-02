@@ -17,6 +17,11 @@ object Routes {
     const val ORDER_DETAIL = "orders/{orderId}"
     fun orderDetail(orderId: String): String = "orders/$orderId"
     const val WISHLIST = "wishlist"
+    const val MESSAGES = "messages"
+    const val NOTIFICATIONS = "notifications"
+    const val SETTINGS = "settings"
+    const val EDIT_PROFILE = "edit-profile"
+    const val ABOUT = "about"
 
     const val PRODUCT = "product/{productId}?name={name}"
     fun product(id: String, name: String): String =

@@ -1,6 +1,7 @@
 package com.erenlermarket.app.domain.repository
 
 import com.erenlermarket.app.domain.model.AuthSession
+import com.erenlermarket.app.domain.model.ProfileUpdate
 import com.erenlermarket.app.domain.model.RegisterInput
 import com.erenlermarket.app.domain.model.User
 
@@ -10,4 +11,8 @@ interface AuthRepository {
     suspend fun register(input: RegisterInput): AuthSession
     suspend fun currentUser(): User
     suspend fun logout(refreshToken: String)
+
+    /** `PATCH /users/me` herkese açık profili döndürür; çağıran taze `currentUser()` almalı. */
+    suspend fun updateProfile(update: ProfileUpdate)
+    suspend fun deleteAccount()
 }

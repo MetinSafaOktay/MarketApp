@@ -47,4 +47,6 @@ psql marketapp -f ../database/seeds/fake-data/catalog.sql
   sessiz 401 yenileme, açılışta oturum geri yükleme, "Hesabım" ekranı) ✅
 - **A4** — ticaret (sepet + rozet, ödeme: adres + kupon önizleme + sipariş,
   sipariş listesi/detayı + iptal, istek listesi + kalp) ✅
-- A5 — mesaj/bildirim/ayarlar · A6 — Room/çevrimdışı/cila
+- **A5** — mesajlaşma (5 sn poll), bildirimler (zil rozeti), ayarlar (tema,
+  bildirim tercihleri, hesap silme), profil düzenleme, hakkında ✅
+- A6 — Room/çevrimdışı/cila

@@ -112,4 +112,31 @@ class SessionManagerTest {
         assertEquals(SessionState.SignedOut, manager.state.value)
         assertTrue(store.clearCount >= 1)
     }
+
+    @Test
+    fun `updateProfile refreshes the signed-in user`() = runTest {
+        val updated = user.copy(profileName = "yeni")
+        coEvery { authRepository.currentUser() } returnsMany listOf(user, updated)
+        io.mockk.coEvery { authRepository.updateProfile(any()) } just io.mockk.Runs
+        val manager = manager(FakeTokenStore(tokens))
+        manager.restore()
+
+        manager.updateProfile(com.erenlermarket.app.domain.model.ProfileUpdate(profileName = "yeni"))
+
+        assertEquals(SessionState.SignedIn(updated), manager.state.value)
+    }
+
+    @Test
+    fun `deleteAccount clears the session`() = runTest {
+        coEvery { authRepository.currentUser() } returns user
+        io.mockk.coEvery { authRepository.deleteAccount() } just io.mockk.Runs
+        val store = FakeTokenStore(tokens)
+        val manager = manager(store)
+        manager.restore()
+
+        manager.deleteAccount()
+
+        assertEquals(SessionState.SignedOut, manager.state.value)
+        assertNull(store.stored)
+    }
 }

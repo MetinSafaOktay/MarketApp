@@ -4,9 +4,11 @@ import com.erenlermarket.app.data.remote.AuthApi
 import com.erenlermarket.app.data.remote.apiCall
 import com.erenlermarket.app.data.remote.dto.LoginRequest
 import com.erenlermarket.app.data.remote.dto.RefreshRequest
+import com.erenlermarket.app.data.remote.dto.UpdateProfileRequest
 import com.erenlermarket.app.data.remote.toDomain
 import com.erenlermarket.app.data.remote.toRequest
 import com.erenlermarket.app.domain.model.AuthSession
+import com.erenlermarket.app.domain.model.ProfileUpdate
 import com.erenlermarket.app.domain.model.RegisterInput
 import com.erenlermarket.app.domain.model.User
 import com.erenlermarket.app.domain.repository.AuthRepository
@@ -35,4 +37,15 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun logout(refreshToken: String) {
         runCatching { api.logout(RefreshRequest(refreshToken)) }
     }
+
+    override suspend fun updateProfile(update: ProfileUpdate) = apiCall {
+        api.updateProfile(
+            UpdateProfileRequest(
+                profileName = update.profileName?.trim()?.ifBlank { null },
+                bio = update.bio?.trim(),
+            ),
+        )
+    }
+
+    override suspend fun deleteAccount() = apiCall { api.deleteAccount() }
 }

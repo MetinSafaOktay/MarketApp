@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -28,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.erenlermarket.app.designsystem.Spacing
 import com.erenlermarket.app.ui.cart.CartBadgeViewModel
+import com.erenlermarket.app.ui.notifications.NotificationsBadgeViewModel
 import com.erenlermarket.app.ui.wishlist.WishlistToggleViewModel
 
 /** Sepet rozeti olan üst çubuk butonu (rozet sayısını kendi çeker). */
@@ -47,6 +50,30 @@ fun CartActionButton(
         ) {
             Icon(Icons.Filled.ShoppingCart, "Sepet")
         }
+    }
+}
+
+/** Zil rozeti olan üst çubuk butonu. */
+@Composable
+fun NotificationsActionButton(
+    onClick: () -> Unit,
+    viewModel: NotificationsBadgeViewModel = hiltViewModel(),
+) {
+    val count by viewModel.unreadCount.collectAsStateWithLifecycle()
+    IconButton(onClick = onClick) {
+        BadgedBox(
+            badge = { if (count > 0) Badge { Text(if (count > 99) "99+" else count.toString()) } },
+        ) {
+            Icon(Icons.Outlined.Notifications, "Bildirimler")
+        }
+    }
+}
+
+/** Mağaza sohbeti butonu. */
+@Composable
+fun MessagesActionButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(Icons.AutoMirrored.Outlined.Chat, "Mesajlar")
     }
 }
 

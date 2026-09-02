@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Receipt
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -44,6 +45,7 @@ fun ProfileScreen(
     onSignIn: () -> Unit,
     onOrders: () -> Unit,
     onWishlist: () -> Unit,
+    onSettings: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -56,6 +58,13 @@ fun ProfileScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Geri")
+                    }
+                },
+                actions = {
+                    if (state is SessionState.SignedIn) {
+                        IconButton(onClick = onSettings) {
+                            Icon(Icons.Outlined.Settings, "Ayarlar")
+                        }
                     }
                 },
             )

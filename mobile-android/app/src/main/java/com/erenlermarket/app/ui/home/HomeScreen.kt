@@ -38,6 +38,8 @@ import com.erenlermarket.app.domain.model.StoreProfile
 import com.erenlermarket.app.ui.common.CartActionButton
 import com.erenlermarket.app.ui.common.ErrorState
 import com.erenlermarket.app.ui.common.LoadingState
+import com.erenlermarket.app.ui.common.MessagesActionButton
+import com.erenlermarket.app.ui.common.NotificationsActionButton
 import com.erenlermarket.app.ui.common.ProductCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,6 +48,8 @@ fun HomeScreen(
     onProduct: (id: String, name: String) -> Unit,
     onAccount: () -> Unit,
     onCart: () -> Unit,
+    onNotifications: () -> Unit,
+    onMessages: () -> Unit,
     onRailSeeAll: (rail: HomeRail) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -60,7 +64,11 @@ fun HomeScreen(
                         Icon(Icons.Outlined.AccountCircle, "Hesabım")
                     }
                 },
-                actions = { CartActionButton(onClick = onCart) },
+                actions = {
+                    NotificationsActionButton(onClick = onNotifications)
+                    MessagesActionButton(onClick = onMessages)
+                    CartActionButton(onClick = onCart)
+                },
             )
         },
     ) { padding ->

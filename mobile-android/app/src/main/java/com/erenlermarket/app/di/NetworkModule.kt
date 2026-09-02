@@ -5,6 +5,7 @@ import com.erenlermarket.app.data.remote.AuthApi
 import com.erenlermarket.app.data.remote.AuthInterceptor
 import com.erenlermarket.app.data.remote.CommerceApi
 import com.erenlermarket.app.data.remote.ErenlerApi
+import com.erenlermarket.app.data.remote.InboxApi
 import com.erenlermarket.app.data.remote.LanguageInterceptor
 import com.erenlermarket.app.data.remote.TokenProvider
 import com.erenlermarket.app.data.remote.TokenRefreshApi
@@ -111,4 +112,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun commerceApi(retrofit: Retrofit): CommerceApi = retrofit.create(CommerceApi::class.java)
+
+    @Provides
+    @Singleton
+    fun inboxApi(retrofit: Retrofit): InboxApi = retrofit.create(InboxApi::class.java)
 }

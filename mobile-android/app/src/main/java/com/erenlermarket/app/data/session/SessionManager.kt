@@ -3,6 +3,7 @@ package com.erenlermarket.app.data.session
 import com.erenlermarket.app.data.local.TokenStore
 import com.erenlermarket.app.data.remote.TokenProvider
 import com.erenlermarket.app.domain.model.AuthTokens
+import com.erenlermarket.app.domain.model.ProfileUpdate
 import com.erenlermarket.app.domain.model.RegisterInput
 import com.erenlermarket.app.domain.model.User
 import com.erenlermarket.app.domain.repository.AuthRepository
@@ -70,11 +71,15 @@ class SessionManager @Inject constructor(
         clearSession()
     }
 
-    /** Profil güncellendiğinde oturumdaki kullanıcıyı tazeler (A5). */
-    fun updateUser(user: User) {
-        if (_state.value is SessionState.SignedIn) {
-            _state.value = SessionState.SignedIn(user)
-        }
+    /** Profili günceller, sonra taze kullanıcıyı çekip oturumu tazeler. */
+    suspend fun updateProfile(update: ProfileUpdate) {
+        authRepository.updateProfile(update)
+        _state.value = SessionState.SignedIn(authRepository.currentUser())
+    }
+
+    suspend fun deleteAccount() {
+        authRepository.deleteAccount()
+        clearSession()
     }
 
     // TokenAuthenticator geri bildirimleri (OkHttp thread'inden, bloklayan bağlam) ---

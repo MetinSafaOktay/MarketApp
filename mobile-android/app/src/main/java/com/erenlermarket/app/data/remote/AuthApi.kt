@@ -5,9 +5,12 @@ import com.erenlermarket.app.data.remote.dto.LoginRequest
 import com.erenlermarket.app.data.remote.dto.RefreshRequest
 import com.erenlermarket.app.data.remote.dto.RegisterRequest
 import com.erenlermarket.app.data.remote.dto.TokensDto
+import com.erenlermarket.app.data.remote.dto.UpdateProfileRequest
 import com.erenlermarket.app.data.remote.dto.UserDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 
 interface AuthApi {
@@ -23,6 +26,12 @@ interface AuthApi {
 
     @GET("auth/me")
     suspend fun me(): UserDto
+
+    @PATCH("users/me")
+    suspend fun updateProfile(@Body body: UpdateProfileRequest)
+
+    @DELETE("users/me")
+    suspend fun deleteAccount()
 }
 
 /**
