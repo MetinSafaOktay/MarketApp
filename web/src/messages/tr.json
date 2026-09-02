@@ -285,5 +285,15 @@
     "fr": "Fransızca",
     "ar": "Arapça",
     "nl": "Hollandaca"
+  },
+  "Social": {
+    "follow": "Takip Et",
+    "unfollow": "Takipten Çık",
+    "followers": "Takipçi",
+    "following": "Takip Edilen",
+    "private": "Gizli hesap",
+    "privateHint": "Bu hesabın bilgileri gizli",
+    "memberSince": "Üyelik",
+    "notFound": "Kullanıcı bulunamadı"
   }
 }

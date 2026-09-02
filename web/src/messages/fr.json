@@ -285,5 +285,15 @@
     "fr": "Français",
     "ar": "Arabe",
     "nl": "Néerlandais"
+  },
+  "Social": {
+    "follow": "Suivre",
+    "unfollow": "Ne plus suivre",
+    "followers": "Abonnés",
+    "following": "Abonnements",
+    "private": "Compte privé",
+    "privateHint": "Les détails de ce compte sont privés",
+    "memberSince": "Membre depuis",
+    "notFound": "Utilisateur introuvable"
   }
 }

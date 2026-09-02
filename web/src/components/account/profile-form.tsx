@@ -4,8 +4,10 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Lock, User } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import { useCurrentUser } from '@/lib/use-auth';
 import { useUpdateProfile } from '@/lib/use-profile';
+import { usePublicProfile } from '@/lib/use-social';
 import { ImageUpload } from '@/components/admin/image-upload';
 
 export function ProfileForm() {
@@ -16,13 +18,37 @@ export function ProfileForm() {
 
   if (!user) return <p className="text-sm text-text-muted">{tc('loading')}</p>;
   return (
-    <ProfileFormInner
-      key={user.id}
-      user={user}
-      t={t}
-      saveLabel={tc('save')}
-      update={update}
-    />
+    <div className="space-y-4">
+      <FollowStats userId={user.id} />
+      <ProfileFormInner
+        key={user.id}
+        user={user}
+        t={t}
+        saveLabel={tc('save')}
+        update={update}
+      />
+    </div>
+  );
+}
+
+function FollowStats({ userId }: { userId: string }) {
+  const ts = useTranslations('Social');
+  const { data } = usePublicProfile(userId);
+  if (!data) return null;
+  return (
+    <Link
+      href={`/u/${userId}`}
+      className="flex gap-5 text-sm text-text-muted hover:text-text"
+    >
+      <span>
+        <strong className="text-text">{data.followerCount}</strong>{' '}
+        {ts('followers')}
+      </span>
+      <span>
+        <strong className="text-text">{data.followingCount}</strong>{' '}
+        {ts('following')}
+      </span>
+    </Link>
   );
 }
 
