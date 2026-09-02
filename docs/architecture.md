@@ -190,5 +190,5 @@ Yalnızca içerik metin blokları `dir="auto"` ile render edilir.
 - Ödeme "kapıda nakit/kart" ile sınırlı — gerçek ödeme sağlayıcısı entegre değil.
 - Web push kurulumu backend'de hazır, web istemcisinde service worker henüz yok.
 - Admin dashboard sadece sayısal kart; grafik yok.
-- iOS istemcisi v1 tamam; Android istemcisi sürüyor (A6 — çevrimdışı — kaldı).
+- Her iki mobil istemci de v1 tamam; Play/App Store yayın işleri (push, min-sürüm kapısı) kaldı.
 - Mobil push (FCM/APNs) yok; polling ile çalışır.

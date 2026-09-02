@@ -24,7 +24,7 @@ Mimari detaylar için [docs/architecture.md](docs/architecture.md).
 | `database/` | Tamam — 20 tablo, 3 migration; prod: Supabase |
 | `web/` | Tamam (v1) — storefront + hesap + sepet/sipariş + mesajlaşma + admin paneli + 6 dil + tema; Vercel'de canlı |
 | `mobile-ios/` | Tamam (v1) — M1–M6: katalog, auth, sepet/ödeme/sipariş, mesaj/bildirim/ayarlar, çevrimdışı cache |
-| `mobile-android/` | Sürüyor — A1–A5 tamam (iskelet, katalog, auth, ticaret, mesaj/ayarlar); A6 (Room/çevrimdışı) kaldı |
+| `mobile-android/` | Tamam (v1) — A1–A6: iskelet, katalog, auth, ticaret, mesaj/ayarlar, Room/çevrimdışı |
 
 Mimari kararlar ve gerekçeleri: [docs/architecture.md](docs/architecture.md).
 Veritabanı şeması: [docs/er-diagram.md](docs/er-diagram.md).
