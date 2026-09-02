@@ -39,7 +39,20 @@
     "similarProducts": "Benzer Ürünler",
     "description": "Açıklama",
     "newBadge": "Yeni Ürün",
-    "discountBadge": "İndirim"
+    "discountBadge": "İndirim",
+    "backToProducts": "Ürünlere dön",
+    "addedToCart": "Sepete eklendi"
+  },
+  "Catalog": {
+    "title": "Ürünler",
+    "discounted": "İndirimli",
+    "new": "Yeni",
+    "inStock": "Stokta",
+    "sortBy": "Sırala",
+    "sort_newest": "En yeni",
+    "sort_price_asc": "Artan fiyat",
+    "sort_price_desc": "Azalan fiyat",
+    "resultsCount": "{count, plural, other {# ürün}}"
   },
   "Category": {
     "title": "Kategoriler",

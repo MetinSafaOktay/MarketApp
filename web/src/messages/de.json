@@ -39,7 +39,20 @@
     "similarProducts": "Similar Products",
     "description": "Description",
     "newBadge": "New Product",
-    "discountBadge": "Sale"
+    "discountBadge": "Sale",
+    "backToProducts": "Back to products",
+    "addedToCart": "Added to cart"
+  },
+  "Catalog": {
+    "title": "Products",
+    "discounted": "On sale",
+    "new": "New",
+    "inStock": "In stock",
+    "sortBy": "Sort",
+    "sort_newest": "Newest",
+    "sort_price_asc": "Price: low to high",
+    "sort_price_desc": "Price: high to low",
+    "resultsCount": "{count, plural, one {# product} other {# products}}"
   },
   "Category": {
     "title": "Categories",
