@@ -11,6 +11,11 @@ struct HomeView: View {
             Inner(deps: deps)
                 .navigationTitle("Ana Sayfa")
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        AccountToolbarButton()
+                    }
+                }
                 .catalogDestinations()
         }
     }

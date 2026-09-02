@@ -2,6 +2,8 @@ import DesignSystem
 import SwiftUI
 
 struct RootTabView: View {
+    @Environment(\.dependencies) private var deps
+
     var body: some View {
         TabView {
             HomeView()
@@ -14,6 +16,7 @@ struct RootTabView: View {
                 .tabItem { Label("Kategoriler", systemImage: "square.grid.2x2.fill") }
         }
         .tint(Palette.accent)
+        .task { await deps.session.restore() }
     }
 }
 

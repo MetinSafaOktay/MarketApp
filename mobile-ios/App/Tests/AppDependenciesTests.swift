@@ -6,7 +6,8 @@ struct AppDependenciesTests {
     @Test func previewDependenciesExposeRepositories() {
         let catalog: any CatalogRepository = AppDependencies.preview.catalog
         let storefront: any StorefrontRepository = AppDependencies.preview.storefront
-        _ = (catalog, storefront)
+        let auth: any AuthRepository = AppDependencies.preview.auth
+        _ = (catalog, storefront, auth)
         #expect(AppDependencies.preview.language == "tr")
     }
 

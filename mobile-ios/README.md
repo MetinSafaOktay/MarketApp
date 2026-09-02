@@ -54,4 +54,6 @@ swiftformat --lint .
 - **M1** — iskelet (Tuist + 4 modül + 3-tab shell) ✅
 - **M2** — networking + katalog: Ana Sayfa (hero + duyuru + raflar), Mağaza
   (arama + filtre + sayfalama), Kategoriler grid, Ürün detay (galeri + benzerler) ✅
-- M3 — auth · M4 — sepet/ödeme/sipariş · M5 — mesaj/bildirim/ayarlar · M6 — SwiftData/cila
+- **M3** — auth: giriş/kayıt formu, Keychain'de token, açılışta oturum geri
+  yükleme, 401'de sessiz yenileme, Hesabım ekranı ✅
+- M4 — sepet/ödeme/sipariş · M5 — mesaj/bildirim/ayarlar · M6 — SwiftData/cila
