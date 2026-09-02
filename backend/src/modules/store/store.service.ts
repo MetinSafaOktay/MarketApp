@@ -15,7 +15,7 @@ export class StoreService {
     const existing = await this.prisma.store_profile.findFirst();
     if (existing) return existing;
     return this.prisma.store_profile.create({
-      data: { name: 'MarketApp' },
+      data: { name: 'Erenler Market' },
     });
   }
 

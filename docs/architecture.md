@@ -2,8 +2,10 @@
 
 ## Genel Bakış
 
-MarketApp, Afyonkarahisar'daki Erenler Market için online sipariş sistemidir.
+Afyonkarahisar'daki Erenler Market için online sipariş sistemi.
 **Tek market (single-tenant)** için tasarlanmıştır — çok kiracılı bir SaaS değil.
+Bu sürüm Erenler Market'e özeldir; marka/içerik veritabanından yönetildiği için
+ileride başka marketlere uyarlanabilir.
 Aynı zamanda backend, web, mobil ve veritabanı becerilerini gösteren bir portföy
 projesidir; bu yüzden mimari kararlar hem üretim kalitesi hem de "neden böyle
 yapıldı" anlatısı gözetilerek alınmıştır.

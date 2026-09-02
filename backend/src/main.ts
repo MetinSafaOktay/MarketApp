@@ -21,8 +21,8 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('MarketApp API')
-    .setDescription('MarketApp backend API dokümantasyonu')
+    .setTitle('Erenler Market API')
+    .setDescription('Erenler Market backend API dokümantasyonu')
     .setVersion('0.1.0')
     .addBearerAuth()
     .build();

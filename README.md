@@ -1,7 +1,10 @@
-# MarketApp
+# Erenler Market
 
-Erenler Market (Afyonkarahisar) için online sipariş sistemi — tek market, çok dilli
-(6 dil). Monorepo yapısında beş bileşen içerir:
+Afyonkarahisar'daki Erenler Market için online sipariş sistemi — tek market, çok
+dilli (6 dil). Monorepo yapısında beş bileşen içerir.
+
+> Bu sürüm Erenler Market'e özeldir. Marka adı, içerik ve mağaza bilgisi
+> yapılandırma/veritabanı ile yönetilir; ileride başka marketlere uyarlanabilir.
 
 | Klasör | Amaç | Stack |
 |---|---|---|
