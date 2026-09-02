@@ -30,7 +30,12 @@ export default async function LocaleLayout({
 
   return (
     // Tam RTL layout yok (karar): dir hep ltr, Arapça metin bloklarında dir="auto".
-    <html lang={locale} dir="ltr" className={geist.variable}>
+    <html
+      lang={locale}
+      dir="ltr"
+      className={geist.variable}
+      suppressHydrationWarning
+    >
       <body className="min-h-dvh">
         <NextIntlClientProvider>
           <Providers>{children}</Providers>

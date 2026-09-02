@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { useRouter, usePathname } from '@/i18n/navigation';
 import { locales } from '@/i18n/routing';
 import { useUserSettings, useUpdateSettings, useDeleteAccount } from '@/lib/use-profile';
@@ -14,6 +15,7 @@ export function SettingsView() {
   const router = useRouter();
   const pathname = usePathname();
 
+  const { theme, setTheme } = useTheme();
   const { data: settings, isLoading } = useUserSettings();
   const update = useUpdateSettings();
   const del = useDeleteAccount();
@@ -50,6 +52,23 @@ export function SettingsView() {
               {tl(l)}
             </option>
           ))}
+        </select>
+      </section>
+
+      {/* Tema */}
+      <section>
+        <h2 className="mb-2 text-sm font-semibold">{t('theme')}</h2>
+        <select
+          value={theme ?? 'dark'}
+          onChange={(e) => {
+            setTheme(e.target.value);
+            patch({ theme: e.target.value });
+          }}
+          className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+        >
+          <option value="light">{t('themeLight')}</option>
+          <option value="dark">{t('themeDark')}</option>
+          <option value="system">{t('themeSystem')}</option>
         </select>
       </section>
 

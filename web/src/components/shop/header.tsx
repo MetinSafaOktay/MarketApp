@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { MessageCircle } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { LocaleSwitcher } from '@/components/locale-switcher';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { SearchBar } from '@/components/shop/search-bar';
 import { AccountMenu } from '@/components/shop/account-menu';
 import { CartLink } from '@/components/shop/cart-link';
@@ -26,6 +27,7 @@ export async function Header() {
 
         <nav className="flex items-center gap-1.5">
           <LocaleSwitcher />
+          <ThemeToggle />
           <Link
             href="/messages"
             aria-label={t('messages')}
