@@ -13,10 +13,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,28 +39,47 @@ import com.erenlermarket.app.ui.common.ErrorState
 import com.erenlermarket.app.ui.common.LoadingState
 import com.erenlermarket.app.ui.common.ProductCard
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onProduct: (id: String, name: String) -> Unit,
+    onAccount: () -> Unit,
     onRailSeeAll: (rail: HomeRail) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    when (val current = state) {
-        is HomeUiState.Loading -> LoadingState()
-        is HomeUiState.Error -> ErrorState(current.message, onRetry = viewModel::load)
-        is HomeUiState.Ready -> HomeContent(current, onProduct, onRailSeeAll)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Erenler Market") },
+                navigationIcon = {
+                    IconButton(onClick = onAccount) {
+                        Icon(Icons.Outlined.AccountCircle, "Hesabım")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        when (val current = state) {
+            is HomeUiState.Loading -> LoadingState(Modifier.padding(padding))
+            is HomeUiState.Error ->
+                ErrorState(current.message, onRetry = viewModel::load, modifier = Modifier.padding(padding))
+            is HomeUiState.Ready ->
+                HomeContent(current, Modifier.padding(padding), onProduct, onRailSeeAll)
+        }
     }
 }
 
 @Composable
 private fun HomeContent(
     state: HomeUiState.Ready,
+    modifier: Modifier,
     onProduct: (String, String) -> Unit,
     onRailSeeAll: (HomeRail) -> Unit,
 ) {
     LazyColumn(
+        modifier = modifier,
         contentPadding = PaddingValues(Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(Spacing.xl),
     ) {

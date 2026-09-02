@@ -43,4 +43,6 @@ psql marketapp -f ../database/seeds/fake-data/catalog.sql
   3 sekme bottom-nav, design system, 6 dil, adaptive icon) ✅
 - **A2** — katalog (ana sayfa rafları, mağaza listesi: arama + filtre + sayfalama,
   kategori ızgarası ve kırılımı, ürün detayı + benzer ürünler) ✅
-- A3 — auth · A4 — sepet/ödeme/sipariş · A5 — mesaj/bildirim/ayarlar · A6 — Room/çevrimdışı/cila
+- **A3** — auth (giriş/kayıt, DataStore token deposu, OkHttp `Authenticator` ile
+  sessiz 401 yenileme, açılışta oturum geri yükleme, "Hesabım" ekranı) ✅
+- A4 — sepet/ödeme/sipariş · A5 — mesaj/bildirim/ayarlar · A6 — Room/çevrimdışı/cila

@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -25,10 +26,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.erenlermarket.app.R
+import com.erenlermarket.app.ui.auth.AuthScreen
 import com.erenlermarket.app.ui.categories.CategoriesScreen
 import com.erenlermarket.app.ui.home.HomeScreen
 import com.erenlermarket.app.ui.productdetail.ProductDetailScreen
 import com.erenlermarket.app.ui.productlist.ProductListScreen
+import com.erenlermarket.app.ui.profile.ProfileScreen
 
 private enum class TopDestination(
     val route: String,
@@ -42,6 +45,9 @@ private enum class TopDestination(
 
 @Composable
 fun RootScreen() {
+    // Oturumu açılışta geri yükler (init içinde restore çağırır).
+    hiltViewModel<RootViewModel>()
+
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -80,6 +86,7 @@ fun RootScreen() {
             composable(Routes.HOME) {
                 HomeScreen(
                     onProduct = toProduct,
+                    onAccount = { navController.navigate(Routes.PROFILE) },
                     onRailSeeAll = { rail ->
                         navController.navigate(
                             Routes.productList(
@@ -99,6 +106,18 @@ fun RootScreen() {
                     onCategory = { id, name ->
                         navController.navigate(Routes.productList(title = name, categoryId = id))
                     },
+                )
+            }
+            composable(Routes.PROFILE) {
+                ProfileScreen(
+                    onBack = navController::popBackStack,
+                    onSignIn = { navController.navigate(Routes.AUTH) },
+                )
+            }
+            composable(Routes.AUTH) {
+                AuthScreen(
+                    onBack = navController::popBackStack,
+                    onAuthenticated = navController::popBackStack,
                 )
             }
             composable(

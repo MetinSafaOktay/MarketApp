@@ -3,6 +3,7 @@ package com.erenlermarket.app.data.remote
 import com.erenlermarket.app.data.AppLanguage
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Provider
 
 /** Her isteğe `?lang=` ekler (yoksa). */
 class LanguageInterceptor : Interceptor {
@@ -21,10 +22,14 @@ interface TokenProvider {
     fun accessToken(): String?
 }
 
-/** Varsa `Authorization: Bearer` başlığı ekler. */
-class AuthInterceptor(private val tokenProvider: TokenProvider) : Interceptor {
+/**
+ * Varsa `Authorization: Bearer` başlığı ekler.
+ * `Provider` ile alınır çünkü token sağlayıcısı (SessionManager) OkHttp grafiğine
+ * bağımlı — doğrudan enjekte edilirse Dagger döngüsü oluşur.
+ */
+class AuthInterceptor(private val tokenProvider: Provider<TokenProvider>) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = tokenProvider.accessToken() ?: return chain.proceed(chain.request())
+        val token = tokenProvider.get().accessToken() ?: return chain.proceed(chain.request())
         val request = chain.request().newBuilder()
             .header("Authorization", "Bearer $token")
             .build()

@@ -7,6 +7,9 @@ object Routes {
     const val STORE = "store"
     const val CATEGORIES = "categories"
 
+    const val PROFILE = "profile"
+    const val AUTH = "auth"
+
     const val PRODUCT = "product/{productId}?name={name}"
     fun product(id: String, name: String): String =
         "product/$id?name=${Uri.encode(name)}"
