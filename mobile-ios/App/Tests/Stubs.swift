@@ -74,6 +74,62 @@ struct StubAuth: AuthRepository, @unchecked Sendable {
     }
 
     func logout(refreshToken _: String) async throws { }
+
+    func updateProfile(_ update: ProfileUpdate) async throws -> User {
+        User(
+            id: user.id, email: user.email, phone: user.phone,
+            profileName: update.profileName ?? user.profileName,
+            firstName: user.firstName, lastName: user.lastName,
+            bio: update.bio ?? user.bio,
+            isPrivate: update.isPrivate ?? user.isPrivate, role: user.role
+        )
+    }
+
+    func deleteAccount() async throws { }
+}
+
+struct StubMessaging: MessagingRepository, @unchecked Sendable {
+    var result: [Message] = []
+    func messages() async throws -> [Message] {
+        result
+    }
+
+    func send(_ content: String) async throws -> Message {
+        Message(
+            id: "m\(result.count)", sender: .customer,
+            content: content, isRead: false, createdAt: nil
+        )
+    }
+}
+
+struct StubNotifications: NotificationsRepository, @unchecked Sendable {
+    var result: [AppNotification] = []
+    func notifications() async throws -> [AppNotification] {
+        result
+    }
+
+    func markRead(id _: String) async throws { }
+    func markAllRead() async throws { }
+}
+
+struct StubSettings: SettingsRepository, @unchecked Sendable {
+    var result = UserSettings(
+        language: "tr", theme: "dark",
+        pushNotificationsEnabled: true, orderNotificationsEnabled: true
+    )
+    func settings() async throws -> UserSettings {
+        result
+    }
+
+    func update(_ update: SettingsUpdate) async throws -> UserSettings {
+        UserSettings(
+            language: result.language, theme: result.theme,
+            pushNotificationsEnabled: update.pushNotificationsEnabled
+                ?? result.pushNotificationsEnabled,
+            orderNotificationsEnabled: update.orderNotificationsEnabled
+                ?? result.orderNotificationsEnabled
+        )
+    }
 }
 
 /// Sepet çağrılarını sayan ve son durumu tutan sahte repository.
@@ -214,6 +270,9 @@ enum TestDeps {
         wishlist: any WishlistRepository = StubWishlist(),
         address: any AddressRepository = StubAddress(),
         order: any OrderRepository = StubOrder(),
+        messaging: any MessagingRepository = StubMessaging(),
+        notifications: any NotificationsRepository = StubNotifications(),
+        settings: any SettingsRepository = StubSettings(),
         session: SessionStore? = nil
     ) -> AppDependencies {
         let session = session ??
@@ -227,9 +286,13 @@ enum TestDeps {
             wishlist: wishlist,
             address: address,
             order: order,
+            messaging: messaging,
+            notifications: notifications,
+            settings: settings,
             session: session,
             cartStore: CartStore(repository: cart, session: session, language: "tr"),
             wishlistStore: WishlistStore(repository: wishlist, session: session, language: "tr"),
+            notificationsStore: NotificationsStore(repository: notifications, session: session),
             language: "tr"
         )
     }

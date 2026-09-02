@@ -13,10 +13,14 @@ struct AppDependencies {
     let wishlist: any WishlistRepository
     let address: any AddressRepository
     let order: any OrderRepository
+    let messaging: any MessagingRepository
+    let notifications: any NotificationsRepository
+    let settings: any SettingsRepository
 
     let session: SessionStore
     let cartStore: CartStore
     let wishlistStore: WishlistStore
+    let notificationsStore: NotificationsStore
 
     /// Backend'e gönderilecek dil kodu (tr/en/de/fr/ar/nl).
     let language: String
@@ -40,6 +44,7 @@ struct AppDependencies {
 
         let cart = CartRepositoryLive(client: client)
         let wishlist = WishlistRepositoryLive(client: client)
+        let notifications = NotificationsRepositoryLive(client: client)
 
         return AppDependencies(
             catalog: CatalogRepositoryLive(client: client),
@@ -49,6 +54,9 @@ struct AppDependencies {
             wishlist: wishlist,
             address: AddressRepositoryLive(client: client),
             order: OrderRepositoryLive(client: client),
+            messaging: MessagingRepositoryLive(client: client),
+            notifications: notifications,
+            settings: SettingsRepositoryLive(client: client),
             session: session,
             cartStore: CartStore(repository: cart, session: session, language: language),
             wishlistStore: WishlistStore(
@@ -56,6 +64,7 @@ struct AppDependencies {
                 session: session,
                 language: language
             ),
+            notificationsStore: NotificationsStore(repository: notifications, session: session),
             language: language
         )
     }

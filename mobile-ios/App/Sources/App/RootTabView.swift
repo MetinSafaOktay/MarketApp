@@ -21,9 +21,11 @@ struct RootTabView: View {
             if deps.session.isSignedIn {
                 await deps.cartStore.refresh()
                 await deps.wishlistStore.refresh()
+                await deps.notificationsStore.refresh()
             } else {
                 deps.cartStore.clearLocal()
                 deps.wishlistStore.clearLocal()
+                deps.notificationsStore.clearLocal()
             }
         }
     }

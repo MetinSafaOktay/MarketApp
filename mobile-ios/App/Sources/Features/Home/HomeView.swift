@@ -15,7 +15,9 @@ struct HomeView: View {
                     ToolbarItem(placement: .topBarLeading) {
                         AccountToolbarButton()
                     }
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        NotificationsToolbarButton()
+                        MessagesToolbarButton()
                         CartToolbarButton()
                     }
                 }

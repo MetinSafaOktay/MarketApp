@@ -42,6 +42,32 @@ public struct AuthRepositoryLive: AuthRepository {
         try await client.send(refreshEndpoint("/auth/logout", refreshToken))
     }
 
+    public func updateProfile(_ update: ProfileUpdate) async throws -> User {
+        // PATCH /users/me public profile döndürür (email/role yok) → /auth/me ile tam kullanıcıyı
+        // al.
+        try await client.send(Endpoint(
+            path: "/users/me",
+            method: .patch,
+            body: JSONEncoder.api.encode(ProfileBody(
+                profileName: update.profileName,
+                bio: update.bio,
+                isPrivate: update.isPrivate
+            )),
+            requiresAuth: true
+        ))
+        return try await currentUser()
+    }
+
+    public func deleteAccount() async throws {
+        try await client.send(Endpoint(path: "/users/me", method: .delete, requiresAuth: true))
+    }
+
+    private struct ProfileBody: Encodable {
+        let profileName: String?
+        let bio: String?
+        let isPrivate: Bool?
+    }
+
     private func authenticated(from dto: AuthResponseDTO) -> AuthenticatedUser {
         AuthenticatedUser(
             user: UserMapper.map(dto.user),

@@ -84,6 +84,17 @@ final class SessionStore: TokenProviding {
         clearSession()
     }
 
+    /// Profil güncellendiyse `true`. Oturumdaki kullanıcıyı tazeler.
+    func updateProfile(_ update: ProfileUpdate) async -> Bool {
+        guard let authRepository, case .signedIn = phase else { return false }
+        do {
+            phase = try await .signedIn(authRepository.updateProfile(update))
+            return true
+        } catch {
+            return false
+        }
+    }
+
     // MARK: - TokenProviding
 
     func accessToken() async -> String? {

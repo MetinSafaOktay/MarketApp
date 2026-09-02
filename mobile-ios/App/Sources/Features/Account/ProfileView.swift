@@ -56,6 +56,21 @@ struct ProfileView: View {
                 }
                 .cardSurface(padding: nil)
 
+                VStack(spacing: 0) {
+                    NavigationLink { MessagesView() } label: {
+                        menuRow("Mesajlar", systemImage: "bubble.left.and.bubble.right")
+                    }
+                    Divider().overlay(Palette.border)
+                    NavigationLink { NotificationsView() } label: {
+                        menuRow("Bildirimler", systemImage: "bell")
+                    }
+                    Divider().overlay(Palette.border)
+                    NavigationLink { SettingsView() } label: {
+                        menuRow("Ayarlar", systemImage: "gearshape")
+                    }
+                }
+                .cardSurface(padding: nil)
+
                 Button(role: .destructive) {
                     isSigningOut = true
                     Task { onSignOut() }

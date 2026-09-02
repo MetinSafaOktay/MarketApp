@@ -48,4 +48,6 @@ public protocol AuthRepository: Sendable {
     func refresh(refreshToken: String) async throws -> AuthTokens
     func currentUser() async throws -> User
     func logout(refreshToken: String) async throws
+    func updateProfile(_ update: ProfileUpdate) async throws -> User
+    func deleteAccount() async throws
 }

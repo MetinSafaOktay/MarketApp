@@ -58,4 +58,6 @@ swiftformat --lint .
   yükleme, 401'de sessiz yenileme, Hesabım ekranı ✅
 - **M4** — sepet (rozet, adet, kupon önizleme), ödeme akışı (adres, ödeme
   yöntemi, sipariş onayı), siparişler + sipariş takibi, favoriler ✅
-- M5 — mesaj/bildirim/ayarlar · M6 — SwiftData/cila
+- **M5** — mesajlar (polling), bildirimler (zil rozeti), ayarlar (tema,
+  bildirim tercihleri, hesap silme), profil düzenleme, hakkında ✅
+- M6 — SwiftData/cila
