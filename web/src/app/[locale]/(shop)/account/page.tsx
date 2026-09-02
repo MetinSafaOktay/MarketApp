@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Heart, MapPin, Package, Settings } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { RequireAuth } from '@/components/auth/require-auth';
-import { AccountHeader } from '@/components/account/account-header';
+import { ProfileForm } from '@/components/account/profile-form';
 
 export default async function AccountPage({
   params,
@@ -10,6 +10,7 @@ export default async function AccountPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('Account');
+  const tp = await getTranslations('Profile');
 
   const links = [
     { href: '/orders', label: t('orders'), icon: <Package className="size-5" /> },
@@ -29,8 +30,10 @@ export default async function AccountPage({
   return (
     <RequireAuth>
       <div className="mx-auto max-w-2xl px-4 py-8">
-        <AccountHeader />
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <h1 className="mb-6 text-xl font-bold">{tp('editTitle')}</h1>
+        <ProfileForm />
+
+        <div className="mt-10 grid gap-3 sm:grid-cols-2">
           {links.map((l) => (
             <Link
               key={l.href}

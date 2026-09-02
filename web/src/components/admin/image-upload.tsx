@@ -19,8 +19,12 @@ interface SignedUpload {
 
 export function ImageUpload({
   onUploaded,
+  endpoint = '/uploads/product-image',
+  label,
 }: {
   onUploaded: (url: string) => void;
+  endpoint?: '/uploads/product-image' | '/uploads/avatar';
+  label?: string;
 }) {
   const t = useTranslations('Admin');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +40,7 @@ export function ImageUpload({
     setBusy(true);
     setError(null);
     try {
-      const signed = await authedApi<SignedUpload>('/uploads/product-image', {
+      const signed = await authedApi<SignedUpload>(endpoint, {
         method: 'POST',
         body: JSON.stringify({ ext, content_type: file.type }),
       });
@@ -74,7 +78,7 @@ export function ImageUpload({
         className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-surface-2 disabled:opacity-60"
       >
         <Upload className="size-4" />
-        {busy ? '…' : t('uploadImage')}
+        {busy ? '…' : (label ?? t('uploadImage'))}
       </button>
       {error && <p className="mt-1 text-xs text-danger">{error}</p>}
     </div>

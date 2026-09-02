@@ -10,7 +10,11 @@
     "addToCart": "Add to Cart",
     "outOfStock": "Out of stock",
     "quantity": "Qty",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "Nav": {
     "home": "Home",
@@ -134,6 +138,73 @@
   "Wishlist": {
     "title": "My Wishlist",
     "empty": "Your wishlist is empty"
+  },
+  "Messages": {
+    "title": "Messages",
+    "empty": "You have no messages yet",
+    "placeholder": "Write a message...",
+    "send": "Send",
+    "storeName": "Erenler Market",
+    "startConversation": "Send a message to the store"
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "You have no notifications",
+    "markAllRead": "Mark all as read"
+  },
+  "Profile": {
+    "title": "My Profile",
+    "editTitle": "Edit Profile",
+    "profileName": "Profile name",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "locked": "This field cannot be changed",
+    "isPrivate": "Private account",
+    "isPrivateHint": "Your profile will be hidden from other users",
+    "photo": "Profile photo",
+    "changePhoto": "Change photo",
+    "saved": "Saved"
+  },
+  "Addresses": {
+    "title": "My Addresses",
+    "empty": "You have no saved addresses",
+    "add": "New address",
+    "label": "Label (home, work...)",
+    "fullAddress": "Full address",
+    "city": "City",
+    "district": "District",
+    "isDefault": "Default address",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this address?"
+  },
+  "Settings": {
+    "title": "Settings",
+    "language": "App language",
+    "theme": "Appearance",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "notifications": "Notification Settings",
+    "pushEnabled": "Push notifications",
+    "orderNotifications": "Order notifications",
+    "saved": "Saved",
+    "dangerZone": "Danger Zone",
+    "deleteAccount": "Delete my account",
+    "deleteWarning": "This cannot be undone. Your account details will be anonymised.",
+    "deleteConfirm": "Are you sure you want to permanently delete your account?"
+  },
+  "Static": {
+    "aboutTitle": "About Us",
+    "contactTitle": "Contact",
+    "termsTitle": "Terms of Use",
+    "privacyTitle": "Privacy Policy",
+    "workingHours": "Working Hours",
+    "phone": "Phone",
+    "address": "Address",
+    "placeholderLegal": "This text will be updated by the store."
   },
   "Admin": {
     "panel": "Admin Panel",

@@ -5,30 +5,55 @@ import { authedApi } from './auth';
 import { useIsAuthenticated } from './use-auth';
 import type { Address } from './types';
 
+const KEY = ['addresses'];
+
 export function useAddresses() {
   const isAuthenticated = useIsAuthenticated();
   return useQuery({
-    queryKey: ['addresses'],
+    queryKey: KEY,
     queryFn: () => authedApi<Address[]>('/addresses'),
     enabled: isAuthenticated,
   });
 }
 
-export interface NewAddress {
+export interface AddressInput {
   label: string;
   full_address: string;
   city: string;
   district: string;
+  is_default?: boolean;
 }
 
-export function useAddAddress() {
+export function useAddressMutations() {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (input: NewAddress) =>
-      authedApi<Address>('/addresses', {
-        method: 'POST',
-        body: JSON.stringify(input),
-      }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['addresses'] }),
-  });
+  const invalidate = () => qc.invalidateQueries({ queryKey: KEY });
+  return {
+    create: useMutation({
+      mutationFn: (input: AddressInput) =>
+        authedApi<Address>('/addresses', {
+          method: 'POST',
+          body: JSON.stringify(input),
+        }),
+      onSuccess: invalidate,
+    }),
+    update: useMutation({
+      mutationFn: ({ id, input }: { id: string; input: Partial<AddressInput> }) =>
+        authedApi<Address>(`/addresses/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(input),
+        }),
+      onSuccess: invalidate,
+    }),
+    remove: useMutation({
+      mutationFn: (id: string) =>
+        authedApi(`/addresses/${id}`, { method: 'DELETE' }),
+      onSuccess: invalidate,
+    }),
+  };
 }
+
+// Geriye dönük uyumluluk (checkout eski adı kullanıyor)
+export function useAddAddress() {
+  return useAddressMutations().create;
+}
+export type NewAddress = AddressInput;

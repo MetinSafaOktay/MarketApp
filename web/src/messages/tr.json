@@ -10,7 +10,11 @@
     "addToCart": "Sepete Ekle",
     "outOfStock": "Tükendi",
     "quantity": "Adet",
-    "viewAll": "Tümünü Görüntüle"
+    "viewAll": "Tümünü Görüntüle",
+    "save": "Kaydet",
+    "cancel": "Vazgeç",
+    "edit": "Düzenle",
+    "delete": "Sil"
   },
   "Nav": {
     "home": "Ana Sayfa",
@@ -134,6 +138,73 @@
   "Wishlist": {
     "title": "İstek Listem",
     "empty": "İstek listen boş"
+  },
+  "Messages": {
+    "title": "Mesajlar",
+    "empty": "Henüz mesajın yok",
+    "placeholder": "Mesaj yaz...",
+    "send": "Gönder",
+    "storeName": "Erenler Market",
+    "startConversation": "Mağazaya bir mesaj gönder"
+  },
+  "Notifications": {
+    "title": "Bildirimler",
+    "empty": "Bildirimin yok",
+    "markAllRead": "Hepsini okundu işaretle"
+  },
+  "Profile": {
+    "title": "Profilim",
+    "editTitle": "Profili Düzenle",
+    "profileName": "Profil adı",
+    "firstName": "Ad",
+    "lastName": "Soyad",
+    "locked": "Bu alan değiştirilemez",
+    "isPrivate": "Gizli hesap",
+    "isPrivateHint": "Profilin diğer kullanıcılara kapalı olur",
+    "photo": "Profil fotoğrafı",
+    "changePhoto": "Fotoğrafı değiştir",
+    "saved": "Kaydedildi"
+  },
+  "Addresses": {
+    "title": "Adreslerim",
+    "empty": "Kayıtlı adresin yok",
+    "add": "Yeni adres",
+    "label": "Başlık (ev, iş...)",
+    "fullAddress": "Açık adres",
+    "city": "Şehir",
+    "district": "İlçe",
+    "isDefault": "Varsayılan adres",
+    "save": "Kaydet",
+    "cancel": "Vazgeç",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "confirmDelete": "Adres silinsin mi?"
+  },
+  "Settings": {
+    "title": "Ayarlar",
+    "language": "Uygulama dili",
+    "theme": "Görünüm",
+    "themeLight": "Açık",
+    "themeDark": "Koyu",
+    "themeSystem": "Sistem",
+    "notifications": "Bildirim Ayarları",
+    "pushEnabled": "Anlık bildirimler",
+    "orderNotifications": "Sipariş bildirimleri",
+    "saved": "Kaydedildi",
+    "dangerZone": "Tehlikeli Bölge",
+    "deleteAccount": "Hesabımı sil",
+    "deleteWarning": "Bu işlem geri alınamaz. Hesap bilgilerin anonimleştirilir.",
+    "deleteConfirm": "Hesabını kalıcı olarak silmek istediğine emin misin?"
+  },
+  "Static": {
+    "aboutTitle": "Hakkımızda",
+    "contactTitle": "İletişim",
+    "termsTitle": "Kullanım Şartları",
+    "privacyTitle": "Gizlilik Politikası",
+    "workingHours": "Çalışma Saatleri",
+    "phone": "Telefon",
+    "address": "Adres",
+    "placeholderLegal": "Bu metin mağaza tarafından güncellenecek."
   },
   "Admin": {
     "panel": "Yönetim Paneli",

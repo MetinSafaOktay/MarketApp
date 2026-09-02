@@ -1,10 +1,11 @@
 import { getTranslations } from 'next-intl/server';
-import { Bell, MessageCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { SearchBar } from '@/components/shop/search-bar';
 import { AccountMenu } from '@/components/shop/account-menu';
 import { CartLink } from '@/components/shop/cart-link';
+import { NotificationsBell } from '@/components/shop/notifications-bell';
 
 export async function Header() {
   const t = await getTranslations('Nav');
@@ -12,7 +13,7 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
+        <Link href="/" className="flex shrink-0 items-center gap-2">
           <span className="text-xl font-extrabold tracking-tight text-brand">
             ERENLER
           </span>
@@ -25,37 +26,19 @@ export async function Header() {
 
         <nav className="flex items-center gap-1.5">
           <LocaleSwitcher />
-          <IconLink href="/messages" label={t('messages')}>
+          <Link
+            href="/messages"
+            aria-label={t('messages')}
+            title={t('messages')}
+            className="rounded-lg p-2 text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
+          >
             <MessageCircle className="size-5" />
-          </IconLink>
-          <IconLink href="/notifications" label={t('notifications')}>
-            <Bell className="size-5" />
-          </IconLink>
+          </Link>
+          <NotificationsBell />
           <CartLink />
           <AccountMenu />
         </nav>
       </div>
     </header>
-  );
-}
-
-function IconLink({
-  href,
-  label,
-  children,
-}: {
-  href: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      aria-label={label}
-      title={label}
-      className="rounded-lg p-2 text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
-    >
-      {children}
-    </Link>
   );
 }
