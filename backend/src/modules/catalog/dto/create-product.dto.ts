@@ -55,6 +55,14 @@ export class CreateProductDto {
   @IsBoolean()
   is_new_arrival?: boolean;
 
+  @ApiPropertyOptional({
+    default: true,
+    description: 'false → ürün storefront listesinde görünmez',
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
+
   @ApiPropertyOptional({ default: 0 })
   @IsOptional()
   @IsInt()

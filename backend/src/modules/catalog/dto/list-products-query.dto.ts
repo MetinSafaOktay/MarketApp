@@ -45,6 +45,14 @@ export class ListProductsQueryDto extends PaginationQueryDto {
   @IsBoolean()
   inStock?: boolean;
 
+  @ApiPropertyOptional({
+    description: 'Pasif ürünleri de dahil et (admin listesi için)',
+  })
+  @IsOptional()
+  @Transform(toBool)
+  @IsBoolean()
+  includeInactive?: boolean;
+
   // Aşağıdakiler @Lang() / controller tarafından okunur; burada sadece
   // whitelist doğrulamasının isteği reddetmemesi için tanımlı.
   @ApiPropertyOptional({ description: 'Dil kodu (tr/en/de/fr/ar/nl)' })

@@ -18,9 +18,16 @@ export async function Header() {
           <span className="text-xl font-extrabold tracking-tight text-brand">
             ERENLER
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted">
+          <span className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted sm:inline">
             Market
           </span>
+        </Link>
+
+        <Link
+          href="/categories"
+          className="hidden shrink-0 text-sm text-text-muted hover:text-text lg:inline"
+        >
+          {t('categories')}
         </Link>
 
         <SearchBar />

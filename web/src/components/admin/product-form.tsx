@@ -32,6 +32,7 @@ export function ProductForm({ product }: { product?: AdminProduct }) {
   );
   const [stock, setStock] = useState(String(product?.stock_quantity ?? 0));
   const [isNew, setIsNew] = useState(product?.is_new_arrival ?? false);
+  const [isActive, setIsActive] = useState(product?.is_active ?? true);
   const [pendingImages, setPendingImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +53,7 @@ export function ProductForm({ product }: { product?: AdminProduct }) {
       price: Number(price),
       original_price: originalPrice ? Number(originalPrice) : undefined,
       is_new_arrival: isNew,
+      is_active: isActive,
       stock_quantity: Number(stock),
     };
 
@@ -133,6 +135,16 @@ export function ProductForm({ product }: { product?: AdminProduct }) {
           {t('isNewArrival')}
         </label>
       </div>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+          className="accent-[var(--color-accent)]"
+        />
+        {t('isActive')}
+      </label>
 
       <TranslationInput
         label={t('description')}

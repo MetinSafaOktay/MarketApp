@@ -13,52 +13,112 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const t = await getTranslations('Home');
   const tc = await getTranslations('Common');
 
-  const [store, announcements, products] = await Promise.all([
-    apiFetch<StoreProfile>('/store', { locale }).catch(() => null),
-    apiFetch<Announcement[]>('/announcements', { locale }).catch(() => []),
-    apiFetch<Paginated<Product>>('/products', {
-      locale,
-      params: { pageSize: 12 },
-    }).catch(() => null),
-  ]);
+  const [store, announcements, discounted, newArrivals, latest] =
+    await Promise.all([
+      apiFetch<StoreProfile>('/store', { locale }).catch(() => null),
+      apiFetch<Announcement[]>('/announcements', { locale }).catch(() => []),
+      apiFetch<Paginated<Product>>('/products', {
+        locale,
+        params: { pageSize: 8, onlyDiscounted: true },
+      }).catch(() => null),
+      apiFetch<Paginated<Product>>('/products', {
+        locale,
+        params: { pageSize: 8, onlyNew: true },
+      }).catch(() => null),
+      apiFetch<Paginated<Product>>('/products', {
+        locale,
+        params: { pageSize: 8 },
+      }).catch(() => null),
+    ]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4">
-      <Hero store={store} tCta={t('orderNow')} tInfo={t('generalInfo')} tagline={t('tagline')} />
+    <div className="mx-auto max-w-7xl px-4 pb-8">
+      <Hero
+        store={store}
+        tCta={t('orderNow')}
+        tInfo={t('generalInfo')}
+        tagline={t('tagline')}
+      />
 
       {announcements.length > 0 && (
         <section className="mt-6 space-y-3">
           {announcements.slice(0, 2).map((a) => (
-            <AnnouncementCard key={a.id} announcement={a} couponLabel={t('couponCode')} />
+            <AnnouncementCard
+              key={a.id}
+              announcement={a}
+              couponLabel={t('couponCode')}
+            />
           ))}
         </section>
       )}
 
-      <div className="mt-8 flex gap-6 pb-4">
+      <div className="mt-8 flex gap-6">
         <CategorySidebar />
-        <section className="flex-1">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{t('discountedProducts')}</h2>
-            <Link
-              href="/products"
-              className="text-sm font-medium text-accent hover:underline"
-            >
-              {tc('viewAll')}
-            </Link>
-          </div>
-
-          {products && products.data.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-              {products.data.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          ) : (
-            <EmptyProducts />
-          )}
-        </section>
+        <div className="min-w-0 flex-1 space-y-10">
+          <Rail
+            title={t('discountedProducts')}
+            viewAll={tc('viewAll')}
+            href="/products?onlyDiscounted=true"
+            products={discounted?.data ?? []}
+          />
+          <Rail
+            title={t('newProducts')}
+            viewAll={tc('viewAll')}
+            href="/products?onlyNew=true"
+            products={newArrivals?.data ?? []}
+          />
+          {(discounted?.data.length ?? 0) === 0 &&
+            (newArrivals?.data.length ?? 0) === 0 && (
+              <Rail
+                title={t('discountedProducts')}
+                viewAll={tc('viewAll')}
+                href="/products"
+                products={latest?.data ?? []}
+                hideWhenEmpty={false}
+              />
+            )}
+        </div>
       </div>
     </div>
+  );
+}
+
+function Rail({
+  title,
+  viewAll,
+  href,
+  products,
+  hideWhenEmpty = true,
+}: {
+  title: string;
+  viewAll: string;
+  href: string;
+  products: Product[];
+  hideWhenEmpty?: boolean;
+}) {
+  if (products.length === 0 && hideWhenEmpty) return null;
+
+  return (
+    <section>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <Link
+          href={href}
+          className="text-sm font-medium text-accent hover:underline"
+        >
+          {viewAll}
+        </Link>
+      </div>
+      {products.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      ) : (
+        <EmptyProducts />
+      )}
+    </section>
   );
 }
 

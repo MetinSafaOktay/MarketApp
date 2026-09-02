@@ -25,6 +25,7 @@ function useAdminQuery<T>(key: QueryKey, path: string, params?: Record<string, s
     queryKey: key,
     queryFn: () => authedApi<T>(path, { params }),
     enabled: isAuthenticated,
+    placeholderData: (prev) => prev,
   });
 }
 
@@ -40,12 +41,20 @@ export function useAdminStats() {
 
 /* ---------- Products ---------- */
 const PRODUCTS_KEY = ['admin', 'products'];
+const PRODUCTS_PAGE_SIZE = 20;
 
-export function useAdminProducts() {
-  return useAdminQuery<Paginated<AdminProduct>>(PRODUCTS_KEY, '/products', {
-    raw: 'true',
-    pageSize: '100',
-  });
+export function useAdminProducts(page = 1, q = '') {
+  return useAdminQuery<Paginated<AdminProduct>>(
+    [...PRODUCTS_KEY, page, q],
+    '/products',
+    {
+      raw: 'true',
+      includeInactive: 'true',
+      page: String(page),
+      pageSize: String(PRODUCTS_PAGE_SIZE),
+      ...(q ? { q } : {}),
+    },
+  );
 }
 
 export function useAdminProduct(id: string | undefined) {

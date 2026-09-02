@@ -85,6 +85,8 @@ function CouponForm({
   const [minAmount, setMinAmount] = useState(coupon?.min_order_amount ?? '0');
   const [limit, setLimit] = useState(String(coupon?.usage_limit_per_user ?? 1));
   const [active, setActive] = useState(coupon?.is_active ?? true);
+  const [validFrom, setValidFrom] = useState(toLocalInput(coupon?.valid_from));
+  const [validUntil, setValidUntil] = useState(toLocalInput(coupon?.valid_until));
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
@@ -97,6 +99,8 @@ function CouponForm({
       min_order_amount: Number(minAmount),
       usage_limit_per_user: Number(limit),
       is_active: active,
+      valid_from: validFrom ? new Date(validFrom).toISOString() : undefined,
+      valid_until: validUntil ? new Date(validUntil).toISOString() : undefined,
     };
     try {
       if (coupon) await update.mutateAsync({ id: coupon.id, body });
@@ -136,6 +140,18 @@ function CouponForm({
         />
         {t('isActive')}
       </label>
+      <F
+        label={t('validFrom')}
+        value={validFrom}
+        onChange={setValidFrom}
+        type="datetime-local"
+      />
+      <F
+        label={t('validUntil')}
+        value={validUntil}
+        onChange={setValidUntil}
+        type="datetime-local"
+      />
       {error && <p className="col-span-2 text-danger">{error}</p>}
       <div className="col-span-2 flex gap-2">
         <button
@@ -154,6 +170,14 @@ function CouponForm({
       </div>
     </form>
   );
+}
+
+/** ISO string → datetime-local input değeri (yerel saat). */
+function toLocalInput(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function F({

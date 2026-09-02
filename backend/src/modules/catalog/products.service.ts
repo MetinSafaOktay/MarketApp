@@ -43,10 +43,10 @@ export class ProductsService {
     let searchIds: string[] | undefined;
     if (query.q) {
       const like = `%${query.q}%`;
+      // Sadece aday id'ler; is_active/kategori filtresi aşağıdaki Prisma where'de.
       const rows = await this.prisma.$queryRaw<{ id: string }[]>`
         SELECT id FROM products
-        WHERE is_active = true
-          AND (name::text ILIKE ${like} OR sku ILIKE ${like})
+        WHERE name::text ILIKE ${like} OR sku ILIKE ${like}
       `;
       searchIds = rows.map((r) => r.id);
       if (searchIds.length === 0) {
@@ -55,7 +55,7 @@ export class ProductsService {
     }
 
     const where: Prisma.productsWhereInput = {
-      is_active: true,
+      ...(query.includeInactive ? {} : { is_active: true }),
       ...(query.categoryId ? { category_id: query.categoryId } : {}),
       ...(query.onlyNew ? { is_new_arrival: true } : {}),
       ...(query.inStock ? { stock_quantity: { gt: 0 } } : {}),
