@@ -33,6 +33,93 @@ export interface Product {
   product_images: ProductImage[];
 }
 
+export interface CartItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  added_at: string;
+  products: Product;
+}
+
+export interface WishlistItem {
+  id: string;
+  product_id: string;
+  added_at: string;
+  products: Product;
+}
+
+export interface Address {
+  id: string;
+  label: string;
+  full_address: string;
+  city: string;
+  district: string;
+  is_default: boolean;
+  created_at: string;
+}
+
+export type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'preparing'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'cancelled';
+
+export interface OrderItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  unit_price_snapshot: string;
+  subtotal: string;
+  products: Product;
+}
+
+export interface OrderStatusHistory {
+  id: string;
+  status: OrderStatus;
+  note: string | null;
+  created_at: string;
+}
+
+export interface Order {
+  id: string;
+  user_id: string;
+  address_id: string;
+  status: OrderStatus;
+  payment_method: 'cash_on_delivery' | 'card';
+  subtotal: string;
+  discount_amount: string;
+  total_amount: string;
+  created_at: string;
+  updated_at: string;
+  order_items: OrderItem[];
+  order_status_history: OrderStatusHistory[];
+  addresses: Address;
+}
+
+export interface CheckoutPreview {
+  items: {
+    product_id: string;
+    name: string;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+    in_stock: boolean;
+    stock_quantity: number;
+  }[];
+  subtotal: number;
+  discount_amount: number;
+  total: number;
+  coupon: {
+    code: string;
+    discount_type: string;
+    discount_value: number;
+  } | null;
+  coupon_error: string | null;
+  has_stock_issues: boolean;
+}
+
 export interface Category {
   id: string;
   name: string;

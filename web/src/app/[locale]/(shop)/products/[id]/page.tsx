@@ -9,6 +9,7 @@ import { formatPrice, isDiscounted } from '@/lib/format';
 import { ProductGallery } from '@/components/shop/product-gallery';
 import { ProductPurchasePanel } from '@/components/shop/product-purchase-panel';
 import { ProductCard } from '@/components/shop/product-card';
+import { WishlistButton } from '@/components/shop/wishlist-button';
 
 async function getProduct(id: string, locale: string): Promise<Product | null> {
   try {
@@ -58,13 +59,16 @@ export default async function ProductDetailPage({
         <ProductGallery images={product.product_images} alt={product.name} />
 
         <div className="flex flex-col gap-4">
-          <div>
-            <h1 className="text-xl font-bold" dir="auto">
-              {product.name}
-            </h1>
-            <p className="mt-1 text-sm text-text-muted">
-              {t('stockCode')}: {product.sku}
-            </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-xl font-bold" dir="auto">
+                {product.name}
+              </h1>
+              <p className="mt-1 text-sm text-text-muted">
+                {t('stockCode')}: {product.sku}
+              </p>
+            </div>
+            <WishlistButton productId={product.id} />
           </div>
 
           <div className="flex items-baseline gap-3">

@@ -1,8 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { payment_method } from '@prisma/client';
 import {
   ArrayMinSize,
   IsArray,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -38,4 +40,9 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   coupon_code?: string;
+
+  @ApiPropertyOptional({ enum: payment_method, default: 'cash_on_delivery' })
+  @IsOptional()
+  @IsEnum(payment_method)
+  payment_method?: payment_method;
 }

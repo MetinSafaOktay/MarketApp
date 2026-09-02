@@ -120,6 +120,7 @@ export class OrdersService {
         data: {
           user_id: userId,
           address_id: dto.address_id,
+          payment_method: dto.payment_method ?? 'cash_on_delivery',
           subtotal,
           discount_amount: discountAmount,
           coupon_id: couponId,

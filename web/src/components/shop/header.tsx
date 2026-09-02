@@ -1,9 +1,10 @@
 import { getTranslations } from 'next-intl/server';
-import { Bell, MessageCircle, ShoppingCart } from 'lucide-react';
+import { Bell, MessageCircle } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { SearchBar } from '@/components/shop/search-bar';
 import { AccountMenu } from '@/components/shop/account-menu';
+import { CartLink } from '@/components/shop/cart-link';
 
 export async function Header() {
   const t = await getTranslations('Nav');
@@ -30,9 +31,7 @@ export async function Header() {
           <IconLink href="/notifications" label={t('notifications')}>
             <Bell className="size-5" />
           </IconLink>
-          <IconLink href="/cart" label={t('cart')}>
-            <ShoppingCart className="size-5" />
-          </IconLink>
+          <CartLink />
           <AccountMenu />
         </nav>
       </div>
