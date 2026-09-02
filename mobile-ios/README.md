@@ -56,4 +56,6 @@ swiftformat --lint .
   (arama + filtre + sayfalama), Kategoriler grid, Ürün detay (galeri + benzerler) ✅
 - **M3** — auth: giriş/kayıt formu, Keychain'de token, açılışta oturum geri
   yükleme, 401'de sessiz yenileme, Hesabım ekranı ✅
-- M4 — sepet/ödeme/sipariş · M5 — mesaj/bildirim/ayarlar · M6 — SwiftData/cila
+- **M4** — sepet (rozet, adet, kupon önizleme), ödeme akışı (adres, ödeme
+  yöntemi, sipariş onayı), siparişler + sipariş takibi, favoriler ✅
+- M5 — mesaj/bildirim/ayarlar · M6 — SwiftData/cila

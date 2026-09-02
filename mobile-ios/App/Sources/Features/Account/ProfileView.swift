@@ -41,6 +41,21 @@ struct ProfileView: View {
                         .cardSurface()
                 }
 
+                VStack(spacing: 0) {
+                    NavigationLink { OrdersView() } label: {
+                        menuRow("Siparişlerim", systemImage: "shippingbox")
+                    }
+                    Divider().overlay(Palette.border)
+                    NavigationLink { WishlistView() } label: {
+                        menuRow("Favorilerim", systemImage: "heart")
+                    }
+                    Divider().overlay(Palette.border)
+                    NavigationLink { AddressesView() } label: {
+                        menuRow("Adreslerim", systemImage: "mappin.and.ellipse")
+                    }
+                }
+                .cardSurface(padding: nil)
+
                 Button(role: .destructive) {
                     isSigningOut = true
                     Task { onSignOut() }
@@ -81,6 +96,18 @@ struct ProfileView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, Spacing.md)
+    }
+
+    private func menuRow(_ title: String, systemImage: String) -> some View {
+        HStack(spacing: Spacing.md) {
+            Image(systemName: systemImage).foregroundStyle(Palette.accent).frame(width: 24)
+            Text(title).foregroundStyle(Palette.text)
+            Spacer()
+            Image(systemName: "chevron.right").font(.caption).foregroundStyle(Palette.textMuted)
+        }
+        .font(.subheadline)
+        .padding(Spacing.md)
+        .contentShape(.rect)
     }
 
     private func infoRow(_ label: String, _ value: String) -> some View {

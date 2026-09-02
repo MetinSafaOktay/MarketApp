@@ -13,7 +13,10 @@ struct ProductDetailView: View {
 }
 
 private struct Inner: View {
+    @Environment(\.dependencies) private var deps
     @State private var model: ProductDetailModel
+    @State private var didAddToCart = false
+    @State private var showingAuth = false
     private let fallbackTitle: String
 
     init(productID: String, fallbackTitle: String, deps: AppDependencies) {
@@ -44,6 +47,13 @@ private struct Inner: View {
         .background(Palette.background)
         .navigationTitle(fallbackTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if case .loaded(let product) = model.phase {
+                ToolbarItem(placement: .topBarTrailing) {
+                    WishlistButton(product: product)
+                }
+            }
+        }
         .task { await model.loadIfNeeded() }
     }
 
@@ -60,9 +70,32 @@ private struct Inner: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
+                addToCartButton(product)
+
                 similarSection
             }
             .padding(Spacing.lg)
+        }
+    }
+
+    private func addToCartButton(_ product: Product) -> some View {
+        Button {
+            guard deps.session.isSignedIn else { showingAuth = true; return }
+            Task {
+                await deps.cartStore.add(productID: product.id)
+                didAddToCart = true
+            }
+        } label: {
+            Label(
+                didAddToCart ? "Sepete eklendi" : "Sepete ekle",
+                systemImage: didAddToCart ? "checkmark" : "bag.badge.plus"
+            )
+        }
+        .buttonStyle(.primary)
+        .disabled(!product.isInStock)
+        .opacity(product.isInStock ? 1 : 0.5)
+        .sheet(isPresented: $showingAuth) {
+            NavigationStack { AuthView(onAuthenticated: { showingAuth = false }) }
         }
     }
 

@@ -17,6 +17,15 @@ struct RootTabView: View {
         }
         .tint(Palette.accent)
         .task { await deps.session.restore() }
+        .task(id: deps.session.isSignedIn) {
+            if deps.session.isSignedIn {
+                await deps.cartStore.refresh()
+                await deps.wishlistStore.refresh()
+            } else {
+                deps.cartStore.clearLocal()
+                deps.wishlistStore.clearLocal()
+            }
+        }
     }
 }
 

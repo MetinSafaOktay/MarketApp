@@ -22,6 +22,10 @@ struct ProductCardView: View {
             .cardSurface(padding: nil)
         }
         .buttonStyle(.plain)
+        .overlay(alignment: .topTrailing) {
+            WishlistButton(product: product, size: .subheadline)
+                .padding(Spacing.sm)
+        }
     }
 
     private var image: some View {

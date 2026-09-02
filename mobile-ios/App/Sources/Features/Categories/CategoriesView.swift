@@ -10,6 +10,9 @@ struct CategoriesView: View {
         NavigationStack {
             Inner(deps: deps)
                 .navigationTitle("Kategoriler")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) { CartToolbarButton() }
+                }
                 .catalogDestinations()
         }
     }

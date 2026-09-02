@@ -15,6 +15,9 @@ struct HomeView: View {
                     ToolbarItem(placement: .topBarLeading) {
                         AccountToolbarButton()
                     }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        CartToolbarButton()
+                    }
                 }
                 .catalogDestinations()
         }

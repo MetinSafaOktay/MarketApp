@@ -76,6 +76,91 @@ struct StubAuth: AuthRepository, @unchecked Sendable {
     func logout(refreshToken _: String) async throws { }
 }
 
+/// Sepet çağrılarını sayan ve son durumu tutan sahte repository.
+final class StubCart: CartRepository, @unchecked Sendable {
+    var items: [CartItem] = []
+    private(set) var updateCalls: [(String, Int)] = []
+
+    func cart(language _: String) async throws -> [CartItem] {
+        items
+    }
+
+    func addItem(productID: String, quantity: Int) async throws {
+        items.append(CartItem(
+            id: "ci-\(productID)",
+            product: TestFixtures.product(id: productID),
+            quantity: quantity
+        ))
+    }
+
+    func updateQuantity(productID: String, quantity: Int) async throws {
+        updateCalls.append((productID, quantity))
+    }
+
+    func removeItem(productID: String) async throws {
+        items.removeAll { $0.product.id == productID }
+    }
+
+    func clear() async throws {
+        items = []
+    }
+
+    func checkoutPreview(
+        couponCode _: String?,
+        language _: String
+    ) async throws -> CheckoutPreview {
+        CheckoutPreview(
+            lines: [], subtotal: 0, discountAmount: 0, total: 0,
+            coupon: nil, couponError: nil, hasStockIssues: false
+        )
+    }
+}
+
+struct StubWishlist: WishlistRepository, @unchecked Sendable {
+    var products: [Product] = []
+    func wishlist(language _: String) async throws -> [Product] {
+        products
+    }
+
+    func add(productID _: String) async throws { }
+    func remove(productID _: String) async throws { }
+}
+
+struct StubAddress: AddressRepository {
+    var addressesResult: [Address] = []
+    func addresses() async throws -> [Address] {
+        addressesResult
+    }
+
+    func create(_ address: NewAddress) async throws -> Address {
+        Address(
+            id: "new", label: address.label, fullAddress: address.fullAddress,
+            city: address.city, district: address.district, isDefault: address.isDefault
+        )
+    }
+
+    func delete(id _: String) async throws { }
+}
+
+struct StubOrder: OrderRepository, @unchecked Sendable {
+    var ordersResult: [Order] = []
+    func orders(language _: String) async throws -> [Order] {
+        ordersResult
+    }
+
+    func order(id: String, language _: String) async throws -> Order {
+        ordersResult.first { $0.id == id } ?? TestFixtures.order(id: id)
+    }
+
+    func place(_: PlaceOrderInput, language _: String) async throws -> Order {
+        TestFixtures.order(id: "placed", status: .pending)
+    }
+
+    func cancel(id: String, reason _: String?, language _: String) async throws -> Order {
+        TestFixtures.order(id: id, status: .cancelled)
+    }
+}
+
 enum TestFixtures {
     static func product(
         id: String,
@@ -101,6 +186,22 @@ enum TestFixtures {
             role: role
         )
     }
+
+    static func order(id: String, status: OrderStatus = .pending) -> Order {
+        Order(
+            id: id, status: status, paymentMethod: .cashOnDelivery,
+            subtotal: 36, discountAmount: 0, totalAmount: 36, createdAt: nil,
+            lines: [OrderLine(
+                id: "l1",
+                productID: "p1",
+                name: "Ekmek",
+                quantity: 2,
+                unitPrice: 18,
+                lineSubtotal: 36
+            )],
+            statusHistory: [], address: nil
+        )
+    }
 }
 
 @MainActor
@@ -109,14 +210,26 @@ enum TestDeps {
         catalog: StubCatalog = StubCatalog(),
         storefront: StubStorefront = StubStorefront(),
         auth: StubAuth = StubAuth(),
+        cart: any CartRepository = StubCart(),
+        wishlist: any WishlistRepository = StubWishlist(),
+        address: any AddressRepository = StubAddress(),
+        order: any OrderRepository = StubOrder(),
         session: SessionStore? = nil
     ) -> AppDependencies {
-        AppDependencies(
+        let session = session ??
+            SessionStore(keychain: KeychainStore(service: "test.\(UUID().uuidString)"))
+        session.attach(authRepository: auth)
+        return AppDependencies(
             catalog: catalog,
             storefront: storefront,
             auth: auth,
-            session: session ??
-                SessionStore(keychain: KeychainStore(service: "test.\(UUID().uuidString)")),
+            cart: cart,
+            wishlist: wishlist,
+            address: address,
+            order: order,
+            session: session,
+            cartStore: CartStore(repository: cart, session: session, language: "tr"),
+            wishlistStore: WishlistStore(repository: wishlist, session: session, language: "tr"),
             language: "tr"
         )
     }

@@ -12,6 +12,9 @@ struct StoreView: View {
                     showsControls: true
                 )
             )
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { CartToolbarButton() }
+            }
             .catalogDestinations()
         }
     }

@@ -9,7 +9,15 @@ struct AppDependencies {
     let catalog: any CatalogRepository
     let storefront: any StorefrontRepository
     let auth: any AuthRepository
+    let cart: any CartRepository
+    let wishlist: any WishlistRepository
+    let address: any AddressRepository
+    let order: any OrderRepository
+
     let session: SessionStore
+    let cartStore: CartStore
+    let wishlistStore: WishlistStore
+
     /// Backend'e gönderilecek dil kodu (tr/en/de/fr/ar/nl).
     let language: String
 
@@ -29,11 +37,25 @@ struct AppDependencies {
         let client = LiveAPIClient(baseURL: baseURL, tokenProvider: session)
         let auth = AuthRepositoryLive(client: client)
         session.attach(authRepository: auth)
+
+        let cart = CartRepositoryLive(client: client)
+        let wishlist = WishlistRepositoryLive(client: client)
+
         return AppDependencies(
             catalog: CatalogRepositoryLive(client: client),
             storefront: StorefrontRepositoryLive(client: client),
             auth: auth,
+            cart: cart,
+            wishlist: wishlist,
+            address: AddressRepositoryLive(client: client),
+            order: OrderRepositoryLive(client: client),
             session: session,
+            cartStore: CartStore(repository: cart, session: session, language: language),
+            wishlistStore: WishlistStore(
+                repository: wishlist,
+                session: session,
+                language: language
+            ),
             language: language
         )
     }
