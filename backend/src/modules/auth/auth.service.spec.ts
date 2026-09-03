@@ -1,3 +1,7 @@
+/**
+ * AuthService birim testleri: token üretimi/ROTASYONU, hatalı kimlik, kapatılmış
+ * hesap, süresi geçmiş/iptal refresh. Prisma + JwtService + bcrypt mock'lanır.
+ */
 import {
   BadRequestException,
   ConflictException,

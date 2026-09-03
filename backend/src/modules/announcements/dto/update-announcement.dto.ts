@@ -1,3 +1,4 @@
+/** PATCH /announcements/:id — CreateAnnouncementDto'nun tüm alanları opsiyonel. */
 import { PartialType } from '@nestjs/swagger';
 import { CreateAnnouncementDto } from './create-announcement.dto';
 

@@ -1,3 +1,9 @@
+/**
+ * Kupon CRUD (admin) + `validateForOrder` (sepet/sipariş akışının kalbi).
+ * validateForOrder tüm iş kurallarını tek yerde toplar — hem checkout-preview
+ * hem gerçek sipariş oluşturma aynı fonksiyonu çağırır (tutarlılık).
+ * Bkz. `coupons.service.spec.ts`.
+ */
 import {
   BadRequestException,
   Injectable,
@@ -47,6 +53,12 @@ export class CouponsService {
     return coupon;
   }
 
+  /**
+   * Kupon bu sipariş için geçerli mi? Değilse anlamlı bir BadRequest fırlatır,
+   * geçerliyse { coupon, discountAmount } döner. Kontrol sırası:
+   *   var mı/aktif mi → tarih aralığı → min sepet tutarı → kullanıcı kullanım limiti.
+   * İndirim hesabı en sonda; her iki tipte de indirim sepet tutarını AŞAMAZ.
+   */
   async validateForOrder(code: string, userId: string, subtotal: number) {
     const coupon = await this.prisma.coupons.findUnique({ where: { code } });
     if (!coupon || !coupon.is_active) {
@@ -66,6 +78,7 @@ export class CouponsService {
       );
     }
 
+    // Bu kullanıcı bu kuponu kaç kez kullandı? (iptal edilenler sayılmaz)
     const usageCount = await this.prisma.orders.count({
       where: {
         coupon_id: coupon.id,
@@ -80,8 +93,8 @@ export class CouponsService {
     const discountValue = Number(coupon.discount_value);
     const discountAmount =
       coupon.discount_type === 'percentage'
-        ? Math.min(subtotal, (subtotal * discountValue) / 100)
-        : Math.min(subtotal, discountValue);
+        ? Math.min(subtotal, (subtotal * discountValue) / 100) // yüzde
+        : Math.min(subtotal, discountValue); // sabit TL — ama sepetten fazla değil
 
     return { coupon, discountAmount };
   }

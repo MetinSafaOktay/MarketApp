@@ -5,12 +5,13 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { DEFAULT_LOCALE, Locale } from '../../common/i18n/locales';
 import { localizeFields, localizeList } from '../../common/i18n/localize';
 
-const I18N_FIELDS = ['name'] as const;
+const I18N_FIELDS = ['name'] as const; // yalnızca `name` çok dilli
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // display_order: admin'in belirlediği menü sırası (0 en üstte)
   async list(locale: Locale = DEFAULT_LOCALE, raw = false) {
     const rows = await this.prisma.categories.findMany({
       orderBy: { display_order: 'asc' },
@@ -23,12 +24,14 @@ export class CategoriesService {
     return raw ? category : localizeFields(category, locale, I18N_FIELDS);
   }
 
+  // update/delete öncesi "var mı" kontrolü (yoksa 404)
   private async getOrThrow(id: string) {
     const category = await this.prisma.categories.findUnique({ where: { id } });
     if (!category) throw new NotFoundException('Kategori bulunamadı');
     return category;
   }
 
+  // dto.name zaten { tr, en, ... } jsonb; doğrudan kaydedilir
   create(dto: CreateCategoryDto) {
     return this.prisma.categories.create({ data: dto });
   }

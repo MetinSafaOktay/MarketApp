@@ -1,3 +1,10 @@
+/**
+ * Sipariş modülü.
+ *  - müşteri: sipariş oluştur, kendi siparişlerini listele/gör, iptal et (erken)
+ *  - admin: tüm siparişleri gör, durum güncelle (zaman çizelgesi)
+ * CouponsModule → sipariş anında kupon indirimini yeniden doğrular.
+ * NotificationsModule → durum değişince müşteriye bildirim düşer.
+ */
 import { Module } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';

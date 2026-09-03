@@ -21,6 +21,10 @@ import type { Locale } from '../../common/i18n/locales';
 
 const isRaw = (v?: string) => v === 'true' || v === '1';
 
+/**
+ * /categories — GET'ler herkese açık (storefront kategori menüsü / ızgarası).
+ * POST/PATCH/DELETE yalnızca admin. `raw=true` → çok dilli ham map (admin editörü).
+ */
 @ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {

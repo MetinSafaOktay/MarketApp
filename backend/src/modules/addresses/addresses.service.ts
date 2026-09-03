@@ -1,3 +1,4 @@
+/** Adres defteri CRUD + "bu adres bu kullanıcıya mı ait" güvenlik kontrolü. */
 import {
   ForbiddenException,
   Injectable,
@@ -24,6 +25,7 @@ export class AddressesService {
     });
   }
 
+  // update/remove'dan önce çağrılır: adres var mı VE çağırana mı ait?
   private async assertOwnership(userId: string, addressId: string) {
     const address = await this.prisma.addresses.findUnique({
       where: { id: addressId },

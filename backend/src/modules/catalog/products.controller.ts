@@ -24,6 +24,14 @@ import type { Locale } from '../../common/i18n/locales';
 /** `raw=true|1` → çok dilli alanları çözmeden ham jsonb map döndür (admin editör için). */
 const isRaw = (v?: string) => v === 'true' || v === '1';
 
+/**
+ * /products — kataloğun kalbi.
+ *  GET /              : arama + filtre + sıralama + sayfalama → { data, meta }
+ *  GET /:id           : tek ürün (görselleriyle)
+ *  GET /:id/similar   : aynı kategoriden birkaç öneri
+ *  POST/PATCH/DELETE  : admin — ürün CRUD
+ *  POST/DELETE /:id/images : ürün görseli ekle/çıkar (URL'ler storage modülünden gelir)
+ */
 @ApiTags('products')
 @Controller('products')
 export class ProductsController {
@@ -59,6 +67,7 @@ export class ProductsController {
     return this.productsService.findOne(id, lang, isRaw(raw));
   }
 
+  // Ürün detay sayfasındaki "Benzer ürünler" rafı. `limit` metin → sayı.
   @Get(':id/similar')
   listSimilar(
     @Param('id') id: string,

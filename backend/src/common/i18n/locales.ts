@@ -1,3 +1,11 @@
+/**
+ * i18n çekirdeği. Projede iki i18n katmanı var:
+ *  1) Arayüz metinleri  → istemcide (web `messages/*.json`, mobil `strings.xml` vb.)
+ *  2) İÇERİK (ürün adı, kategori, duyuru, mağaza sloganı) → DB'de jsonb map:
+ *     { "tr": "...", "en": "..." }. Bu dosya (2)'yi yönetir.
+ * Storefront GET'leri `?lang=xx` / Accept-Language'e göre tek dile çözer,
+ * çeviri yoksa `tr`'ye düşer. Admin GET'leri ham map'i alır (?raw=true).
+ */
 export const SUPPORTED_LOCALES = ['tr', 'en', 'de', 'fr', 'ar', 'nl'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'tr';

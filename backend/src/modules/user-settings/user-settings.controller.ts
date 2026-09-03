@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
 
+// Rota: GET/PATCH /users/me/settings — hep oturum sahibinin kendi ayarları.
 @ApiTags('user-settings')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

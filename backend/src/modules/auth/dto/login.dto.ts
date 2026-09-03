@@ -1,3 +1,8 @@
+/**
+ * POST /auth/login gövdesi. email VEYA phone + password.
+ * (Mobil istemci tek "identifier" alanı gösterir; `@` içeriyorsa email,
+ * içermiyorsa phone olarak buraya gönderir.)
+ */
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 

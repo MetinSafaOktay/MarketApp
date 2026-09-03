@@ -5,6 +5,7 @@ import { UpdateAnnouncementDto } from './dto/update-announcement.dto';
 import { DEFAULT_LOCALE, Locale } from '../../common/i18n/locales';
 import { localizeFields, localizeList } from '../../common/i18n/localize';
 
+/** Duyuru CRUD. list her zaman en yeniden eskiye; storefront ilk 3'ünü gösterir. */
 const I18N_FIELDS = ['title', 'content'] as const;
 
 @Injectable()

@@ -1,3 +1,4 @@
+/** İstek listesi ekle/çıkar/listele. Liste yanıtı sepet ile aynı sarmalayıcı (`{ products }`) — istemci ortak `ProductCard` kullanır. */
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AddWishlistItemDto } from './dto/add-wishlist-item.dto';
@@ -28,6 +29,7 @@ export class WishlistService {
         data: { user_id: userId, product_id: dto.product_id },
       });
     } catch {
+      // (user_id, product_id) unique → ikinci ekleme DB'de patlar
       throw new ConflictException('Ürün zaten istek listesinde');
     }
   }

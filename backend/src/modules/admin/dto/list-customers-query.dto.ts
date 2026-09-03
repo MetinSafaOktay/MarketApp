@@ -1,3 +1,4 @@
+/** GET /admin/customers query — sayfalama + serbest metin arama. */
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';

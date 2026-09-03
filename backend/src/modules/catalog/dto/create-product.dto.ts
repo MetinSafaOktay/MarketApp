@@ -13,6 +13,12 @@ import {
 import { IsTranslatedText } from '../../../common/i18n/is-translated-text.validator';
 import type { TranslatedText } from '../../../common/i18n/locales';
 
+/**
+ * POST /products gövdesi (admin). `name`/`description` çok dilli (`name.tr` zorunlu).
+ * `price`/`original_price` sayı gelir; DB'de Decimal → yanıtlarda string döner.
+ * `images` sadece OLUŞTURMADA var (opsiyonel başlangıç listesi); sonradan
+ * görsel eklemek için ayrı uç: POST /products/:id/images.
+ */
 export class CreateProductDto {
   @ApiProperty()
   @IsUUID()

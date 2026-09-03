@@ -13,6 +13,12 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
+/**
+ * /uploads — sınıfta JwtAuthGuard (giriş şart).
+ * product-image: ekstra @Roles('admin') — ürün görselini sadece admin yükler.
+ * avatar: her giriş yapmış kullanıcı kendi profil fotoğrafını yükleyebilir.
+ * Prefix ('products'/'avatars') Supabase bucket içindeki klasörü belirler.
+ */
 @ApiTags('uploads')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

@@ -6,6 +6,8 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
 
+// /push — tarayıcının PushManager aboneliğini (endpoint + anahtarlar) kaydeder/siler.
+// Bir kullanıcının birden çok cihazı/tarayıcısı olabilir → birden çok abonelik.
 @ApiTags('push')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

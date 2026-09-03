@@ -1,3 +1,7 @@
+/**
+ * `@IsTranslatedText()` — admin'in ürün/kategori/duyuru oluştururken/güncellerken
+ * gönderdiği çok dilli metin gövdesini doğrular (create-product.dto vb. kullanır).
+ */
 import {
   registerDecorator,
   ValidationArguments,

@@ -13,6 +13,13 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+/**
+ * POST /orders gövdesi. İstemci sepeti değil, satın alınacak `items` listesini
+ * gönderir (istemci sepetten türetir). `payment_method` yoksa "kapıda nakit".
+ * Fiyatlar burada YOK — server sipariş anındaki ürün fiyatını baz alır (manipülasyon önlenir).
+ */
+
+// Nested doğrulama: `@ValidateNested({ each: true })` + `@Type` gerekli
 export class OrderItemInputDto {
   @ApiProperty()
   @IsUUID()

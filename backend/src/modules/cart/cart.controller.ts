@@ -21,6 +21,11 @@ import type { CurrentUserPayload } from '../../common/decorators/current-user.de
 import { Lang } from '../../common/i18n/lang.decorator';
 import type { Locale } from '../../common/i18n/locales';
 
+/**
+ * /cart — tüm uçlar giriş ister. `items/:productId` rotaları ÜRÜN id'siyle çalışır
+ * (sepet satırının id'siyle değil); istemci ürünü tanır, satırı değil.
+ * @Lang: ürün adları sepet yanıtında tek dile çözülür.
+ */
 @ApiTags('cart')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -63,6 +68,8 @@ export class CartController {
     return this.cartService.clear(currentUser.userId);
   }
 
+  // Sipariş vermeden "ne kadar tutar" önizlemesi: satır toplamları, kupon indirimi,
+  // stok sorunu var mı. POST ama kaynak yaratmaz → 200.
   @Post('checkout-preview')
   @HttpCode(HttpStatus.OK)
   checkoutPreview(

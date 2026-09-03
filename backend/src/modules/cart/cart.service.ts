@@ -11,15 +11,18 @@ import {
 } from '../../common/i18n/locales';
 import { localizeFields } from '../../common/i18n/localize';
 
+/** Sepet CRUD + ödeme önizlemesi. Sepet satırları `cart_items` tablosunda. */
+
 const PRODUCT_I18N = ['name', 'description'] as const;
 
 @Injectable()
 export class CartService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly couponsService: CouponsService,
+    private readonly couponsService: CouponsService, // checkout-preview kupon doğrulaması
   ) {}
 
+  // Sepeti ürün + görselleriyle döndürür; ürün adları tek dile çözülür.
   async list(userId: string, locale: Locale = DEFAULT_LOCALE) {
     const items = await this.prisma.cart_items.findMany({
       where: { user_id: userId },
@@ -34,12 +37,14 @@ export class CartService {
 
   async addItem(userId: string, dto: AddCartItemDto) {
     const quantity = dto.quantity ?? 1;
+    // (user_id, product_id) tabloda unique → kullanıcı başına ürün başına tek satır
     const existing = await this.prisma.cart_items.findUnique({
       where: {
         user_id_product_id: { user_id: userId, product_id: dto.product_id },
       },
     });
     if (existing) {
+      // zaten varsa yeni satır AÇMA, adedi artır
       return this.prisma.cart_items.update({
         where: { id: existing.id },
         data: { quantity: existing.quantity + quantity },
@@ -90,8 +95,9 @@ export class CartService {
       orderBy: { added_at: 'desc' },
     });
 
+    // Her sepet satırı için anlık fiyat + satır toplamı + stok yeterli mi
     const lines = items.map((item) => {
-      const unitPrice = Number(item.products.price);
+      const unitPrice = Number(item.products.price); // Decimal → number
       const lineTotal = unitPrice * item.quantity;
       return {
         product_id: item.product_id,
@@ -105,7 +111,7 @@ export class CartService {
     });
 
     const subtotal = lines.reduce((sum, l) => sum + l.line_total, 0);
-    const stockIssues = lines.filter((l) => !l.in_stock);
+    const stockIssues = lines.filter((l) => !l.in_stock); // istemci bunları uyarır
 
     let discountAmount = 0;
     let coupon: {
@@ -117,6 +123,7 @@ export class CartService {
 
     if (dto.coupon_code) {
       try {
+        // Kupon geçerli mi + bu sepet tutarına indirimi ne kadar?
         const result = await this.couponsService.validateForOrder(
           dto.coupon_code,
           userId,
@@ -129,6 +136,7 @@ export class CartService {
           discount_value: Number(result.coupon.discount_value),
         };
       } catch (error) {
+        // Kupon reddedildi → istek patlamaz, sebebi yanıta koy (yumuşak hata)
         couponError =
           error instanceof Error ? error.message : 'Kupon uygulanamadı';
       }
@@ -138,7 +146,7 @@ export class CartService {
       items: lines,
       subtotal,
       discount_amount: discountAmount,
-      total: Math.max(0, subtotal - discountAmount),
+      total: Math.max(0, subtotal - discountAmount), // negatif olamaz
       coupon,
       coupon_error: couponError,
       has_stock_issues: stockIssues.length > 0,

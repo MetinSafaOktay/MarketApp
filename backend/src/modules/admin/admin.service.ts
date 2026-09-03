@@ -1,8 +1,10 @@
+/** Admin dashboard sorguları (salt-okunur, tümü ağır Promise.all paralel). */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { paginate, toSkipTake } from '../../common/pagination';
 import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
 
+// "aktif" = teslim edilmemiş ve iptal edilmemiş siparişler (mağazanın ilgilenmesi gerekenler)
 const ACTIVE_ORDER_STATUSES = [
   'pending',
   'confirmed',
@@ -14,10 +16,11 @@ const ACTIVE_ORDER_STATUSES = [
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // Dashboard üst kartları: sipariş sayıları, ciro, müşteri/ürün sayıları, okunmamış sohbet.
   async stats() {
     const now = new Date();
     const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
+    todayStart.setHours(0, 0, 0, 0); // bugünün 00:00'ı
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const [
@@ -37,6 +40,7 @@ export class AdminService {
         where: { status: { in: [...ACTIVE_ORDER_STATUSES] } },
       }),
       this.prisma.orders.count({ where: { created_at: { gte: todayStart } } }),
+      // ciro yalnızca TESLİM EDİLMİŞ siparişlerden (iptal/bekleyen sayılmaz)
       this.prisma.orders.aggregate({
         _sum: { total_amount: true },
         where: { status: 'delivered' },
@@ -137,6 +141,7 @@ export class AdminService {
       this.prisma.users.count({ where }),
     ]);
 
+    // _count nesnesini düz `order_count` alanına çevir (istemci için sade)
     const data = rows.map(({ _count, ...rest }) => ({
       ...rest,
       order_count: _count.orders,
@@ -145,12 +150,13 @@ export class AdminService {
     return paginate(data, total, page, pageSize);
   }
 
+  // Stoğu eşiğin altındaki aktif ürünler — admin "yakında bitecek" uyarı listesi
   lowStockProducts(threshold = 5) {
     const safeThreshold = Math.max(0, Math.min(1000, Math.floor(threshold)));
     return this.prisma.products.findMany({
       where: { is_active: true, stock_quantity: { lte: safeThreshold } },
       include: { categories: { select: { name: true } } },
-      orderBy: { stock_quantity: 'asc' },
+      orderBy: { stock_quantity: 'asc' }, // en kritik en üstte
     });
   }
 }

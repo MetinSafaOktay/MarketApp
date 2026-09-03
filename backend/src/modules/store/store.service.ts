@@ -5,12 +5,13 @@ import { UpdateStoreDto } from './dto/update-store.dto';
 import { DEFAULT_LOCALE, Locale } from '../../common/i18n/locales';
 import { localizeFields } from '../../common/i18n/localize';
 
-const I18N_FIELDS = ['tagline', 'description'] as const;
+const I18N_FIELDS = ['tagline', 'description'] as const; // çok dilli jsonb kolonlar
 
 @Injectable()
 export class StoreService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // store_profile tek satırdır; hiç yoksa bir kez seed'ler (ilk kurulum kolaylığı)
   private async getRaw() {
     const existing = await this.prisma.store_profile.findFirst();
     if (existing) return existing;
@@ -21,6 +22,7 @@ export class StoreService {
 
   async get(locale: Locale = DEFAULT_LOCALE, raw = false) {
     const profile = await this.getRaw();
+    // raw değilse tagline/description tek dile indirilir
     return raw ? profile : localizeFields(profile, locale, I18N_FIELDS);
   }
 

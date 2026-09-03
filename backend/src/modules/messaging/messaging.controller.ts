@@ -8,6 +8,11 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
 
+/**
+ * @Controller() prefix'siz — rotalar tam path veriyor (`conversations/...`).
+ * `conversations/me*` → müşteri (kendi tek konuşması).
+ * `conversations` + `conversations/:id*` → yalnızca admin (gelen kutusu + yanıt).
+ */
 @ApiTags('messaging')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -15,6 +20,7 @@ import type { CurrentUserPayload } from '../../common/decorators/current-user.de
 export class MessagingController {
   constructor(private readonly messagingService: MessagingService) {}
 
+  // İstemci bunu 5 sn'de bir çeker (polling). Yan etki: mağaza mesajlarını okundu yapar.
   @Get('conversations/me')
   getMyMessages(@CurrentUser() currentUser: CurrentUserPayload) {
     return this.messagingService.getMyMessages(currentUser.userId);

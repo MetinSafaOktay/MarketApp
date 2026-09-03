@@ -1,3 +1,8 @@
+/**
+ * GET /products query parametreleri. PaginationQueryDto'yu (page/pageSize) genişletir.
+ * B6'da eklendi — bundan önce endpoint düz dizi dönüyordu, artık { data, meta }.
+ * Web mağaza listesi ve mobil `ProductQuery` bu alanları kullanır.
+ */
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
@@ -6,6 +11,7 @@ import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 export const PRODUCT_SORTS = ['newest', 'price_asc', 'price_desc'] as const;
 export type ProductSort = (typeof PRODUCT_SORTS)[number];
 
+// query'de "true"/"1"/true → boolean (checkbox filtreleri metin olarak gelir)
 const toBool = ({ value }: { value: unknown }) =>
   value === true || value === 'true' || value === '1';
 

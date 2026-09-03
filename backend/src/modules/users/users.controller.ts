@@ -17,6 +17,13 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
 
+/**
+ * /users uçları.
+ *  - `/users/me` (PATCH, DELETE): oturum sahibinin kendi hesabı — token gerekir
+ *  - `/users/:id` (GET): herkese açık profil (guard yok)
+ *  - `/users/:id/follow` (POST/DELETE): takip et / bırak — token gerekir
+ * DİKKAT: `:id` route'ları en sonda; yoksa "me" bir id sanılırdı (Nest sırayla eşler).
+ */
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -32,6 +39,7 @@ export class UsersController {
     return this.usersService.updateProfile(currentUser.userId, dto);
   }
 
+  // Yumuşak silme + anonimleştirme (bkz. service). 200 döner, kayıt fiziksel silinmez.
   @Delete('me')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()

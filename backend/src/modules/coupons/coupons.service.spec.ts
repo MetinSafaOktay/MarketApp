@@ -1,3 +1,7 @@
+/**
+ * `validateForOrder` birim testleri — para hesabı + iş kuralları (para = risk).
+ * Prisma mock'lanır; `coupons.findUnique` ve `orders.count` stub'lanır.
+ */
 import { BadRequestException } from '@nestjs/common';
 import { CouponsService } from './coupons.service';
 

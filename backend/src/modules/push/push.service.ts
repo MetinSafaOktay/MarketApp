@@ -1,3 +1,4 @@
+/** Web-push gönderimi. VAPID env yoksa tüm gönderimler sessizce no-op olur. */
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as webpush from 'web-push';
@@ -13,7 +14,7 @@ export interface PushPayload {
 @Injectable()
 export class PushService {
   private readonly logger = new Logger(PushService.name);
-  private readonly isConfigured: boolean;
+  private readonly isConfigured: boolean; // VAPID env tam mı?
 
   constructor(
     private readonly prisma: PrismaService,
@@ -27,12 +28,14 @@ export class PushService {
     if (this.isConfigured) {
       webpush.setVapidDetails(subject!, publicKey!, privateKey!);
     } else {
+      // Anahtar yoksa uygulama çalışır, sadece push atmaz (bildirim yine DB'de)
       this.logger.warn(
         'VAPID anahtarları tanımlı değil, push bildirimleri devre dışı',
       );
     }
   }
 
+  // upsert by endpoint: aynı tarayıcı yeniden abone olursa satır güncellenir
   subscribe(userId: string, dto: SubscribeDto) {
     return this.prisma.push_subscriptions.upsert({
       where: { endpoint: dto.endpoint },
@@ -48,8 +51,9 @@ export class PushService {
     return { success: true };
   }
 
+  /** Kullanıcının TÜM cihazlarına bildirim gönderir. Hata alırsanız çöker değil. */
   async sendToUser(userId: string, payload: PushPayload) {
-    if (!this.isConfigured) return;
+    if (!this.isConfigured) return; // VAPID yoksa hiç deneme
 
     const subscriptions = await this.prisma.push_subscriptions.findMany({
       where: { user_id: userId },
@@ -67,6 +71,7 @@ export class PushService {
           );
         } catch (error) {
           const statusCode = (error as { statusCode?: number }).statusCode;
+          // 404/410 = abonelik ölmüş (tarayıcı temizlemiş) → satırı sil
           if (statusCode === 404 || statusCode === 410) {
             await this.prisma.push_subscriptions.delete({
               where: { id: sub.id },

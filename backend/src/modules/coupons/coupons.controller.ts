@@ -16,6 +16,10 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
+/**
+ * /coupons — sınıf düzeyindeki @Roles('admin') sayesinde TÜM uçlar admin.
+ * Müşteri kupon uygulamayı bu uçlarla yapmaz; sepet/sipariş akışında kod gönderir.
+ */
 @ApiTags('coupons')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)

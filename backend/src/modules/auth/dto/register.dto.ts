@@ -1,3 +1,8 @@
+/**
+ * POST /auth/register gövdesi. Alan adları snake_case çünkü doğrudan
+ * `prisma.users.create({ data: dto })` içine geçiyor (DB kolon adlarıyla birebir).
+ * email/phone ikisi de opsiyonel görünse de servis "en az biri" kuralını uygular.
+ */
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
@@ -20,7 +25,7 @@ export class RegisterDto {
 
   @ApiProperty()
   @IsString()
-  @MinLength(8)
+  @MinLength(8) // minimum parola uzunluğu
   password: string;
 
   @ApiProperty({ maxLength: 30 })

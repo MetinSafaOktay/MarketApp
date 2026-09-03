@@ -16,6 +16,11 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
 
+/**
+ * /addresses — sınıf düzeyindeki @UseGuards(JwtAuthGuard) sayesinde tüm uçlar
+ * token ister. `:id` işlemlerinde sahiplik kontrolünü service yapar (başkasının
+ * adresine PATCH/DELETE → 403).
+ */
 @ApiTags('addresses')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

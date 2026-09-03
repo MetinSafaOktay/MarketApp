@@ -1,3 +1,10 @@
+/**
+ * Kök modül. Tüm domain modüllerini (auth, catalog, orders...) tek bir uygulama
+ * grafiğinde toplar ve uygulama geneli davranışları kurar:
+ *  - ConfigModule: .env okuma + açılışta doğrulama (validateEnv)
+ *  - ThrottlerModule + global ThrottlerGuard: hız sınırlama
+ * Her domain kendi `modules/<ad>/<ad>.module.ts` dosyasında; buraya sadece eklenir.
+ */
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
@@ -26,15 +33,16 @@ import { StorageModule } from './modules/storage/storage.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
-      validate: validateEnv,
+      isGlobal: true, // her modülde ayrıca import etmeye gerek yok
+      validate: validateEnv, // eksik/hatalı env varsa uygulama hiç açılmaz
     }),
-    // Not: Vercel serverless'ta bellek-içi depo instance başına tutulur; sınırlama
-    // sıcak instance içinde iş görür, tam koruma için Redis/Upstash deposu gerekir.
+    // Genel sınır: IP başına 60 sn'de 100 istek. Kimlik uçları auth.controller'da
+    // @Throttle ile daha da sıkı. Not: Vercel serverless'ta bellek-içi sayaç her
+    // instance'a özel; tam koruma için Redis/Upstash deposu gerekir.
     ThrottlerModule.forRoot({
       throttlers: [{ name: 'default', ttl: 60_000, limit: 100 }],
     }),
-    PrismaModule,
+    PrismaModule, // @Global — DB erişimi (PrismaService) tüm modüllere açık
     AuthModule,
     UsersModule,
     AddressesModule,
@@ -53,6 +61,7 @@ import { StorageModule } from './modules/storage/storage.module';
     StorageModule,
   ],
   controllers: [AppController],
+  // APP_GUARD: bu guard TÜM route'larda otomatik çalışır (tek tek eklemeye gerek yok)
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

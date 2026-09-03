@@ -22,6 +22,11 @@ import type { CurrentUserPayload } from '../../common/decorators/current-user.de
 import { Lang } from '../../common/i18n/lang.decorator';
 import type { Locale } from '../../common/i18n/locales';
 
+/**
+ * /orders — sınıf düzeyinde JwtAuthGuard (giriş şart). list/findOne'da müşteri
+ * yalnızca KENDİ siparişini görür, admin hepsini (kontrol service'te, currentUser
+ * hem id hem role taşıyor). `/:id/status` ekstra RolesGuard ile sadece admin.
+ */
 @ApiTags('orders')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -29,6 +34,7 @@ import type { Locale } from '../../common/i18n/locales';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  // Sepetten değil, istemcinin gönderdiği items listesinden sipariş kurar.
   @Post()
   create(
     @CurrentUser() currentUser: CurrentUserPayload,
@@ -52,6 +58,7 @@ export class OrdersController {
     return this.ordersService.findOne(id, currentUser, lang);
   }
 
+  // Müşteri iptali — yalnızca hazırlığa başlanmadan (pending/confirmed). Stok iade edilir.
   @Patch(':id/cancel')
   @HttpCode(HttpStatus.OK)
   cancel(
@@ -63,6 +70,7 @@ export class OrdersController {
     return this.ordersService.cancel(id, currentUser, dto, lang);
   }
 
+  // Admin: siparişi bir sonraki duruma taşı (onaylandı → hazırlanıyor → yolda → teslim)
   @Patch(':id/status')
   @UseGuards(RolesGuard)
   @Roles('admin')

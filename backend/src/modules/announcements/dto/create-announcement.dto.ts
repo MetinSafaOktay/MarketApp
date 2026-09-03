@@ -1,3 +1,7 @@
+/**
+ * POST /announcements gövdesi (admin). `title` opsiyonel, `content` zorunlu
+ * ve `content.tr` dolu olmalı. `image_url` storage modülünden gelir.
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsUrl } from 'class-validator';
 import { IsTranslatedText } from '../../../common/i18n/is-translated-text.validator';

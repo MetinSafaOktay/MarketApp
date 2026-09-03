@@ -1,3 +1,7 @@
+/**
+ * POST /categories gövdesi (admin). `name` çok dilli ve `tr` ZORUNLU
+ * (requireDefault). `display_order` menüdeki sırayı belirler.
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsUrl, Min } from 'class-validator';
 import { IsTranslatedText } from '../../../common/i18n/is-translated-text.validator';

@@ -3,8 +3,10 @@ import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 /**
- * Sayfalama parametreleri için ortak temel DTO.
- * Liste endpoint'leri bunu extend edip kendi filtre alanlarını ekler.
+ * Sayfalama query parametreleri için ortak temel DTO (`?page=&pageSize=`).
+ * Liste endpoint'leri bunu extend edip kendi filtre alanlarını ekler
+ * (bkz. list-products-query.dto.ts). `@Type(() => Number)` gerekli çünkü
+ * query string'de her şey metindir.
  */
 export class PaginationQueryDto {
   @ApiPropertyOptional({ default: 1, minimum: 1 })

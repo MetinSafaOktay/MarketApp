@@ -1,3 +1,8 @@
+/**
+ * PATCH /store gövdesi (yalnızca admin). Hepsi opsiyonel — kısmi güncelleme.
+ * `tagline` / `description` çok dilli: { "tr": "...", "en": "..." } biçiminde,
+ * `@IsTranslatedText` ile doğrulanır. `working_hours` şimdilik serbest JSON.
+ */
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsObject,

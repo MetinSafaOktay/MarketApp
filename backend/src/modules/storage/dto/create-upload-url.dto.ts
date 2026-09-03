@@ -1,3 +1,7 @@
+/**
+ * POST /uploads/* gövdesi. Yalnızca dosya uzantısı + MIME tipi — dosyanın kendisi değil.
+ * Beyaz liste ile sınırlı (jpg/png/webp); rastgele dosya türü yüklenemez.
+ */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsString } from 'class-validator';
 

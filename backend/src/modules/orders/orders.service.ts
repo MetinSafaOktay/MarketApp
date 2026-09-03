@@ -17,6 +17,15 @@ import {
 } from '../../common/i18n/locales';
 import { localizeFields } from '../../common/i18n/localize';
 
+/**
+ * Sipariş iş mantığı. Kritik ilkeler:
+ *  - FİYAT SUNUCUDA: sipariş anındaki ürün fiyatı `unit_price_snapshot` olarak
+ *    donarılır; istemcinin gönderdiği fiyata güvenilmez.
+ *  - STOK YÖNETİMİ: sipariş oluşturmada stok DÜŞER, iptalde GERİ YÜKLENİR —
+ *    hepsi $transaction içinde (yarıda kalmaz).
+ *  - order_status_history: her durum değişikliği bir satır → zaman çizelgesi.
+ */
+
 const PRODUCT_I18N = ['name', 'description'] as const;
 
 /** order_items[].products içindeki çok dilli alanları çözer. */
@@ -52,6 +61,8 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'İptal Edildi',
 };
 
+// Sipariş yanıtlarında hep birlikte dönen ilişkiler: kalemler + ürün, durum
+// geçmişi (kronolojik), teslimat adresi.
 const WITH_DETAILS = {
   order_items: { include: { products: true } },
   order_status_history: { orderBy: { created_at: 'asc' as const } },
@@ -71,6 +82,7 @@ export class OrdersService {
     dto: CreateOrderDto,
     locale: Locale = DEFAULT_LOCALE,
   ) {
+    // 1) Adres gerçekten bu kullanıcıya mı ait?
     const address = await this.prisma.addresses.findUnique({
       where: { id: dto.address_id },
     });
@@ -78,12 +90,14 @@ export class OrdersService {
       throw new ForbiddenException('Bu adres size ait değil');
     }
 
+    // 2) İstenen ürünleri tek sorguda çek, id→ürün haritası kur
     const productIds = dto.items.map((item) => item.product_id);
     const products = await this.prisma.products.findMany({
       where: { id: { in: productIds } },
     });
     const productMap = new Map(products.map((p) => [p.id, p]));
 
+    // 3) Her kalem için: ürün var mı + stok yeter mi (yazmadan önce doğrula)
     for (const item of dto.items) {
       const product = productMap.get(item.product_id);
       if (!product) {
@@ -96,11 +110,13 @@ export class OrdersService {
       }
     }
 
+    // 4) Ara toplam SUNUCU fiyatlarıyla hesaplanır
     const subtotal = dto.items.reduce((sum, item) => {
       const product = productMap.get(item.product_id)!;
       return sum + Number(product.price) * item.quantity;
     }, 0);
 
+    // 5) Kupon varsa yeniden doğrula (preview'daki hesap yeniden yapılır — güven yok)
     let discountAmount = 0;
     let couponId: string | null = null;
     if (dto.coupon_code) {
@@ -115,6 +131,7 @@ export class OrdersService {
 
     const totalAmount = subtotal - discountAmount;
 
+    // 6) Sipariş + kalemler + ilk durum + stok düşümü + sepet temizliği: TEK transaction
     const created = await this.prisma.$transaction(async (tx) => {
       const order = await tx.orders.create({
         data: {
@@ -131,7 +148,7 @@ export class OrdersService {
               return {
                 product_id: item.product_id,
                 quantity: item.quantity,
-                unit_price_snapshot: product.price,
+                unit_price_snapshot: product.price, // fiyatı DONDUR (sonra değişse de sabit)
                 subtotal: Number(product.price) * item.quantity,
               };
             }),
@@ -143,6 +160,7 @@ export class OrdersService {
         include: WITH_DETAILS,
       });
 
+      // stok düş
       for (const item of dto.items) {
         await tx.products.update({
           where: { id: item.product_id },
@@ -150,6 +168,7 @@ export class OrdersService {
         });
       }
 
+      // sipariş verilen ürünleri sepetten çıkar
       await tx.cart_items.deleteMany({
         where: { user_id: userId, product_id: { in: productIds } },
       });
@@ -165,6 +184,7 @@ export class OrdersService {
     locale: Locale = DEFAULT_LOCALE,
   ) {
     const rows = await this.prisma.orders.findMany({
+      // admin → tüm siparişler; müşteri → yalnızca kendi siparişleri
       where:
         currentUser.role === 'admin' ? {} : { user_id: currentUser.userId },
       include: WITH_DETAILS,
@@ -205,6 +225,7 @@ export class OrdersService {
         where: { id: orderId },
         data: { status: dto.status, updated_at: new Date() },
       });
+      // her durum değişikliği geçmişe bir satır (kim, ne zaman, not)
       await tx.order_status_history.create({
         data: {
           order_id: orderId,
@@ -219,6 +240,7 @@ export class OrdersService {
       });
     });
 
+    // müşteriye "siparişin durumu güncellendi" bildirimi
     const statusLabel = STATUS_LABELS[dto.status] ?? dto.status;
     await this.notificationsService.create({
       user_id: order.user_id,
@@ -252,12 +274,14 @@ export class OrdersService {
     if (!isAdmin && order.user_id !== currentUser.userId) {
       throw new ForbiddenException('Bu sipariş size ait değil');
     }
+    // durum kapıları
     if (order.status === 'cancelled') {
       throw new BadRequestException('Sipariş zaten iptal edilmiş');
     }
     if (order.status === 'delivered') {
       throw new BadRequestException('Teslim edilmiş sipariş iptal edilemez');
     }
+    // müşteri yalnızca pending/confirmed iptal edebilir; admin her aktif durumu
     if (!isAdmin && !CUSTOMER_CANCELLABLE.includes(order.status)) {
       throw new BadRequestException(
         'Sipariş hazırlanmaya başladığı için iptal edilemez, mağaza ile iletişime geçin',
@@ -283,6 +307,7 @@ export class OrdersService {
           note,
         },
       });
+      // iptal → rezerve edilen stoğu geri koy
       for (const item of order.order_items) {
         await tx.products.update({
           where: { id: item.product_id },

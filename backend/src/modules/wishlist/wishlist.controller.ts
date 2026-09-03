@@ -16,6 +16,7 @@ import type { CurrentUserPayload } from '../../common/decorators/current-user.de
 import { Lang } from '../../common/i18n/lang.decorator';
 import type { Locale } from '../../common/i18n/locales';
 
+// /wishlist — tüm uçlar giriş ister; hep oturum sahibinin listesi. `:productId` = ürün id'si.
 @ApiTags('wishlist')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

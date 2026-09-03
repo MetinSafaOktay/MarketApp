@@ -1,3 +1,4 @@
+/** Mesajlaşma iş mantığı. `sender_type`: 'user' (müşteri) | 'store' (mağaza/admin). */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -6,6 +7,7 @@ import { SendMessageDto } from './dto/send-message.dto';
 export class MessagingService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // Müşterinin konuşması yoksa ilk mesajda/okumada yaratılır (tembel oluşturma)
   private async getOrCreateMyConversation(userId: string) {
     const existing = await this.prisma.conversations.findFirst({
       where: { user_id: userId },
@@ -16,6 +18,7 @@ export class MessagingService {
 
   async getMyMessages(userId: string) {
     const conversation = await this.getOrCreateMyConversation(userId);
+    // Müşteri sohbeti açtı → mağazadan gelen mesajları "okundu" yap
     await this.prisma.messages.updateMany({
       where: {
         conversation_id: conversation.id,
@@ -26,7 +29,7 @@ export class MessagingService {
     });
     return this.prisma.messages.findMany({
       where: { conversation_id: conversation.id },
-      orderBy: { created_at: 'asc' },
+      orderBy: { created_at: 'asc' }, // eskiden yeniye (sohbet akışı)
     });
   }
 
@@ -41,6 +44,7 @@ export class MessagingService {
     });
   }
 
+  // Admin gelen kutusu: her konuşma + kullanıcı özeti + SON mesaj (önizleme)
   listAllConversations() {
     return this.prisma.conversations.findMany({
       include: {
@@ -53,6 +57,7 @@ export class MessagingService {
     });
   }
 
+  // Admin bir sohbeti açtı → müşteriden gelen mesajları "okundu" yap
   async getConversationMessages(conversationId: string) {
     const conversation = await this.prisma.conversations.findUnique({
       where: { id: conversationId },

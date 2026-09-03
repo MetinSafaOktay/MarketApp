@@ -1,3 +1,8 @@
+/**
+ * POST /addresses gövdesi. `label` = kullanıcının verdiği ad ("Ev", "İş").
+ * `is_default` opsiyonel; verilmezse ilk adres pratikte varsayılan gibi kullanılır
+ * (istemci ödeme ekranında varsayılanı önce seçer).
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 

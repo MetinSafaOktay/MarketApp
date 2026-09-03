@@ -1,3 +1,10 @@
+/**
+ * POST /coupons gövdesi (admin). `discount_type`: 'percentage' | 'fixed'.
+ *  - percentage → discount_value 0-100 (yüzde)
+ *  - fixed → discount_value TL cinsinden sabit indirim
+ * `min_order_amount`, `usage_limit_per_user`, `valid_from/until` sınırları
+ * validateForOrder() tarafından uygulanır.
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { discount_type } from '@prisma/client';
 import {

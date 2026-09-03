@@ -1,3 +1,8 @@
+/**
+ * PATCH /users/me gövdesi. Tüm alanlar opsiyonel — yalnızca gönderilenler güncellenir
+ * (kısmi güncelleme). `profile_photo_url` önce storage modülünden imzalı URL ile
+ * Supabase'e yüklenip, dönen public URL burada gönderilir.
+ */
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBoolean,

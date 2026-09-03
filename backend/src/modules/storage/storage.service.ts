@@ -46,6 +46,11 @@ export class StorageService {
     return this.client !== null;
   }
 
+  /**
+   * Akış: (1) istemci bu ucu çağırır → { upload_url, public_url } alır
+   *       (2) istemci dosyayı upload_url'e PUT eder (Supabase'e doğrudan)
+   *       (3) istemci public_url'i ürün/profil kaydına yazar (ayrı istek)
+   */
   async createSignedUploadUrl(
     prefix: 'products' | 'avatars',
     dto: CreateUploadUrlDto,
@@ -56,6 +61,7 @@ export class StorageService {
       );
     }
 
+    // Rastgele UUID isim → çakışma yok, tahmin edilemez
     const path = `${prefix}/${randomUUID()}.${dto.ext}`;
     const { data, error } = await this.client.storage
       .from(this.bucket)

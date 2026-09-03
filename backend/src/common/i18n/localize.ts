@@ -1,3 +1,8 @@
+/**
+ * Prisma satırlarındaki çok dilli alanları tek dile "düzleştirmek" için yardımcılar.
+ * Servisler storefront yanıtlarını döndürmeden önce
+ * `localizeFields(product, locale, ['name','description'])` çağırır.
+ */
 import { Locale, pickTranslation } from './locales';
 
 /**

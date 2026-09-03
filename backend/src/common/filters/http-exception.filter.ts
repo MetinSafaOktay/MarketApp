@@ -1,3 +1,9 @@
+/**
+ * Global hata filtresi (main.ts'te bağlanır). Fırlatılan HER hatayı yakalar ve
+ * istemciye tutarlı bir JSON gövde döndürür: { statusCode, path, timestamp, message }.
+ * - HttpException (400/401/404...) → kendi status/mesajıyla geçer
+ * - Beklenmeyen hata → 500 + generic mesaj (stack trace istemciye SIZMAZ, sadece loglanır)
+ */
 import {
   ArgumentsHost,
   Catch,
@@ -8,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-@Catch()
+@Catch() // parametresiz → tüm exception türlerini yakalar
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
@@ -26,11 +32,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
       ? exception.getResponse()
       : 'Internal server error';
 
+    // HttpException'ın gövdesi string ya da { message: ... } olabilir; ikisini de çöz
     const message =
       typeof exceptionResponse === 'string'
         ? exceptionResponse
         : (exceptionResponse as { message?: string | string[] }).message;
 
+    // Yalnızca beklenmeyen (500) hataları logla — 400/404 gürültüsünü basma
     if (!isHttpException) {
       this.logger.error(exception);
     }

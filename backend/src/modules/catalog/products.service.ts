@@ -12,6 +12,9 @@ import { paginate, toSkipTake } from '../../common/pagination';
 import { DEFAULT_LOCALE, Locale } from '../../common/i18n/locales';
 import { localizeFields, localizeList } from '../../common/i18n/localize';
 
+/** Ürün sorgu/CRUD iş mantığı. Storefront GET'leri çok dilli alanları çözer + is_active filtreler. */
+
+// Her ürünle birlikte galeri görsellerini de çek (sıralı)
 const WITH_IMAGES = {
   product_images: { orderBy: { display_order: 'asc' as const } },
 };
@@ -19,6 +22,7 @@ const WITH_IMAGES = {
 /** Çok dilli (jsonb) alanlar. */
 const I18N_FIELDS = ['name', 'description'] as const;
 
+// sort query değeri → Prisma orderBy
 const SORT_MAP: Record<ProductSort, Prisma.productsOrderByWithRelationInput> = {
   newest: { created_at: 'desc' },
   price_asc: { price: 'asc' },
@@ -39,32 +43,37 @@ export class ProductsService {
       query.pageSize,
     );
 
-    // jsonb name araması: tüm dillerde, büyük/küçük harf duyarsız
+    // Arama: `name` jsonb'sini ::text'e çevirip TÜM dillerde ILIKE (Prisma jsonb
+    // içinde tam metin araması sağlamadığı için ham SQL). Sadece eşleşen id'leri
+    // toplar; asıl filtre + sayfalama aşağıdaki Prisma sorgusunda.
     let searchIds: string[] | undefined;
     if (query.q) {
       const like = `%${query.q}%`;
-      // Sadece aday id'ler; is_active/kategori filtresi aşağıdaki Prisma where'de.
       const rows = await this.prisma.$queryRaw<{ id: string }[]>`
         SELECT id FROM products
         WHERE name::text ILIKE ${like} OR sku ILIKE ${like}
       `;
       searchIds = rows.map((r) => r.id);
       if (searchIds.length === 0) {
-        return paginate([], 0, page, pageSize);
+        return paginate([], 0, page, pageSize); // hiç eşleşme yok → boş sayfa
       }
     }
 
+    // Tüm filtreleri tek where nesnesinde birleştir (koşullu spread)
     const where: Prisma.productsWhereInput = {
+      // storefront yalnızca aktif ürünleri görür; admin includeInactive ile hepsini
       ...(query.includeInactive ? {} : { is_active: true }),
       ...(query.categoryId ? { category_id: query.categoryId } : {}),
       ...(query.onlyNew ? { is_new_arrival: true } : {}),
       ...(query.inStock ? { stock_quantity: { gt: 0 } } : {}),
+      // "indirimli" = original_price alanı price alanından büyük (kolon-kolon kıyas)
       ...(query.onlyDiscounted
         ? { original_price: { gt: this.prisma.products.fields.price } }
         : {}),
       ...(searchIds ? { id: { in: searchIds } } : {}),
     };
 
+    // sayfa verisi + toplam sayı tek turda
     const [data, total] = await Promise.all([
       this.prisma.products.findMany({
         where,
@@ -77,13 +86,14 @@ export class ProductsService {
     ]);
 
     return paginate(
-      raw ? data : localizeList(data, locale, I18N_FIELDS),
+      raw ? data : localizeList(data, locale, I18N_FIELDS), // raw değilse tek dile indir
       total,
       page,
       pageSize,
     );
   }
 
+  // Ürün detayındaki "benzer ürünler": aynı kategori, kendisi hariç, en yeniden.
   async listSimilar(id: string, locale: Locale = DEFAULT_LOCALE, limit = 8) {
     const product = await this.getOrThrow(id);
     const rows = await this.prisma.products.findMany({
@@ -94,7 +104,7 @@ export class ProductsService {
       },
       include: WITH_IMAGES,
       orderBy: { created_at: 'desc' },
-      take: Math.min(24, Math.max(1, limit)),
+      take: Math.min(24, Math.max(1, limit)), // limit'i 1..24 aralığına kıstır
     });
     return localizeList(rows, locale, I18N_FIELDS);
   }
@@ -118,6 +128,7 @@ export class ProductsService {
     return this.prisma.products.create({
       data: {
         ...rest,
+        // nested create: verilen URL'lerden product_images satırlarını aynı anda oluştur
         product_images: images
           ? { create: images.map((image_url) => ({ image_url })) }
           : undefined,
@@ -152,6 +163,7 @@ export class ProductsService {
     const image = await this.prisma.product_images.findUnique({
       where: { id: imageId },
     });
+    // görsel yoksa VEYA başka ürüne aitse 404 (URL karıştırma koruması)
     if (!image || image.product_id !== productId) {
       throw new NotFoundException('Ürün görseli bulunamadı');
     }

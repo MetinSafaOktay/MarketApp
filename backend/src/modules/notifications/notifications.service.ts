@@ -10,6 +10,10 @@ export class NotificationsService {
     private readonly pushService: PushService,
   ) {}
 
+  /**
+   * Bildirim yarat: DB satırı (zil listesi) + web-push denemesi.
+   * Push başarısız olsa da DB kaydı kalır — istemci polling ile yine görür.
+   */
   async create(input: CreateNotificationInput) {
     const notification = await this.prisma.notifications.create({
       data: input,
@@ -35,6 +39,7 @@ export class NotificationsService {
     const notification = await this.prisma.notifications.findUnique({
       where: { id },
     });
+    // yoksa VEYA başkasınınsa 404 (id sızıntısı yok)
     if (!notification || notification.user_id !== userId) {
       throw new NotFoundException('Bildirim bulunamadı');
     }

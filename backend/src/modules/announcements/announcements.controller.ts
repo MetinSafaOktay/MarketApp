@@ -23,6 +23,8 @@ import type { Locale } from '../../common/i18n/locales';
 
 const isRaw = (v?: string) => v === 'true' || v === '1';
 
+// GET'ler herkese açık (storefront); POST/PATCH/DELETE metot bazında @Roles('admin').
+// create'te @CurrentUser yazarı (author_id) belirlemek için gerekli.
 @ApiTags('announcements')
 @Controller('announcements')
 export class AnnouncementsController {

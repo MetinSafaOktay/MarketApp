@@ -5,6 +5,8 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator';
 
+// /notifications — hepsi giriş ister, hep oturum sahibinin bildirimleri.
+// Bildirim OLUŞTURMA uçları yok: bildirimleri yalnızca sistem (orders vb.) üretir.
 @ApiTags('notifications')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

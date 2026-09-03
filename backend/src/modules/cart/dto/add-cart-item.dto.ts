@@ -1,3 +1,7 @@
+/**
+ * POST /cart/items gövdesi. `quantity` verilmezse 1. Ürün zaten sepetteyse
+ * service adet üstüne ekler (yeni satır açmaz).
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsUUID, Min } from 'class-validator';
 
