@@ -30,6 +30,7 @@ export class AdminService {
       revenueAllTime,
       revenueLast7Days,
       customersTotal,
+      customersNewToday,
       productsTotal,
       productsOutOfStock,
       productsLowStock,
@@ -51,6 +52,13 @@ export class AdminService {
       }),
       this.prisma.users.count({
         where: { role: 'customer', is_active: true },
+      }),
+      this.prisma.users.count({
+        where: {
+          role: 'customer',
+          is_active: true,
+          created_at: { gte: todayStart },
+        },
       }),
       this.prisma.products.count({ where: { is_active: true } }),
       this.prisma.products.count({
@@ -79,7 +87,7 @@ export class AdminService {
         all_time: Number(revenueAllTime._sum.total_amount ?? 0),
         last_7_days: Number(revenueLast7Days._sum.total_amount ?? 0),
       },
-      customers: { total: customersTotal },
+      customers: { total: customersTotal, new_today: customersNewToday },
       products: {
         total: productsTotal,
         out_of_stock: productsOutOfStock,

@@ -40,6 +40,9 @@ function StoreFormInner({
   const [description, setDescription] = useState<TranslatedText>(
     store.description ?? {},
   );
+  const [hours, setHours] = useState<HourRow[]>(() =>
+    toHourRows(store.working_hours),
+  );
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,6 +60,7 @@ function StoreFormInner({
         cover_image_url: coverUrl || undefined,
         tagline: Object.keys(tagline).length ? tagline : undefined,
         description: Object.keys(description).length ? description : undefined,
+        working_hours: fromHourRows(hours),
       });
       setSaved(true);
     } catch (err) {
@@ -84,6 +88,7 @@ function StoreFormInner({
         onChange={setDescription}
         textarea
       />
+      <WorkingHoursEditor rows={hours} onChange={setHours} deleteLabel={t('delete')} />
       {error && <p className="text-sm text-danger">{error}</p>}
       {saved && <p className="text-sm text-success">{t('updated')}</p>}
       <button
@@ -94,6 +99,83 @@ function StoreFormInner({
         {t('save')}
       </button>
     </form>
+  );
+}
+
+/* ---------- Çalışma saatleri ---------- */
+
+type HourRow = { day: string; value: string };
+
+// Varsayılan gün satırları (mağaza ilk kez saat girerken hazır şablon).
+const DEFAULT_DAYS = [
+  'Pazartesi - Cuma',
+  'Cumartesi',
+  'Pazar',
+];
+
+function toHourRows(wh: Record<string, unknown> | null | undefined): HourRow[] {
+  const entries = wh ? Object.entries(wh) : [];
+  if (entries.length === 0) return DEFAULT_DAYS.map((day) => ({ day, value: '' }));
+  return entries.map(([day, value]) => ({ day, value: String(value ?? '') }));
+}
+
+// Boş satırları at, sırayı koru. Hiç dolu satır yoksa {} → alanı temizler.
+function fromHourRows(rows: HourRow[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const { day, value } of rows) {
+    const d = day.trim();
+    const v = value.trim();
+    if (d && v) out[d] = v;
+  }
+  return out;
+}
+
+function WorkingHoursEditor({
+  rows,
+  onChange,
+  deleteLabel,
+}: {
+  rows: HourRow[];
+  onChange: (rows: HourRow[]) => void;
+  deleteLabel: string;
+}) {
+  function set(i: number, patch: Partial<HourRow>) {
+    onChange(rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+  }
+  return (
+    <div className="flex flex-col gap-2 text-sm">
+      <span className="text-text-muted">Çalışma Saatleri</span>
+      {rows.map((row, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <input
+            value={row.day}
+            onChange={(e) => set(i, { day: e.target.value })}
+            placeholder="Gün(ler)"
+            className="w-40 rounded-lg border border-border bg-surface-2 px-3 py-2 outline-none focus:ring-2 focus:ring-accent/40"
+          />
+          <input
+            value={row.value}
+            onChange={(e) => set(i, { value: e.target.value })}
+            placeholder="08:00 – 22:00"
+            className="flex-1 rounded-lg border border-border bg-surface-2 px-3 py-2 outline-none focus:ring-2 focus:ring-accent/40"
+          />
+          <button
+            type="button"
+            onClick={() => onChange(rows.filter((_, idx) => idx !== i))}
+            className="text-xs text-text-muted hover:text-danger"
+          >
+            {deleteLabel}
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange([...rows, { day: '', value: '' }])}
+        className="self-start text-xs font-semibold text-accent hover:underline"
+      >
+        + Satır ekle
+      </button>
+    </div>
   );
 }
 

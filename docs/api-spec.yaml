@@ -908,6 +908,45 @@ paths:
         - bearer: []
       tags:
         - orders
+  /admin/orders:
+    get:
+      operationId: OrdersAdminController_list
+      parameters:
+        - name: status
+          required: false
+          in: query
+          schema:
+            type: string
+            enum:
+              - pending
+              - confirmed
+              - preparing
+              - out_for_delivery
+              - delivered
+              - cancelled
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - admin
+  /admin/orders/{id}:
+    get:
+      operationId: OrdersAdminController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - admin
   /notifications/me:
     get:
       operationId: NotificationsController_listMine

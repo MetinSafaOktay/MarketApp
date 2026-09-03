@@ -61,6 +61,7 @@ export interface AdminStoreProfile {
   cover_image_url: string | null;
   phone: string | null;
   address: string | null;
+  working_hours: Record<string, unknown> | null;
 }
 
 export interface AdminCustomer {

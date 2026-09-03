@@ -1,11 +1,18 @@
 /** Mesajlaşma iş mantığı. `sender_type`: 'user' (müşteri) | 'store' (mağaza/admin). */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { SendMessageDto } from './dto/send-message.dto';
+
+/** Bildirim gövdesinde gösterilecek kısa önizleme uzunluğu. */
+const PREVIEW_LEN = 120;
 
 @Injectable()
 export class MessagingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   // Müşterinin konuşması yoksa ilk mesajda/okumada yaratılır (tembel oluşturma)
   private async getOrCreateMyConversation(userId: string) {
@@ -84,12 +91,26 @@ export class MessagingService {
     });
     if (!conversation) throw new NotFoundException('Sohbet bulunamadı');
 
-    return this.prisma.messages.create({
+    const message = await this.prisma.messages.create({
       data: {
         conversation_id: conversationId,
         sender_type: 'store',
         content: dto.content,
       },
     });
+
+    // Konuşma sahibine "yeni mesaj" bildirimi (zil listesi + web push denemesi).
+    // Hata olsa bile yanıt kaydı kalır (create içinde yakalanır).
+    await this.notificationsService.create({
+      user_id: conversation.user_id,
+      type: 'new_message',
+      title: 'Mağazadan yeni mesaj',
+      body:
+        dto.content.length > PREVIEW_LEN
+          ? `${dto.content.slice(0, PREVIEW_LEN)}…`
+          : dto.content,
+    });
+
+    return message;
   }
 }

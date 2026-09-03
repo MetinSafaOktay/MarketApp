@@ -7,8 +7,10 @@
 import { Module } from '@nestjs/common';
 import { MessagingService } from './messaging.service';
 import { MessagingController } from './messaging.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
+  imports: [NotificationsModule], // mağaza yanıt yazınca müşteriye bildirim düşer
   controllers: [MessagingController],
   providers: [MessagingService],
 })

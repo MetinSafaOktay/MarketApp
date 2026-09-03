@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Notifications
@@ -99,6 +100,7 @@ fun NotificationsScreen(
 private fun iconFor(type: String): ImageVector = when (type) {
     "order_status_update" -> Icons.Filled.LocalShipping
     "announcement" -> Icons.Filled.Campaign
+    "new_message" -> Icons.AutoMirrored.Filled.Chat
     else -> Icons.Filled.Notifications
 }
 

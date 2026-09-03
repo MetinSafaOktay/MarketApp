@@ -8,12 +8,13 @@
 import { Module } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
+import { OrdersAdminController } from './orders-admin.controller';
 import { CouponsModule } from '../coupons/coupons.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [CouponsModule, NotificationsModule],
-  controllers: [OrdersController],
+  controllers: [OrdersController, OrdersAdminController],
   providers: [OrdersService],
 })
 export class OrdersModule {}

@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { order_status } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CouponsService } from '../coupons/coupons.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -179,15 +180,43 @@ export class OrdersService {
     return localizeOrder(created, locale);
   }
 
+  /**
+   * /orders — HER ZAMAN yalnızca çağıranın kendi siparişleri (admin dahil).
+   * Admin, mağazanın tüm siparişlerini `listAllForAdmin` (/admin/orders) ile alır;
+   * böylece admin'in kişisel "Siparişlerim" ekranına müşteri siparişleri karışmaz.
+   */
   async list(
     currentUser: { userId: string; role: string },
     locale: Locale = DEFAULT_LOCALE,
   ) {
     const rows = await this.prisma.orders.findMany({
-      // admin → tüm siparişler; müşteri → yalnızca kendi siparişleri
-      where:
-        currentUser.role === 'admin' ? {} : { user_id: currentUser.userId },
+      where: { user_id: currentUser.userId },
       include: WITH_DETAILS,
+      orderBy: { created_at: 'desc' },
+    });
+    return rows.map((o) => localizeOrder(o, locale));
+  }
+
+  /** Admin panosu: mağazanın tüm siparişleri (+ müşteri özeti). Opsiyonel durum filtresi. */
+  async listAllForAdmin(
+    status?: order_status,
+    locale: Locale = DEFAULT_LOCALE,
+  ) {
+    const rows = await this.prisma.orders.findMany({
+      where: status ? { status } : {},
+      include: {
+        ...WITH_DETAILS,
+        users: {
+          select: {
+            id: true,
+            profile_name: true,
+            first_name: true,
+            last_name: true,
+            phone: true,
+            email: true,
+          },
+        },
+      },
       orderBy: { created_at: 'desc' },
     });
     return rows.map((o) => localizeOrder(o, locale));

@@ -209,7 +209,9 @@ export function useAnnouncementMutations() {
 
 /* ---------- Orders (admin) ---------- */
 export function useAdminOrders() {
-  return useAdminQuery<Order[]>(['admin', 'orders'], '/orders');
+  // Mağazanın TÜM siparişleri. `/orders` müşteriye özel (admin'in kendi
+  // siparişleri) olduğu için ayrı admin ucu kullanılır.
+  return useAdminQuery<Order[]>(['admin', 'orders'], '/admin/orders');
 }
 
 export function useUpdateOrderStatus() {
