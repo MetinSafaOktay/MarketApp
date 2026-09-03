@@ -1,3 +1,5 @@
-// Debug yapılandırması — yerel backend (npm run start:dev, port 3000).
-// xcconfig'de "//" yorum başlangıcı olduğu için URL'de $() hilesi kullanılır.
-API_BASE_URL = http:/$()/localhost:3000
+// Debug yapılandırması. Yerel backend yok — Debug de Release gibi canlı
+// backend'e (Vercel) bağlanır. Yerel bir sunucuya bakmak istersen:
+//   API_BASE_URL = http:/$()/localhost:3000
+// ("//" xcconfig'de yorum başlattığı için URL'de $() hilesi gerekir.)
+API_BASE_URL = https:/$()/backend-ruby-xi.vercel.app
