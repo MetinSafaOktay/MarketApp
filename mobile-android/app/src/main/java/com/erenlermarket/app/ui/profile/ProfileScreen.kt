@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Settings
@@ -46,6 +47,7 @@ fun ProfileScreen(
     onOrders: () -> Unit,
     onWishlist: () -> Unit,
     onSettings: () -> Unit,
+    onAdmin: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -80,6 +82,7 @@ fun ProfileScreen(
                     Modifier.padding(padding),
                     onOrders,
                     onWishlist,
+                    onAdmin,
                     viewModel::signOut,
                 )
         }
@@ -113,6 +116,7 @@ private fun SignedIn(
     modifier: Modifier,
     onOrders: () -> Unit,
     onWishlist: () -> Unit,
+    onAdmin: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     Column(
@@ -146,6 +150,12 @@ private fun SignedIn(
             ProfileRow(Icons.Outlined.Receipt, "Siparişlerim", onOrders)
             HorizontalDivider()
             ProfileRow(Icons.Outlined.FavoriteBorder, "İstek listem", onWishlist)
+        }
+
+        if (user.role == UserRole.ADMIN) {
+            Column(Modifier.fillMaxWidth().cardSurface()) {
+                ProfileRow(Icons.Outlined.Dashboard, "Yönetim", onAdmin)
+            }
         }
 
         OutlinedButton(

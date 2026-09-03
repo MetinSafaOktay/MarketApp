@@ -31,6 +31,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.erenlermarket.app.R
+import com.erenlermarket.app.ui.admin.AdminConversationScreen
+import com.erenlermarket.app.ui.admin.AdminHomeScreen
+import com.erenlermarket.app.ui.admin.AdminLowStockScreen
+import com.erenlermarket.app.ui.admin.AdminMessagesScreen
+import com.erenlermarket.app.ui.admin.AdminOrderDetailScreen
+import com.erenlermarket.app.ui.admin.AdminOrdersScreen
 import com.erenlermarket.app.ui.auth.AuthScreen
 import com.erenlermarket.app.ui.cart.CartScreen
 import com.erenlermarket.app.ui.categories.CategoriesScreen
@@ -149,6 +155,7 @@ fun RootScreen() {
                     onOrders = { navController.navigate(Routes.ORDERS) },
                     onWishlist = { navController.navigate(Routes.WISHLIST) },
                     onSettings = { navController.navigate(Routes.SETTINGS) },
+                    onAdmin = { navController.navigate(Routes.ADMIN) },
                 )
             }
             composable(Routes.AUTH) {
@@ -224,6 +231,48 @@ fun RootScreen() {
             }
             composable(Routes.EDIT_PROFILE) {
                 EditProfileScreen(onBack = navController::popBackStack)
+            }
+
+            // --- Admin ---
+            composable(Routes.ADMIN) {
+                AdminHomeScreen(
+                    onBack = navController::popBackStack,
+                    onOrders = { navController.navigate(Routes.ADMIN_ORDERS) },
+                    onMessages = { navController.navigate(Routes.ADMIN_MESSAGES) },
+                    onLowStock = { navController.navigate(Routes.ADMIN_LOW_STOCK) },
+                )
+            }
+            composable(Routes.ADMIN_ORDERS) {
+                AdminOrdersScreen(
+                    onBack = navController::popBackStack,
+                    onOrder = { navController.navigate(Routes.adminOrderDetail(it)) },
+                )
+            }
+            composable(
+                route = Routes.ADMIN_ORDER_DETAIL,
+                arguments = listOf(navArgument("orderId") { type = NavType.StringType }),
+            ) {
+                AdminOrderDetailScreen(onBack = navController::popBackStack)
+            }
+            composable(Routes.ADMIN_MESSAGES) {
+                AdminMessagesScreen(
+                    onBack = navController::popBackStack,
+                    onConversation = { id, name ->
+                        navController.navigate(Routes.adminConversation(id, name))
+                    },
+                )
+            }
+            composable(
+                route = Routes.ADMIN_CONVERSATION,
+                arguments = listOf(
+                    navArgument("conversationId") { type = NavType.StringType },
+                    navArgument("name") { type = NavType.StringType; defaultValue = "" },
+                ),
+            ) {
+                AdminConversationScreen(onBack = navController::popBackStack)
+            }
+            composable(Routes.ADMIN_LOW_STOCK) {
+                AdminLowStockScreen(onBack = navController::popBackStack)
             }
             composable(Routes.ABOUT) {
                 AboutScreen(onBack = navController::popBackStack)

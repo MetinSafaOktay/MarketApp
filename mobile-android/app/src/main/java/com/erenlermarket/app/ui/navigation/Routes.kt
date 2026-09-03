@@ -23,6 +23,17 @@ object Routes {
     const val EDIT_PROFILE = "edit-profile"
     const val ABOUT = "about"
 
+    // --- Admin (yalnızca admin rolündeki kullanıcıya Profil'den açılır) ---
+    const val ADMIN = "admin"
+    const val ADMIN_ORDERS = "admin/orders"
+    const val ADMIN_ORDER_DETAIL = "admin/orders/{orderId}"
+    fun adminOrderDetail(orderId: String): String = "admin/orders/$orderId"
+    const val ADMIN_MESSAGES = "admin/messages"
+    const val ADMIN_CONVERSATION = "admin/conversations/{conversationId}?name={name}"
+    fun adminConversation(id: String, name: String): String =
+        "admin/conversations/$id?name=${Uri.encode(name)}"
+    const val ADMIN_LOW_STOCK = "admin/low-stock"
+
     const val PRODUCT = "product/{productId}?name={name}"
     fun product(id: String, name: String): String =
         "product/$id?name=${Uri.encode(name)}"

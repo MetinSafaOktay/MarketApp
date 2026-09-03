@@ -96,4 +96,9 @@ fun OrderDto.toDomain(): Order = Order(
         )
     },
     address = addresses?.toDomain(),
+    customerName = users?.let {
+        listOfNotNull(it.firstName, it.lastName).joinToString(" ").ifBlank { null }
+            ?: it.profileName
+    },
+    customerPhone = users?.phone,
 )

@@ -5,6 +5,8 @@ import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Lang } from '../../common/i18n/lang.decorator';
+import type { Locale } from '../../common/i18n/locales';
 
 // Sınıf düzeyinde @Roles('admin') → tüm /admin/* uçları yalnızca admin.
 @ApiTags('admin')
@@ -26,9 +28,10 @@ export class AdminController {
   }
 
   @Get('products/low-stock')
-  lowStock(@Query('threshold') threshold?: string) {
+  lowStock(@Lang() lang: Locale, @Query('threshold') threshold?: string) {
     return this.adminService.lowStockProducts(
       threshold ? Number(threshold) : undefined,
+      lang,
     );
   }
 }

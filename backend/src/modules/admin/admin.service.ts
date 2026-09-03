@@ -3,6 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { paginate, toSkipTake } from '../../common/pagination';
 import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
+import {
+  DEFAULT_LOCALE,
+  Locale,
+  pickTranslation,
+} from '../../common/i18n/locales';
+import { localizeFields } from '../../common/i18n/localize';
 
 // "aktif" = teslim edilmemiş ve iptal edilmemiş siparişler (mağazanın ilgilenmesi gerekenler)
 const ACTIVE_ORDER_STATUSES = [
@@ -158,13 +164,20 @@ export class AdminService {
     return paginate(data, total, page, pageSize);
   }
 
-  // Stoğu eşiğin altındaki aktif ürünler — admin "yakında bitecek" uyarı listesi
-  lowStockProducts(threshold = 5) {
+  // Stoğu eşiğin altındaki aktif ürünler — admin "yakında bitecek" uyarı listesi.
+  // name/description ve kategori adı istenen dile düzleştirilir (mobil admin de kullanıyor).
+  async lowStockProducts(threshold = 5, locale: Locale = DEFAULT_LOCALE) {
     const safeThreshold = Math.max(0, Math.min(1000, Math.floor(threshold)));
-    return this.prisma.products.findMany({
+    const rows = await this.prisma.products.findMany({
       where: { is_active: true, stock_quantity: { lte: safeThreshold } },
       include: { categories: { select: { name: true } } },
       orderBy: { stock_quantity: 'asc' }, // en kritik en üstte
     });
+    return rows.map((p) => ({
+      ...localizeFields(p, locale, ['name', 'description']),
+      categories: p.categories
+        ? { name: pickTranslation(p.categories.name, locale) }
+        : null,
+    }));
   }
 }

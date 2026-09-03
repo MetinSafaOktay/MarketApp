@@ -126,6 +126,8 @@ data class OrderDto(
     @SerialName("order_items") val orderItems: List<OrderItemDto> = emptyList(),
     @SerialName("order_status_history") val orderStatusHistory: List<OrderHistoryDto>? = null,
     val addresses: AddressDto? = null,
+    // Yalnızca /admin/orders yanıtında dolu — müşteriye açık uçlarda null.
+    val users: OrderCustomerDto? = null,
 )
 
 @Serializable

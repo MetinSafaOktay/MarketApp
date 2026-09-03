@@ -1,6 +1,7 @@
 package com.erenlermarket.app.di
 
 import com.erenlermarket.app.data.repository.AddressRepositoryImpl
+import com.erenlermarket.app.data.repository.AdminRepositoryImpl
 import com.erenlermarket.app.data.repository.CartRepositoryImpl
 import com.erenlermarket.app.data.repository.CatalogRepositoryImpl
 import com.erenlermarket.app.data.repository.MessagingRepositoryImpl
@@ -10,6 +11,7 @@ import com.erenlermarket.app.data.repository.SettingsRepositoryImpl
 import com.erenlermarket.app.data.repository.StorefrontRepositoryImpl
 import com.erenlermarket.app.data.repository.WishlistRepositoryImpl
 import com.erenlermarket.app.domain.repository.AddressRepository
+import com.erenlermarket.app.domain.repository.AdminRepository
 import com.erenlermarket.app.domain.repository.CartRepository
 import com.erenlermarket.app.domain.repository.CatalogRepository
 import com.erenlermarket.app.domain.repository.MessagingRepository
@@ -63,4 +65,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun settingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+
+    @Binds
+    @Singleton
+    fun adminRepository(impl: AdminRepositoryImpl): AdminRepository
 }

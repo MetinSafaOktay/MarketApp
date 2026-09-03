@@ -80,8 +80,19 @@ data class Order(
     val lines: List<OrderLine>,
     val statusHistory: List<OrderEvent>,
     val address: Address?,
+    /** Yalnızca admin sipariş listesinde dolu (müşteriye açık uçlarda null). */
+    val customerName: String? = null,
+    val customerPhone: String? = null,
 ) {
     val itemCount: Int get() = lines.sumOf { it.quantity }
+
+    /** Admin için bir sonraki durum (ileri akış). Teslim/iptal ise null. */
+    val nextStatus: OrderStatus?
+        get() {
+            val flow = OrderStatus.deliveryFlow
+            val i = flow.indexOf(status)
+            return if (i in 0 until flow.lastIndex) flow[i + 1] else null
+        }
 
     /** Kısa referans (id'nin ilk bloğu). */
     val reference: String get() = id.take(8).uppercase()
