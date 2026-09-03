@@ -133,6 +133,15 @@ struct OrderHistoryDTO: Decodable, Sendable {
     let createdAt: String?
 }
 
+struct OrderCustomerDTO: Decodable, Sendable {
+    let id: String
+    let profileName: String?
+    let firstName: String?
+    let lastName: String?
+    let phone: String?
+    let email: String?
+}
+
 struct OrderDTO: Decodable, Sendable {
     let id: String
     let status: String
@@ -144,6 +153,8 @@ struct OrderDTO: Decodable, Sendable {
     let orderItems: [OrderItemDTO]
     let orderStatusHistory: [OrderHistoryDTO]?
     let addresses: AddressDTO?
+    /// Yalnızca /admin/orders yanıtında dolu.
+    let users: OrderCustomerDTO?
 }
 
 enum OrderMapper {
@@ -174,7 +185,15 @@ enum OrderMapper {
                     createdAt: DateParsing.iso8601(event.createdAt)
                 )
             },
-            address: dto.addresses.map(AddressMapper.map)
+            address: dto.addresses.map(AddressMapper.map),
+            customerName: dto.users.map { user in
+                let full = [user.firstName, user.lastName]
+                    .compactMap { $0 }
+                    .joined(separator: " ")
+                    .trimmingCharacters(in: .whitespaces)
+                return full.isEmpty ? (user.profileName ?? "Müşteri") : full
+            },
+            customerPhone: dto.users?.phone
         )
     }
 }

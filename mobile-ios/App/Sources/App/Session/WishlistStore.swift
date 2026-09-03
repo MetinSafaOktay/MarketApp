@@ -12,12 +12,10 @@ final class WishlistStore {
 
     @ObservationIgnored private let repository: any WishlistRepository
     @ObservationIgnored private let session: SessionStore
-    @ObservationIgnored private let language: String
 
-    nonisolated init(repository: any WishlistRepository, session: SessionStore, language: String) {
+    nonisolated init(repository: any WishlistRepository, session: SessionStore) {
         self.repository = repository
         self.session = session
-        self.language = language
     }
 
     func isWishlisted(_ productID: String) -> Bool {
@@ -33,7 +31,7 @@ final class WishlistStore {
         isLoading = true
         defer { isLoading = false }
         do {
-            products = try await repository.wishlist(language: language)
+            products = try await repository.wishlist(language: AppLanguage.current)
             productIDs = Set(products.map(\.id))
         } catch {
             // sessizce geç

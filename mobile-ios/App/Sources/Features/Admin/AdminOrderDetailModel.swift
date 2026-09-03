@@ -4,7 +4,7 @@ import Observation
 
 @MainActor
 @Observable
-final class OrderDetailModel {
+final class AdminOrderDetailModel {
     enum Phase: Equatable {
         case loading
         case loaded(Order)
@@ -12,8 +12,9 @@ final class OrderDetailModel {
     }
 
     private(set) var phase: Phase = .loading
-    private(set) var isCancelling = false
+    private(set) var isUpdating = false
     private(set) var actionError: String?
+    var note = ""
 
     @ObservationIgnored private let deps: AppDependencies
     @ObservationIgnored private let orderID: String
@@ -24,9 +25,7 @@ final class OrderDetailModel {
         self.orderID = orderID
     }
 
-    var reference: String {
-        String(orderID.prefix(8)).uppercased()
-    }
+    var reference: String { String(orderID.prefix(8)).uppercased() }
 
     func loadIfNeeded() async {
         guard !hasLoadedOnce else { return }
@@ -36,42 +35,39 @@ final class OrderDetailModel {
 
     func load() async {
         do {
-            phase = try await .loaded(deps.order.order(id: orderID, language: deps.language))
+            phase = try await .loaded(deps.admin.order(id: orderID, language: deps.language))
         } catch {
             phase = .failed((error as? APIError)?.displayMessage ?? "Sipariş yüklenemedi")
         }
     }
 
-    /// Ekran açıkken 15 sn'de bir + görünür olunca sessizce tazeler — admin
-    /// durumu değiştirince "çık-gir" gerekmeden yansısın. Hata yutulur.
     func startPolling() async {
-        await reloadSilently()
         while !Task.isCancelled {
             try? await Task.sleep(for: .seconds(15))
-            guard !Task.isCancelled else { return }
-            await reloadSilently()
+            guard !Task.isCancelled, hasLoadedOnce else { continue }
+            if let order = try? await deps.admin.order(id: orderID, language: deps.language) {
+                phase = .loaded(order)
+            }
         }
     }
 
-    private func reloadSilently() async {
-        guard hasLoadedOnce,
-              let order = try? await deps.order.order(id: orderID, language: deps.language)
-        else { return }
-        phase = .loaded(order)
-    }
-
-    func cancel() async {
-        isCancelling = true
+    func update(to status: OrderStatus) async {
+        guard !isUpdating else { return }
+        isUpdating = true
         actionError = nil
-        defer { isCancelling = false }
+        defer { isUpdating = false }
         do {
-            phase = try await .loaded(deps.order.cancel(
+            let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+            let order = try await deps.admin.updateOrderStatus(
                 id: orderID,
-                reason: nil,
+                status: status,
+                note: trimmed.isEmpty ? nil : trimmed,
                 language: deps.language
-            ))
+            )
+            phase = .loaded(order)
+            note = ""
         } catch {
-            actionError = (error as? APIError)?.displayMessage ?? "Sipariş iptal edilemedi"
+            actionError = (error as? APIError)?.displayMessage ?? "Durum güncellenemedi"
         }
     }
 }

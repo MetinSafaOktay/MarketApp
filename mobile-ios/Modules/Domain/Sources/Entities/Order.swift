@@ -24,6 +24,11 @@ public enum OrderStatus: String, Sendable, CaseIterable {
         self == .pending || self == .confirmed
     }
 
+    /// Hâlâ süren sipariş (teslim/iptal değil) — ana ekran takip kartı bunları gösterir.
+    public var isActive: Bool {
+        self != .delivered && self != .cancelled
+    }
+
     /// Zaman çizelgesinde gösterilen normal akış.
     public static let deliveryFlow: [OrderStatus] =
         [.pending, .confirmed, .preparing, .outForDelivery, .delivered]
@@ -91,6 +96,9 @@ public struct Order: Identifiable, Equatable, Sendable {
     public let lines: [OrderLine]
     public let statusHistory: [OrderEvent]
     public let address: Address?
+    /// Yalnızca admin sipariş listesinde dolu (müşteriye açık uçlarda nil).
+    public let customerName: String?
+    public let customerPhone: String?
 
     public init(
         id: String,
@@ -102,7 +110,9 @@ public struct Order: Identifiable, Equatable, Sendable {
         createdAt: Date?,
         lines: [OrderLine],
         statusHistory: [OrderEvent],
-        address: Address?
+        address: Address?,
+        customerName: String? = nil,
+        customerPhone: String? = nil
     ) {
         self.id = id
         self.status = status
@@ -114,6 +124,8 @@ public struct Order: Identifiable, Equatable, Sendable {
         self.lines = lines
         self.statusHistory = statusHistory
         self.address = address
+        self.customerName = customerName
+        self.customerPhone = customerPhone
     }
 
     public var itemCount: Int {
@@ -123,6 +135,13 @@ public struct Order: Identifiable, Equatable, Sendable {
     /// Kısa referans (id'nin ilk bloğu).
     public var reference: String {
         String(id.prefix(8)).uppercased()
+    }
+
+    /// Admin için bir sonraki durum (ileri akış). Teslim/iptal ise nil.
+    public var nextStatus: OrderStatus? {
+        let flow = OrderStatus.deliveryFlow
+        guard let i = flow.firstIndex(of: status), i < flow.count - 1 else { return nil }
+        return flow[i + 1]
     }
 }
 

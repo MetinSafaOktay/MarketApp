@@ -13,12 +13,10 @@ final class CartStore {
 
     @ObservationIgnored private let repository: any CartRepository
     @ObservationIgnored private let session: SessionStore
-    @ObservationIgnored private let language: String
 
-    nonisolated init(repository: any CartRepository, session: SessionStore, language: String) {
+    nonisolated init(repository: any CartRepository, session: SessionStore) {
         self.repository = repository
         self.session = session
-        self.language = language
     }
 
     var itemCount: Int {
@@ -41,7 +39,7 @@ final class CartStore {
         isLoading = true
         defer { isLoading = false }
         do {
-            items = try await repository.cart(language: language)
+            items = try await repository.cart(language: AppLanguage.current)
             errorMessage = nil
         } catch {
             errorMessage = message(error)

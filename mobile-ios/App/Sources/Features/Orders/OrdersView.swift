@@ -44,6 +44,7 @@ private struct Inner: View {
         }
         .background(Palette.background)
         .task { await model.loadIfNeeded() }
+        .task { await model.startPolling() }
     }
 
     private func list(_ orders: [Order]) -> some View {

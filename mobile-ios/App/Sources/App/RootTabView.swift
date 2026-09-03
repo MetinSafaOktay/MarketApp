@@ -17,6 +17,7 @@ struct RootTabView: View {
         }
         .tint(Palette.accent)
         .task { await deps.session.restore() }
+        .task { await deps.notificationsStore.startPolling() }
         .task(id: deps.session.isSignedIn) {
             if deps.session.isSignedIn {
                 await deps.cartStore.refresh()

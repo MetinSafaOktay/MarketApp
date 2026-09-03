@@ -35,4 +35,22 @@ final class OrdersModel {
             phase = .failed((error as? APIError)?.displayMessage ?? "Siparişler yüklenemedi")
         }
     }
+
+    /// Ekran açıkken 20 sn'de bir + görünür olunca sessizce tazeler (durum
+    /// güncellemeleri "çık-gir" gerekmeden görünsün). Yükleme göstergesi yok.
+    func startPolling() async {
+        await reloadSilently()
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(20))
+            guard !Task.isCancelled else { return }
+            await reloadSilently()
+        }
+    }
+
+    private func reloadSilently() async {
+        guard hasLoadedOnce,
+              let orders = try? await deps.order.orders(language: deps.language)
+        else { return }
+        phase = orders.isEmpty ? .empty : .loaded(orders)
+    }
 }

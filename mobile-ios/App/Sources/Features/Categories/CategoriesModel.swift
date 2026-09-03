@@ -17,13 +17,12 @@ final class CategoriesModel {
 
     private let catalog: any CatalogRepository
     private let local: LocalCatalogStore
-    private let language: String
+    private var language: String { AppLanguage.current }
     private var hasLoadedOnce = false
 
     init(deps: AppDependencies) {
         catalog = deps.catalog
         local = deps.localCatalog
-        language = deps.language
     }
 
     func loadIfNeeded() async {

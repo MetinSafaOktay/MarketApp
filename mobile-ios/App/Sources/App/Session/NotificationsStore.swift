@@ -31,6 +31,18 @@ final class NotificationsStore {
         items = await (try? repository.notifications()) ?? items
     }
 
+    /// Uygulama ön plandayken 30 sn'de bir tazeler — sipariş durumu değişince
+    /// veya mağaza mesaj yazınca (backend bildirim üretir) zil rozeti kendiliğinden
+    /// güncellensin, "çık-gir" gerekmesin.
+    func startPolling() async {
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(30))
+            guard !Task.isCancelled else { return }
+            guard session.isSignedIn else { continue }
+            items = await (try? repository.notifications()) ?? items
+        }
+    }
+
     func markRead(id: String) async {
         guard let index = items.firstIndex(where: { $0.id == id }),
               !items[index].isRead else { return }

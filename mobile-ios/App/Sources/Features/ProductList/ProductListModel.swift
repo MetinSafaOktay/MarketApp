@@ -23,13 +23,12 @@ final class ProductListModel {
     var query: ProductQuery
 
     private let catalog: any CatalogRepository
-    private let language: String
+    private var language: String { AppLanguage.current }
     private var totalPages = 1
     private var hasLoadedOnce = false
 
     init(deps: AppDependencies, query: ProductQuery) {
         catalog = deps.catalog
-        language = deps.language
         self.query = query
     }
 

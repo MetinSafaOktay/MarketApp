@@ -27,6 +27,7 @@ struct HomeView: View {
 }
 
 private struct Inner: View {
+    @AppStorage(AppLanguage.storageKey) private var contentLanguage: String = AppLanguage.fallback
     @State private var model: HomeModel
 
     init(deps: AppDependencies) {
@@ -51,6 +52,14 @@ private struct Inner: View {
                     if model.isOffline {
                         OfflineBanner()
                     }
+                    if let order = model.activeOrder {
+                        NavigationLink {
+                            OrderDetailView(orderID: order.id)
+                        } label: {
+                            ActiveOrderCard(order: order)
+                        }
+                        .buttonStyle(.plain)
+                    }
                     HeroCard(store: model.store)
                     if !model.announcements.isEmpty {
                         AnnouncementList(announcements: Array(model.announcements.prefix(3)))
@@ -65,7 +74,48 @@ private struct Inner: View {
         .background(Palette.background)
         .refreshable { await model.load() }
         .task { await model.loadIfNeeded() }
-        .onAppear { model.syncRecentRail() }
+        .task(id: contentLanguage) { await model.reloadForLanguageChange() }
+        .onAppear {
+            model.syncRecentRail()
+            Task { await model.syncActiveOrder() }
+        }
+    }
+}
+
+// MARK: - Active order
+
+private struct ActiveOrderCard: View {
+    let order: Order
+
+    private var progress: Double {
+        let flow = OrderStatus.deliveryFlow
+        guard let index = flow.firstIndex(of: order.status) else { return 0 }
+        return Double(index + 1) / Double(flow.count)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            HStack(spacing: Spacing.sm) {
+                Image(systemName: "shippingbox.fill")
+                    .foregroundStyle(Palette.accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Siparişin: \(order.status.displayName)")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Palette.text)
+                    Text("#\(order.reference) · \(Money.string(order.totalAmount))")
+                        .font(.caption)
+                        .foregroundStyle(Palette.textMuted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Palette.textMuted)
+            }
+            ProgressView(value: progress)
+                .tint(Palette.accent)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cardSurface()
     }
 }
 

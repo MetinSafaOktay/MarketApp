@@ -56,6 +56,15 @@ struct ProfileView: View {
                 }
                 .cardSurface(padding: nil)
 
+                if user.role == .admin {
+                    VStack(spacing: 0) {
+                        NavigationLink { AdminHomeView() } label: {
+                            menuRow("Yönetim", systemImage: "square.grid.2x2")
+                        }
+                    }
+                    .cardSurface(padding: nil)
+                }
+
                 VStack(spacing: 0) {
                     NavigationLink { MessagesView() } label: {
                         menuRow("Mesajlar", systemImage: "bubble.left.and.bubble.right")

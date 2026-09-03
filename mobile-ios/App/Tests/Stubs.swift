@@ -218,6 +218,29 @@ struct StubOrder: OrderRepository, @unchecked Sendable {
     }
 }
 
+struct StubAdmin: AdminRepository, @unchecked Sendable {
+    var ordersResult: [Order] = []
+    var conversationsResult: [AdminConversation] = []
+    var messagesResult: [Message] = []
+    var lowStockResult: [LowStockProduct] = []
+
+    func orders(status _: OrderStatus?, language _: String) async throws -> [Order] { ordersResult }
+    func order(id: String, language _: String) async throws -> Order {
+        ordersResult.first { $0.id == id } ?? TestFixtures.order(id: id)
+    }
+    func updateOrderStatus(
+        id: String, status: OrderStatus, note _: String?, language _: String
+    ) async throws -> Order {
+        TestFixtures.order(id: id, status: status)
+    }
+    func conversations() async throws -> [AdminConversation] { conversationsResult }
+    func conversationMessages(id _: String) async throws -> [Message] { messagesResult }
+    func reply(conversationID _: String, content: String) async throws -> Message {
+        Message(id: "r1", sender: .store, content: content, isRead: false, createdAt: nil)
+    }
+    func lowStock(language _: String) async throws -> [LowStockProduct] { lowStockResult }
+}
+
 enum TestFixtures {
     static func product(
         id: String,
@@ -274,6 +297,7 @@ enum TestDeps {
         messaging: any MessagingRepository = StubMessaging(),
         notifications: any NotificationsRepository = StubNotifications(),
         settings: any SettingsRepository = StubSettings(),
+        admin: any AdminRepository = StubAdmin(),
         local: LocalCatalogStore? = nil,
         session: SessionStore? = nil
     ) -> AppDependencies {
@@ -291,12 +315,12 @@ enum TestDeps {
             messaging: messaging,
             notifications: notifications,
             settings: settings,
+            admin: admin,
             session: session,
-            cartStore: CartStore(repository: cart, session: session, language: "tr"),
-            wishlistStore: WishlistStore(repository: wishlist, session: session, language: "tr"),
+            cartStore: CartStore(repository: cart, session: session),
+            wishlistStore: WishlistStore(repository: wishlist, session: session),
             notificationsStore: NotificationsStore(repository: notifications, session: session),
-            localCatalog: local ?? LocalCatalogStore(inMemory: true),
-            language: "tr"
+            localCatalog: local ?? LocalCatalogStore(inMemory: true)
         )
     }
 }

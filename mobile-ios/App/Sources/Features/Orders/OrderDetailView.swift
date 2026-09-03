@@ -40,6 +40,7 @@ private struct Inner: View {
         .navigationTitle("Sipariş #\(model.reference)")
         .navigationBarTitleDisplayMode(.inline)
         .task { await model.loadIfNeeded() }
+        .task { await model.startPolling() }
     }
 
     private func detail(_ order: Order) -> some View {

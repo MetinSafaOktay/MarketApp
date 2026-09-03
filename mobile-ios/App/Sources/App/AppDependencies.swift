@@ -16,6 +16,7 @@ struct AppDependencies {
     let messaging: any MessagingRepository
     let notifications: any NotificationsRepository
     let settings: any SettingsRepository
+    let admin: any AdminRepository
 
     let session: SessionStore
     let cartStore: CartStore
@@ -23,21 +24,21 @@ struct AppDependencies {
     let notificationsStore: NotificationsStore
     let localCatalog: LocalCatalogStore
 
-    /// Backend'e gönderilecek dil kodu (tr/en/de/fr/ar/nl).
-    let language: String
+    /// Backend'e gönderilecek dil kodu (tr/en/de/fr/ar/nl) — yerel tercihten
+    /// (`AppLanguage`) her okunuşta taze gelir, uygulama yeniden başlamadan değişir.
+    var language: String { AppLanguage.current }
 
     /// Canlı yapılandırma (Info.plist'ten API adresi).
     static func live() -> AppDependencies {
-        make(baseURL: AppConfig.apiBaseURL(), language: AppLanguage.current)
+        make(baseURL: AppConfig.apiBaseURL())
     }
 
     /// Preview/test için sabit adres (Info.plist okumaz).
     static let preview = make(
-        baseURL: URL(string: "https://backend-ruby-xi.vercel.app")!,
-        language: "tr"
+        baseURL: URL(string: "https://backend-ruby-xi.vercel.app")!
     )
 
-    private static func make(baseURL: URL, language: String) -> AppDependencies {
+    private static func make(baseURL: URL) -> AppDependencies {
         let session = SessionStore()
         let client = LiveAPIClient(baseURL: baseURL, tokenProvider: session)
         let auth = AuthRepositoryLive(client: client)
@@ -58,16 +59,12 @@ struct AppDependencies {
             messaging: MessagingRepositoryLive(client: client),
             notifications: notifications,
             settings: SettingsRepositoryLive(client: client),
+            admin: AdminRepositoryLive(client: client),
             session: session,
-            cartStore: CartStore(repository: cart, session: session, language: language),
-            wishlistStore: WishlistStore(
-                repository: wishlist,
-                session: session,
-                language: language
-            ),
+            cartStore: CartStore(repository: cart, session: session),
+            wishlistStore: WishlistStore(repository: wishlist, session: session),
             notificationsStore: NotificationsStore(repository: notifications, session: session),
-            localCatalog: LocalCatalogStore(),
-            language: language
+            localCatalog: LocalCatalogStore()
         )
     }
 }

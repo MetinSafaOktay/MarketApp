@@ -18,14 +18,13 @@ final class ProductDetailModel {
     private let productID: String
     private let catalog: any CatalogRepository
     private let local: LocalCatalogStore
-    private let language: String
+    private var language: String { AppLanguage.current }
     private var hasLoadedOnce = false
 
     init(productID: String, deps: AppDependencies) {
         self.productID = productID
         catalog = deps.catalog
         local = deps.localCatalog
-        language = deps.language
     }
 
     func loadIfNeeded() async {

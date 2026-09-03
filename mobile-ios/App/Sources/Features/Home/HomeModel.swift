@@ -19,12 +19,19 @@ final class HomeModel {
     private(set) var isLoading = true
     private(set) var isOffline = false
     private(set) var errorMessage: String?
+    /// Süren sipariş (teslim/iptal olmamış, en güncel) — üstte takip kartı.
+    private(set) var activeOrder: Order?
 
     private let catalog: any CatalogRepository
     private let storefront: any StorefrontRepository
     private let local: LocalCatalogStore
-    private let language: String
+    private let order: any OrderRepository
+    private let session: SessionStore
     private var hasLoadedOnce = false
+    private var loadedLanguage: String?
+
+    /// Yerel dil tercihi — her istek anında taze okunur (ayarlardan değişince yansır).
+    private var language: String { AppLanguage.current }
 
     private struct RailSpec {
         let id: String
@@ -55,7 +62,8 @@ final class HomeModel {
         catalog = deps.catalog
         storefront = deps.storefront
         local = deps.localCatalog
-        language = deps.language
+        order = deps.order
+        session = deps.session
     }
 
     func loadIfNeeded() async {
@@ -64,19 +72,28 @@ final class HomeModel {
         await load()
     }
 
+    /// Ayarlardan içerik dili değişince çağrılır — ilk yükleme `loadIfNeeded`'te.
+    func reloadForLanguageChange() async {
+        guard let loaded = loadedLanguage, loaded != AppLanguage.current else { return }
+        await load()
+    }
+
     func load() async {
         isLoading = true
         errorMessage = nil
+        loadedLanguage = AppLanguage.current
         defer { isLoading = false }
 
         async let storeTask = loadStore()
         async let announcementsTask = loadAnnouncements()
+        async let activeOrderTask = fetchActiveOrder()
         async let discountedTask = products(Self.onlineRails[0].query)
         async let newArrivalsTask = products(Self.onlineRails[1].query)
         async let latestTask = products(Self.onlineRails[2].query)
 
         store = await storeTask
         announcements = await announcementsTask
+        activeOrder = await activeOrderTask
         let fetched = await [discountedTask, newArrivalsTask, latestTask]
         let anyLoaded = fetched.contains { !$0.isEmpty }
 
@@ -119,6 +136,19 @@ final class HomeModel {
         let recent = local.recentProducts(limit: 10)
         guard !recent.isEmpty else { return }
         rails.append(Rail(id: "recent", title: "Son Gezdiklerin", products: recent, seeAll: nil))
+    }
+
+    /// Ana ekrana her dönüşte süren siparişi ucuzca tazeler (durum değişince kart güncellensin).
+    func syncActiveOrder() async {
+        guard hasLoadedOnce else { return }
+        activeOrder = await fetchActiveOrder()
+    }
+
+    /// En güncel süren sipariş (teslim/iptal değil). Oturum yoksa nil.
+    private func fetchActiveOrder() async -> Order? {
+        guard session.isSignedIn else { return nil }
+        let orders = try? await order.orders(language: language)
+        return orders?.first { $0.status.isActive }
     }
 
     /// Ana sayfaya her dönüşte "Son Gezdiklerin" rafını ucuzca tazeler.

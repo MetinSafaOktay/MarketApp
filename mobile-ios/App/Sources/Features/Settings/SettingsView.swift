@@ -15,6 +15,7 @@ struct SettingsView: View {
 private struct Inner: View {
     @Environment(\.dependencies) private var deps
     @AppStorage("appearance") private var appearance: Appearance = .system
+    @AppStorage(AppLanguage.storageKey) private var contentLanguage: String = AppLanguage.fallback
     @State private var model: SettingsModel
     @State private var showingDeleteConfirm = false
 
@@ -35,8 +36,12 @@ private struct Inner: View {
             }
 
             Section("Dil") {
-                LabeledContent("Uygulama dili", value: languageName(deps.language))
-                Text("Uygulama, cihazının diline göre görüntülenir.")
+                Picker("İçerik dili", selection: $contentLanguage) {
+                    ForEach(AppLanguage.supported, id: \.self) { code in
+                        Text(AppLanguage.displayName(code)).tag(code)
+                    }
+                }
+                Text("Ürün, kategori ve duyuru metinlerinin dili. Arayüz her dilde Türkçedir.")
                     .font(.caption)
                     .foregroundStyle(Palette.textMuted)
             }
@@ -86,17 +91,5 @@ private struct Inner: View {
             Button("Vazgeç", role: .cancel) { }
         }
         .task { await model.load() }
-    }
-
-    private func languageName(_ code: String) -> String {
-        switch code {
-        case "tr": "Türkçe"
-        case "en": "English"
-        case "de": "Deutsch"
-        case "fr": "Français"
-        case "ar": "العربية"
-        case "nl": "Nederlands"
-        default: code
-        }
     }
 }
