@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   LayoutDashboard,
@@ -29,16 +30,60 @@ const NAV = [
   { href: '/admin/store', key: 'storeSettings', icon: Store, exact: false },
 ] as const;
 
+// Müşteri rozeti "son ziyaretten beri yeni" mantığıyla çalışır: en son
+// /admin/customers'a girildiğindeki toplam müşteri sayısı burada saklanır,
+// rozet = güncel toplam − saklanan. Sayfaya girince sıfırlanır.
+const CUSTOMERS_SEEN_KEY = 'erenler:admin:customers-seen:v1';
+
+function readSeen(): number | null {
+  try {
+    const raw = localStorage.getItem(CUSTOMERS_SEEN_KEY);
+    return raw == null ? null : Number(raw) || 0;
+  } catch {
+    return null;
+  }
+}
+
+function writeSeen(total: number) {
+  try {
+    localStorage.setItem(CUSTOMERS_SEEN_KEY, String(total));
+  } catch {
+    /* özel sekme / depo kapalı — rozet biraz ısrarcı olur, sorun değil */
+  }
+}
+
 export function AdminSidebar() {
   const t = useTranslations('Admin');
   const pathname = usePathname();
   const { data: stats } = useAdminStats();
 
+  const [customersSeen, setCustomersSeen] = useState<number | null>(null);
+  const onCustomers =
+    pathname === '/admin/customers' || pathname.startsWith('/admin/customers/');
+  const customerTotal = stats?.customers.total;
+
+  // localStorage (dış depo) ile React durumunu senkronla: ilk kayıt yoksa
+  // güncel toplamı taban al (birikeni "yeni" sayma); /admin/customers açıkken
+  // güncel toplamı "görüldü" olarak işaretle.
+  useEffect(() => {
+    if (customerTotal == null) return;
+    const stored = readSeen();
+    const next = onCustomers ? customerTotal : (stored ?? customerTotal);
+    if (next !== stored) writeSeen(next);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCustomersSeen(next);
+  }, [onCustomers, customerTotal]);
+
+  const customersBadge =
+    customerTotal != null && customersSeen != null
+      ? Math.max(0, customerTotal - customersSeen)
+      : undefined;
+
   // Nav anahtarı → dikkat gerektiren adet (0/undefined ise rozet gösterilmez).
   const badges: Partial<Record<string, number>> = {
     orders: stats?.orders.active,
     messages: stats?.messaging.unread_conversations,
-    customers: stats?.customers.new_today,
+    customers: customersBadge,
   };
 
   return (
