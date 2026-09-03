@@ -19,13 +19,19 @@ import type {
   AdminStoreProfile,
 } from './admin-types';
 
-function useAdminQuery<T>(key: QueryKey, path: string, params?: Record<string, string>) {
+function useAdminQuery<T>(
+  key: QueryKey,
+  path: string,
+  params?: Record<string, string>,
+  options?: { refetchInterval?: number },
+) {
   const isAuthenticated = useIsAuthenticated();
   return useQuery({
     queryKey: key,
     queryFn: () => authedApi<T>(path, { params }),
     enabled: isAuthenticated,
     placeholderData: (prev) => prev,
+    refetchInterval: options?.refetchInterval,
   });
 }
 
@@ -35,8 +41,11 @@ function useInvalidate(keys: QueryKey[]) {
 }
 
 /* ---------- Dashboard ---------- */
+// 20 sn'de bir tazelenir — kenar çubuğu rozetleri ve bildirim toast'ı canlı kalsın.
 export function useAdminStats() {
-  return useAdminQuery<AdminStats>(['admin', 'stats'], '/admin/stats');
+  return useAdminQuery<AdminStats>(['admin', 'stats'], '/admin/stats', undefined, {
+    refetchInterval: 20_000,
+  });
 }
 
 /* ---------- Products ---------- */

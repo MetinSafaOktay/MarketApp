@@ -5,7 +5,7 @@ export type TranslatedText = Partial<Record<Locale, string>>;
 export interface AdminStats {
   orders: { total: number; active: number; today: number };
   revenue: { all_time: number; last_7_days: number };
-  customers: { total: number };
+  customers: { total: number; new_today: number };
   products: { total: number; out_of_stock: number; low_stock: number };
   messaging: { unread_conversations: number };
 }

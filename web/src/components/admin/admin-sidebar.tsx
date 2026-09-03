@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/cn';
+import { useAdminStats } from '@/lib/use-admin';
 
 const NAV = [
   { href: '/admin', key: 'dashboard', icon: LayoutDashboard, exact: true },
@@ -31,6 +32,14 @@ const NAV = [
 export function AdminSidebar() {
   const t = useTranslations('Admin');
   const pathname = usePathname();
+  const { data: stats } = useAdminStats();
+
+  // Nav anahtarı → dikkat gerektiren adet (0/undefined ise rozet gösterilmez).
+  const badges: Partial<Record<string, number>> = {
+    orders: stats?.orders.active,
+    messages: stats?.messaging.unread_conversations,
+    customers: stats?.customers.new_today,
+  };
 
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r border-border bg-surface">
@@ -43,6 +52,7 @@ export function AdminSidebar() {
           const active = exact
             ? pathname === href
             : pathname === href || pathname.startsWith(href + '/');
+          const badge = badges[key];
           return (
             <Link
               key={href}
@@ -54,8 +64,13 @@ export function AdminSidebar() {
                   : 'text-text-muted hover:bg-surface-2 hover:text-text',
               )}
             >
-              <Icon className="size-4" />
-              {t(key)}
+              <Icon className="size-4 shrink-0" />
+              <span className="flex-1">{t(key)}</span>
+              {badge != null && badge > 0 && (
+                <span className="min-w-5 rounded-full bg-brand px-1.5 py-0.5 text-center text-[11px] font-semibold leading-none text-white">
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              )}
             </Link>
           );
         })}
