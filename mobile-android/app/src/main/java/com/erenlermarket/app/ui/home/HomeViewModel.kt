@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erenlermarket.app.data.local.LocalCatalogStore
 import com.erenlermarket.app.data.remote.ApiException
+import com.erenlermarket.app.data.session.SessionManager
 import com.erenlermarket.app.domain.model.Announcement
+import com.erenlermarket.app.domain.model.Order
 import com.erenlermarket.app.domain.model.Product
 import com.erenlermarket.app.domain.model.ProductQuery
 import com.erenlermarket.app.domain.model.StoreProfile
 import com.erenlermarket.app.domain.repository.CatalogRepository
+import com.erenlermarket.app.domain.repository.OrderRepository
 import com.erenlermarket.app.domain.repository.StorefrontRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,6 +50,8 @@ sealed interface HomeUiState {
         val announcements: List<Announcement>,
         val rails: List<HomeRail>,
         val isOffline: Boolean = false,
+        /** Süren sipariş (varsa) — üstte takip kartı gösterilir. */
+        val activeOrder: Order? = null,
     ) : HomeUiState
     data class Error(val message: String) : HomeUiState
 }
@@ -55,6 +61,8 @@ class HomeViewModel @Inject constructor(
     private val storefront: StorefrontRepository,
     private val catalog: CatalogRepository,
     private val localCatalog: LocalCatalogStore,
+    private val orders: OrderRepository,
+    private val session: SessionManager,
 ) : ViewModel() {
 
     private val _base = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -104,16 +112,43 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 val storeValue = store.await()
+                val activeOrder = async { fetchActiveOrder() }
 
                 _base.value = if (storeValue == null && rails.isEmpty()) {
                     offlineOrError()
                 } else {
-                    HomeUiState.Ready(storeValue, announcements.await(), rails)
+                    HomeUiState.Ready(
+                        storeValue,
+                        announcements.await(),
+                        rails,
+                        activeOrder = activeOrder.await(),
+                    )
                 }
             } catch (error: ApiException) {
                 _base.value = HomeUiState.Error(error.message)
             }
         }
+    }
+
+    /**
+     * Ekrana geri dönünce süren siparişi sessizce tazele — durum değişince
+     * ana ekrandaki takip kartı da güncellensin.
+     */
+    fun refreshActiveOrder() {
+        if (_base.value !is HomeUiState.Ready) return
+        viewModelScope.launch {
+            val fresh = fetchActiveOrder()
+            _base.update { current ->
+                if (current is HomeUiState.Ready) current.copy(activeOrder = fresh) else current
+            }
+        }
+    }
+
+    /** En güncel süren sipariş (teslim/iptal değil). Oturum yoksa null. */
+    private suspend fun fetchActiveOrder(): Order? {
+        if (session.currentUser == null) return null
+        return runCatching { orders.orders() }.getOrNull()
+            ?.firstOrNull { it.status.isActive }
     }
 
     private suspend fun offlineOrError(): HomeUiState {

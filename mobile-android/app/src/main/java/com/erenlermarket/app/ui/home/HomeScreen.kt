@@ -1,10 +1,14 @@
 package com.erenlermarket.app.ui.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,16 +29,21 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.erenlermarket.app.designsystem.Radius
 import com.erenlermarket.app.designsystem.SectionHeader
 import com.erenlermarket.app.designsystem.Spacing
 import com.erenlermarket.app.designsystem.cardSurface
+import com.erenlermarket.app.designsystem.formatMoney
 import com.erenlermarket.app.domain.model.Announcement
+import com.erenlermarket.app.domain.model.Order
 import com.erenlermarket.app.domain.model.StoreProfile
 import com.erenlermarket.app.ui.common.CartActionButton
 import com.erenlermarket.app.ui.common.ErrorState
@@ -51,10 +61,16 @@ fun HomeScreen(
     onCart: () -> Unit,
     onNotifications: () -> Unit,
     onMessages: () -> Unit,
+    onOrder: (orderId: String) -> Unit,
     onRailSeeAll: (rail: HomeRail) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Ekrana geri dönünce süren siparişin durumunu tazele (takip kartı güncel kalsın).
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (state is HomeUiState.Ready) viewModel.refreshActiveOrder()
+    }
 
     Scaffold(
         topBar = {
@@ -79,7 +95,7 @@ fun HomeScreen(
                 ErrorState(current.message, onRetry = viewModel::load, modifier = Modifier.padding(padding))
             is HomeUiState.Ready -> Column(Modifier.padding(padding)) {
                 if (current.isOffline) OfflineBanner()
-                HomeContent(current, Modifier, onProduct, onRailSeeAll)
+                HomeContent(current, Modifier, onProduct, onOrder, onRailSeeAll)
             }
         }
     }
@@ -90,6 +106,7 @@ private fun HomeContent(
     state: HomeUiState.Ready,
     modifier: Modifier,
     onProduct: (String, String) -> Unit,
+    onOrder: (String) -> Unit,
     onRailSeeAll: (HomeRail) -> Unit,
 ) {
     LazyColumn(
@@ -97,6 +114,10 @@ private fun HomeContent(
         contentPadding = PaddingValues(Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(Spacing.xl),
     ) {
+        state.activeOrder?.let { order ->
+            item { ActiveOrderCard(order) { onOrder(order.id) } }
+        }
+
         state.store?.let { item { HeroCard(it) } }
 
         if (state.announcements.isNotEmpty()) {
@@ -121,6 +142,60 @@ private fun HomeContent(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActiveOrderCard(order: Order, onClick: () -> Unit) {
+    val steps = com.erenlermarket.app.domain.model.OrderStatus.deliveryFlow
+    val currentIndex = steps.indexOf(order.status).coerceAtLeast(0)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .cardSurface()
+            .clickable(onClick = onClick)
+            .padding(Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Filled.LocalShipping,
+                null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "Siparişin: ${order.status.displayName}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    "#${order.reference} • ${formatMoney(order.totalAmount)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            steps.forEachIndexed { index, _ ->
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .height(4.dp)
+                        .background(
+                            if (index <= currentIndex) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
+                            RoundedCornerShape(2.dp),
+                        ),
+                )
             }
         }
     }

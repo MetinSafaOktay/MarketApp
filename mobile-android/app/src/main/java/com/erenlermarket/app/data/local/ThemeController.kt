@@ -1,11 +1,8 @@
 package com.erenlermarket.app.data.local
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.erenlermarket.app.di.AppScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -30,8 +27,6 @@ enum class ThemeMode {
             DARK -> "Koyu"
         }
 }
-
-private val Context.appPreferences: DataStore<Preferences> by preferencesDataStore(name = "prefs")
 
 /** Uygulama teması — yerel tercih (backend'e senkronlanmaz). */
 @Singleton

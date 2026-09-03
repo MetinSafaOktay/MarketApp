@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.erenlermarket.app.data.AppLanguage
 import com.erenlermarket.app.data.local.ThemeMode
 import com.erenlermarket.app.designsystem.Spacing
 import com.erenlermarket.app.designsystem.cardSurface
@@ -49,7 +51,9 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val language by viewModel.language.collectAsStateWithLifecycle()
     var confirmDelete by remember { mutableStateOf(false) }
+    var pickLanguage by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -78,6 +82,32 @@ fun SettingsScreen(
                             onClick = { viewModel.setThemeMode(mode) },
                             shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size),
                         ) { Text(mode.label) }
+                    }
+                }
+            }
+
+            Section("Dil") {
+                Column(Modifier.fillMaxWidth().cardSurface()) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { pickLanguage = true }
+                            .padding(Spacing.lg),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text("İçerik dili", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                AppLanguage.displayName(language),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
@@ -115,6 +145,40 @@ fun SettingsScreen(
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
         }
+    }
+
+    if (pickLanguage) {
+        AlertDialog(
+            onDismissRequest = { pickLanguage = false },
+            title = { Text("İçerik dili") },
+            text = {
+                Column {
+                    AppLanguage.supported.forEach { code ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.setLanguage(code)
+                                    pickLanguage = false
+                                }
+                                .padding(vertical = Spacing.sm),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = code == language,
+                                onClick = {
+                                    viewModel.setLanguage(code)
+                                    pickLanguage = false
+                                },
+                            )
+                            Text(AppLanguage.displayName(code), style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { pickLanguage = false }) { Text("Kapat") } },
+        )
     }
 
     if (confirmDelete) {

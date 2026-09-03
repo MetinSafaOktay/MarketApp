@@ -2,10 +2,12 @@ package com.erenlermarket.app.ui.home
 
 import com.erenlermarket.app.data.local.LocalCatalogStore
 import com.erenlermarket.app.data.remote.ApiException
+import com.erenlermarket.app.data.session.SessionManager
 import com.erenlermarket.app.domain.model.Announcement
 import com.erenlermarket.app.domain.model.Page
 import com.erenlermarket.app.domain.model.Product
 import com.erenlermarket.app.domain.repository.CatalogRepository
+import com.erenlermarket.app.domain.repository.OrderRepository
 import com.erenlermarket.app.domain.repository.StorefrontRepository
 import com.erenlermarket.app.util.MainDispatcherRule
 import io.mockk.coEvery
@@ -30,6 +32,8 @@ class HomeViewModelTest {
     private val storefront = mockk<StorefrontRepository>()
     private val catalog = mockk<CatalogRepository>()
     private val local = mockk<LocalCatalogStore>(relaxed = true)
+    private val orders = mockk<OrderRepository>(relaxed = true)
+    private val session = mockk<SessionManager>(relaxed = true)
     private val recent = MutableStateFlow<List<Product>>(emptyList())
 
     private fun product(id: String) = Product(
@@ -61,7 +65,7 @@ class HomeViewModelTest {
 
     private fun viewModel(): HomeViewModel {
         every { local.recentProducts } returns recent
-        return HomeViewModel(storefront, catalog, local)
+        return HomeViewModel(storefront, catalog, local, orders, session)
     }
 
     @Test

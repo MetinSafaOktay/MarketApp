@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/** Ekran açıkken sipariş durumunu bu aralıkta bir yeniden çeker. */
+const val ORDER_DETAIL_POLL_INTERVAL_MS = 15_000L
+
 data class OrderDetailUiState(
     val order: Order? = null,
     val loading: Boolean = true,
@@ -42,6 +45,17 @@ class OrderDetailViewModel @Inject constructor(
             } catch (error: ApiException) {
                 _state.update { it.copy(loading = false, error = error.message) }
             }
+        }
+    }
+
+    /**
+     * Sessiz tazeleme — ekran açıkken periyodik ve geri dönüşte. Admin siparişin
+     * durumunu değiştirince "çık-gir" yapmadan güncellensin. Hata yutulur.
+     */
+    fun refresh() {
+        viewModelScope.launch {
+            runCatching { repository.order(orderId) }
+                .onSuccess { order -> _state.update { it.copy(order = order) } }
         }
     }
 

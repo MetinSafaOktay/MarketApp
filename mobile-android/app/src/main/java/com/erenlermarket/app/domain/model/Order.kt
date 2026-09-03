@@ -24,6 +24,9 @@ enum class OrderStatus(val apiValue: String) {
     /** Müşteri yalnızca hazırlığa başlanmadan iptal edebilir. */
     val isCancellableByCustomer: Boolean get() = this == PENDING || this == CONFIRMED
 
+    /** Hâlâ süren sipariş (teslim/iptal değil) — ana ekran takip kartı bunları gösterir. */
+    val isActive: Boolean get() = this != DELIVERED && this != CANCELLED
+
     companion object {
         fun from(value: String?): OrderStatus =
             entries.firstOrNull { it.apiValue == value } ?: PENDING

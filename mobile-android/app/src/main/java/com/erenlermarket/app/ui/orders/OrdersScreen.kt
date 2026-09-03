@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.erenlermarket.app.designsystem.Badge
 import com.erenlermarket.app.designsystem.BadgeStyle
@@ -44,6 +46,12 @@ fun OrdersScreen(
     viewModel: OrdersViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Ekrana her GERİ dönüşte sessiz tazele (admin durum güncellemesi anında
+    // görünsün). İlk açılışta init zaten yüklüyor, onu tekrarlama.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (state is OrdersUiState.Ready) viewModel.refresh()
+    }
 
     Scaffold(
         topBar = {

@@ -13,7 +13,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -57,7 +62,19 @@ private enum class TopDestination(
 @Composable
 fun RootScreen() {
     // Oturumu açılışta geri yükler (init içinde restore çağırır).
-    hiltViewModel<RootViewModel>()
+    val rootViewModel = hiltViewModel<RootViewModel>()
+
+    // Uygulama ön plandayken bildirimleri periyodik yokla — sipariş durumu
+    // değişince zil rozeti kendiliğinden güncellensin. Arka planda durur.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            while (true) {
+                rootViewModel.pollNotifications()
+                delay(NOTIFICATIONS_POLL_INTERVAL_MS)
+            }
+        }
+    }
 
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -103,6 +120,7 @@ fun RootScreen() {
                     onCart = toCart,
                     onNotifications = { navController.navigate(Routes.NOTIFICATIONS) },
                     onMessages = { navController.navigate(Routes.MESSAGES) },
+                    onOrder = { navController.navigate(Routes.orderDetail(it)) },
                     onRailSeeAll = { rail ->
                         navController.navigate(
                             Routes.productList(

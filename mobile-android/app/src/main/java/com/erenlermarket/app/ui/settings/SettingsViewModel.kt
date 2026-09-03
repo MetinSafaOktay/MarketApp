@@ -2,6 +2,7 @@ package com.erenlermarket.app.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.erenlermarket.app.data.local.LanguageController
 import com.erenlermarket.app.data.local.ThemeController
 import com.erenlermarket.app.data.local.ThemeMode
 import com.erenlermarket.app.data.session.SessionManager
@@ -28,6 +29,7 @@ data class SettingsUiState(
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val themeController: ThemeController,
+    private val languageController: LanguageController,
     private val session: SessionManager,
 ) : ViewModel() {
 
@@ -35,6 +37,8 @@ class SettingsViewModel @Inject constructor(
     val state: StateFlow<SettingsUiState> = _state.asStateFlow()
 
     val themeMode: StateFlow<ThemeMode> = themeController.mode
+
+    val language: StateFlow<String> = languageController.code
 
     init { load() }
 
@@ -56,6 +60,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setThemeMode(mode: ThemeMode) = themeController.set(mode)
+
+    fun setLanguage(code: String) = languageController.set(code)
 
     fun setPushEnabled(enabled: Boolean) = updateNotifications(
         SettingsUpdate(pushNotificationsEnabled = enabled),

@@ -38,4 +38,15 @@ class OrdersViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Sessiz tazeleme (ekrana geri dönünce). Yükleme göstergesi yok, hata varsa
+     * eldeki liste korunur — admin sipariş durumunu değiştirince "çık-gir" yapmadan
+     * güncel görünsün diye.
+     */
+    fun refresh() {
+        viewModelScope.launch {
+            runCatching { repository.orders() }.onSuccess { _state.value = OrdersUiState.Ready(it) }
+        }
+    }
 }

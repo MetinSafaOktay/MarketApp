@@ -23,13 +23,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
 import com.erenlermarket.app.designsystem.Spacing
 import com.erenlermarket.app.designsystem.cardSurface
 import com.erenlermarket.app.designsystem.formatMoney
@@ -45,6 +49,18 @@ fun OrderDetailScreen(
     viewModel: OrderDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Ekrana geri dönünce ve açıkken ~15 sn'de bir sessiz tazele — sipariş durumu
+    // canlı görünsün (poll döngüsü yalnızca ekran RESUMED iken çalışır).
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (state.order != null) viewModel.refresh()
+    }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(ORDER_DETAIL_POLL_INTERVAL_MS)
+            viewModel.refresh()
+        }
+    }
 
     Scaffold(
         topBar = {

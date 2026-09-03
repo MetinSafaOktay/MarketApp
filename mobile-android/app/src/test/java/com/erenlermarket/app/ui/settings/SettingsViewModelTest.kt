@@ -1,5 +1,6 @@
 package com.erenlermarket.app.ui.settings
 
+import com.erenlermarket.app.data.local.LanguageController
 import com.erenlermarket.app.data.local.ThemeController
 import com.erenlermarket.app.data.local.ThemeMode
 import com.erenlermarket.app.data.session.SessionManager
@@ -31,13 +32,15 @@ class SettingsViewModelTest {
 
     private val settingsRepository = mockk<SettingsRepository>()
     private val themeController = mockk<ThemeController>(relaxed = true)
+    private val languageController = mockk<LanguageController>(relaxed = true)
     private val session = mockk<SessionManager>()
 
     private val settings = UserSettings("tr", "dark", pushNotificationsEnabled = true, orderNotificationsEnabled = true)
 
     private fun viewModel(): SettingsViewModel {
         every { themeController.mode } returns MutableStateFlow(ThemeMode.SYSTEM)
-        return SettingsViewModel(settingsRepository, themeController, session)
+        every { languageController.code } returns MutableStateFlow("tr")
+        return SettingsViewModel(settingsRepository, themeController, languageController, session)
     }
 
     @Test
@@ -74,6 +77,16 @@ class SettingsViewModelTest {
         vm.setThemeMode(ThemeMode.DARK)
 
         io.mockk.verify { themeController.set(ThemeMode.DARK) }
+    }
+
+    @Test
+    fun `changing language delegates to the controller`() = runTest {
+        coEvery { settingsRepository.settings() } returns settings
+        val vm = viewModel()
+
+        vm.setLanguage("en")
+
+        io.mockk.verify { languageController.set("en") }
     }
 
     @Test
