@@ -8,6 +8,9 @@ import {
   useAddressMutations,
   type AddressInput,
 } from '@/lib/use-addresses';
+import { useStore, deliveryAreaOf } from '@/lib/use-store';
+import { haversineKm } from '@/lib/geo';
+import { LocationPicker, type LatLng } from '../location-picker-lazy';
 import type { Address } from '@/lib/types';
 
 export function AddressesManager() {
@@ -85,6 +88,8 @@ function AddressFormRow({
 }) {
   const t = useTranslations('Addresses');
   const { create, update } = useAddressMutations();
+  const { data: store } = useStore();
+  const area = deliveryAreaOf(store);
   const [form, setForm] = useState<AddressInput>({
     label: address?.label ?? '',
     full_address: address?.full_address ?? '',
@@ -92,7 +97,17 @@ function AddressFormRow({
     district: address?.district ?? '',
     is_default: address?.is_default ?? false,
   });
+  const [coords, setCoords] = useState<LatLng | null>(
+    address?.latitude != null && address?.longitude != null
+      ? { lat: address.latitude, lng: address.longitude }
+      : null,
+  );
   const [error, setError] = useState<string | null>(null);
+
+  const outside =
+    coords && area
+      ? haversineKm(area.lat, area.lng, coords.lat, coords.lng) > area.radiusKm
+      : false;
 
   function field(key: keyof AddressInput) {
     return {
@@ -105,9 +120,18 @@ function AddressFormRow({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!coords) {
+      setError('Lütfen haritadan konum seçin.');
+      return;
+    }
+    const input: AddressInput = {
+      ...form,
+      latitude: coords.lat,
+      longitude: coords.lng,
+    };
     try {
-      if (address) await update.mutateAsync({ id: address.id, input: form });
-      else await create.mutateAsync(form);
+      if (address) await update.mutateAsync({ id: address.id, input });
+      else await create.mutateAsync(input);
       onDone();
     } catch (err) {
       setError((err as Error).message);
@@ -125,6 +149,12 @@ function AddressFormRow({
         <input placeholder={t('city')} required {...field('city')} className={inputCls} />
         <input placeholder={t('district')} required {...field('district')} className={inputCls} />
       </div>
+      <LocationPicker value={coords} onChange={setCoords} area={area} />
+      {outside && (
+        <p className="text-xs text-danger">
+          Seçilen konum teslimat bölgesinin dışında.
+        </p>
+      )}
       <label className="flex items-center gap-2">
         <input
           type="checkbox"
@@ -138,7 +168,8 @@ function AddressFormRow({
       <div className="flex gap-2">
         <button
           type="submit"
-          className="rounded-lg bg-accent px-4 py-2 font-semibold text-accent-fg hover:bg-accent-hover"
+          disabled={!coords || outside || create.isPending || update.isPending}
+          className="rounded-lg bg-accent px-4 py-2 font-semibold text-accent-fg hover:bg-accent-hover disabled:opacity-60"
         >
           {t('save')}
         </button>

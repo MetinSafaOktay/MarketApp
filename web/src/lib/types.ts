@@ -55,6 +55,8 @@ export interface Address {
   city: string;
   district: string;
   is_default: boolean;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
 }
 
@@ -118,6 +120,8 @@ export interface CheckoutPreview {
   } | null;
   coupon_error: string | null;
   has_stock_issues: boolean;
+  delivery_area_ok: boolean;
+  delivery_area_error: string | null;
 }
 
 export interface Category {
@@ -147,4 +151,7 @@ export interface StoreProfile {
   phone: string | null;
   address: string | null;
   working_hours: Record<string, unknown> | null;
+  latitude: number | null;
+  longitude: number | null;
+  delivery_radius_km: number | null;
 }

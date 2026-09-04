@@ -39,12 +39,15 @@ export function CheckoutView() {
     null;
 
   const preview = useQuery({
-    queryKey: ['checkout-preview', coupon ?? ''],
+    queryKey: ['checkout-preview', coupon ?? '', selectedAddress ?? ''],
     queryFn: () =>
       authedApi<CheckoutPreview>('/cart/checkout-preview', {
         method: 'POST',
         locale,
-        body: JSON.stringify(coupon ? { coupon_code: coupon } : {}),
+        body: JSON.stringify({
+          ...(coupon ? { coupon_code: coupon } : {}),
+          ...(selectedAddress ? { address_id: selectedAddress } : {}),
+        }),
       }),
     enabled: !!cart && cart.length > 0,
   });
@@ -124,6 +127,10 @@ export function CheckoutView() {
             </div>
           ) : (
             <p className="text-sm text-text-muted">{t('noAddresses')}</p>
+          )}
+
+          {p?.delivery_area_error && (
+            <p className="mt-2 text-xs text-danger">{p.delivery_area_error}</p>
           )}
 
           {showAddressForm ? (
@@ -233,7 +240,8 @@ export function CheckoutView() {
             placeOrder.isPending ||
             !cart ||
             cart.length === 0 ||
-            p?.has_stock_issues
+            p?.has_stock_issues ||
+            p?.delivery_area_ok === false
           }
           onClick={() => placeOrder.mutate()}
           className="mt-4 w-full rounded-lg bg-accent py-2.5 text-sm font-semibold text-accent-fg hover:bg-accent-hover disabled:opacity-50"

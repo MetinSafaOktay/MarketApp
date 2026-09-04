@@ -22,6 +22,8 @@ export interface AddressInput {
   city: string;
   district: string;
   is_default?: boolean;
+  latitude?: number;
+  longitude?: number;
 }
 
 export function useAddressMutations() {
