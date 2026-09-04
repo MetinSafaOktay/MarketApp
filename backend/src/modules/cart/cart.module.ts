@@ -9,9 +9,10 @@ import { Module } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CartController } from './cart.controller';
 import { CouponsModule } from '../coupons/coupons.module';
+import { StoreModule } from '../store/store.module';
 
 @Module({
-  imports: [CouponsModule],
+  imports: [CouponsModule, StoreModule],
   controllers: [CartController],
   providers: [CartService],
   exports: [CartService],

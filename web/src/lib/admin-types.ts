@@ -62,6 +62,9 @@ export interface AdminStoreProfile {
   phone: string | null;
   address: string | null;
   working_hours: Record<string, unknown> | null;
+  latitude: number | null;
+  longitude: number | null;
+  delivery_radius_km: number | null;
 }
 
 export interface AdminCustomer {

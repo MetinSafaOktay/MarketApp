@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CouponsService } from '../coupons/coupons.service';
+import { StoreService } from '../store/store.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { CheckoutPreviewDto } from './dto/checkout-preview.dto';
@@ -20,6 +21,7 @@ export class CartService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService, // checkout-preview kupon doğrulaması
+    private readonly storeService: StoreService, // checkout-preview teslimat bölgesi
   ) {}
 
   // Sepeti ürün + görselleriyle döndürür; ürün adları tek dile çözülür.
@@ -142,6 +144,25 @@ export class CartService {
       }
     }
 
+    // Teslimat bölgesi: adres verildiyse ve mağaza bölgesi tanımlıysa kontrol et.
+    // delivery_area_ok=false → istemci "Sipariş Ver"i mesajla kilitler.
+    let deliveryAreaOk = true;
+    let deliveryAreaMessage: string | null = null;
+    if (dto.address_id) {
+      const address = await this.prisma.addresses.findFirst({
+        where: { id: dto.address_id, user_id: userId },
+        select: { latitude: true, longitude: true },
+      });
+      const check = await this.storeService.checkAddressInArea(
+        address?.latitude,
+        address?.longitude,
+      );
+      deliveryAreaOk = check.ok;
+      if (!check.ok) {
+        deliveryAreaMessage = `Bu adres teslimat bölgemizin dışında (mağazaya en fazla ${check.radiusKm} km).`;
+      }
+    }
+
     return {
       items: lines,
       subtotal,
@@ -151,6 +172,8 @@ export class CartService {
       coupon_error: couponError,
       has_stock_issues: stockIssues.length > 0,
       stock_issues: stockIssues,
+      delivery_area_ok: deliveryAreaOk,
+      delivery_area_error: deliveryAreaMessage,
     };
   }
 }

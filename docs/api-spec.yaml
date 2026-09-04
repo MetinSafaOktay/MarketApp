@@ -225,33 +225,6 @@ paths:
         - bearer: []
       tags:
         - addresses
-  /users/me/settings:
-    get:
-      operationId: UserSettingsController_get
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      security:
-        - bearer: []
-      tags:
-        - user-settings
-    patch:
-      operationId: UserSettingsController_update
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateSettingsDto'
-      responses:
-        '200':
-          description: ''
-      security:
-        - bearer: []
-      tags:
-        - user-settings
   /store:
     get:
       operationId: StoreController_get
@@ -286,6 +259,33 @@ paths:
         - bearer: []
       tags:
         - store
+  /users/me/settings:
+    get:
+      operationId: UserSettingsController_get
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - user-settings
+    patch:
+      operationId: UserSettingsController_update
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      tags:
+        - user-settings
   /categories:
     get:
       operationId: CategoriesController_list
@@ -1357,6 +1357,14 @@ components:
           maxLength: 100
         is_default:
           type: boolean
+        latitude:
+          type: number
+          description: Adres enlemi
+          example: 38.7601
+        longitude:
+          type: number
+          description: Adres boylamı
+          example: 30.5421
       required:
         - label
         - full_address
@@ -1379,19 +1387,14 @@ components:
           maxLength: 100
         is_default:
           type: boolean
-    UpdateSettingsDto:
-      type: object
-      properties:
-        language:
-          type: string
-          example: tr
-        theme:
-          type: string
-          example: dark
-        push_notifications_enabled:
-          type: boolean
-        order_notifications_enabled:
-          type: boolean
+        latitude:
+          type: number
+          description: Adres enlemi
+          example: 38.7601
+        longitude:
+          type: number
+          description: Adres boylamı
+          example: 30.5421
     UpdateStoreDto:
       type: object
       properties:
@@ -1419,6 +1422,31 @@ components:
         working_hours:
           type: object
           description: Gün bazlı çalışma saatleri (serbest JSON)
+        latitude:
+          type: object
+          description: Mağaza enlemi
+          example: 38.7569
+        longitude:
+          type: object
+          description: Mağaza boylamı
+          example: 30.5387
+        delivery_radius_km:
+          type: object
+          description: Teslimat yarıçapı (km)
+          example: 5
+    UpdateSettingsDto:
+      type: object
+      properties:
+        language:
+          type: string
+          example: tr
+        theme:
+          type: string
+          example: dark
+        push_notifications_enabled:
+          type: boolean
+        order_notifications_enabled:
+          type: boolean
     CreateCategoryDto:
       type: object
       properties:
@@ -1554,6 +1582,11 @@ components:
         coupon_code:
           type: string
           description: Uygulanacak kupon kodu (opsiyonel)
+        address_id:
+          type: string
+          description: >-
+            Seçili teslimat adresi (opsiyonel) — verilirse yanıtta teslimat
+            bölgesi bilgisi döner
     CreateCouponDto:
       type: object
       properties:

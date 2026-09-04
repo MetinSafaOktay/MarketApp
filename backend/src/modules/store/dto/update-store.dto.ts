@@ -5,11 +5,15 @@
  */
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsNumber,
   IsObject,
   IsOptional,
+  IsPositive,
   IsString,
   IsUrl,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
 import { IsTranslatedText } from '../../../common/i18n/is-translated-text.validator';
 import type { TranslatedText } from '../../../common/i18n/locales';
@@ -64,4 +68,28 @@ export class UpdateStoreDto {
   @IsOptional()
   @IsObject()
   working_hours?: Record<string, unknown>;
+
+  // --- Teslimat bölgesi (kuş uçuşu). Üçü birden dolu değilse kısıt kapalı;
+  //     null göndererek temizlenebilir (@IsOptional null'ı da atlar). ---
+
+  @ApiPropertyOptional({ description: 'Mağaza enlemi', example: 38.7569 })
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude?: number | null;
+
+  @ApiPropertyOptional({ description: 'Mağaza boylamı', example: 30.5387 })
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude?: number | null;
+
+  @ApiPropertyOptional({ description: 'Teslimat yarıçapı (km)', example: 5 })
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  @Max(100)
+  delivery_radius_km?: number | null;
 }

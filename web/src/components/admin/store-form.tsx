@@ -43,6 +43,9 @@ function StoreFormInner({
   const [hours, setHours] = useState<HourRow[]>(() =>
     toHourRows(store.working_hours),
   );
+  const [lat, setLat] = useState(numStr(store.latitude));
+  const [lng, setLng] = useState(numStr(store.longitude));
+  const [radius, setRadius] = useState(numStr(store.delivery_radius_km));
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +64,9 @@ function StoreFormInner({
         tagline: Object.keys(tagline).length ? tagline : undefined,
         description: Object.keys(description).length ? description : undefined,
         working_hours: fromHourRows(hours),
+        latitude: parseNum(lat),
+        longitude: parseNum(lng),
+        delivery_radius_km: parseNum(radius),
       });
       setSaved(true);
     } catch (err) {
@@ -89,6 +95,21 @@ function StoreFormInner({
         textarea
       />
       <WorkingHoursEditor rows={hours} onChange={setHours} deleteLabel={t('delete')} />
+
+      <div className="flex flex-col gap-2 text-sm">
+        <span className="text-text-muted">Teslimat Bölgesi</span>
+        <p className="text-xs text-text-muted">
+          Mağaza konumu ve yarıçapı. Üçü de dolduğunda, bu yarıçapın (kuş uçuşu)
+          dışındaki adreslerden sipariş alınmaz. Boş bırakılırsa sınır uygulanmaz.
+          Konum için Google Maps&apos;te mağazaya sağ tıklayıp koordinatları kopyalayın.
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          <Field label="Enlem" value={lat} onChange={setLat} placeholder="38.7569" />
+          <Field label="Boylam" value={lng} onChange={setLng} placeholder="30.5387" />
+          <Field label="Yarıçap (km)" value={radius} onChange={setRadius} placeholder="5" />
+        </div>
+      </div>
+
       {error && <p className="text-sm text-danger">{error}</p>}
       {saved && <p className="text-sm text-success">{t('updated')}</p>}
       <button
@@ -214,20 +235,33 @@ function ImagePicker({
   );
 }
 
+/** Sayı alanı: boş string → null (temizler), aksi hâlde Number. */
+function parseNum(s: string): number | null {
+  return s.trim() === '' ? null : Number(s);
+}
+
+/** null/undefined → '' (kontrollü input için). */
+function numStr(n: number | null | undefined): string {
+  return n == null ? '' : String(n);
+}
+
 function Field({
   label,
   value,
   onChange,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  placeholder?: string;
 }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm">
       <span className="text-text-muted">{label}</span>
       <input
         value={value}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="rounded-lg border border-border bg-surface-2 px-3 py-2 outline-none focus:ring-2 focus:ring-accent/40"
       />

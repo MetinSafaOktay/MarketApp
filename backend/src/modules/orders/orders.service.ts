@@ -3,11 +3,13 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { order_status } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CouponsService } from '../coupons/coupons.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { StoreService } from '../store/store.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
@@ -76,6 +78,7 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService,
     private readonly notificationsService: NotificationsService,
+    private readonly storeService: StoreService,
   ) {}
 
   async create(
@@ -89,6 +92,17 @@ export class OrdersService {
     });
     if (!address || address.user_id !== userId) {
       throw new ForbiddenException('Bu adres size ait değil');
+    }
+
+    // Teslimat bölgesi kontrolü (adresin koordinatı varsa + bölge tanımlıysa)
+    const areaCheck = await this.storeService.checkAddressInArea(
+      address.latitude,
+      address.longitude,
+    );
+    if (!areaCheck.ok) {
+      throw new UnprocessableEntityException(
+        `Bu adres teslimat bölgemizin dışında (mağazaya en fazla ${areaCheck.radiusKm} km). Farklı bir adres seçin.`,
+      );
     }
 
     // 2) İstenen ürünleri tek sorguda çek, id→ürün haritası kur

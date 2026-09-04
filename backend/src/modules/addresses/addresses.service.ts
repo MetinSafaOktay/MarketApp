@@ -3,14 +3,29 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { StoreService } from '../store/store.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 
 @Injectable()
 export class AddressesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storeService: StoreService,
+  ) {}
+
+  /** Koordinat verilmişse ve mağaza teslimat bölgesi tanımlıysa: bölge dışıysa 422. */
+  private async assertInDeliveryArea(lat?: number | null, lng?: number | null) {
+    const check = await this.storeService.checkAddressInArea(lat, lng);
+    if (!check.ok) {
+      throw new UnprocessableEntityException(
+        `Bu adres teslimat bölgemizin dışında (mağazaya en fazla ${check.radiusKm} km).`,
+      );
+    }
+  }
 
   list(userId: string) {
     return this.prisma.addresses.findMany({
@@ -19,7 +34,8 @@ export class AddressesService {
     });
   }
 
-  create(userId: string, dto: CreateAddressDto) {
+  async create(userId: string, dto: CreateAddressDto) {
+    await this.assertInDeliveryArea(dto.latitude, dto.longitude);
     return this.prisma.addresses.create({
       data: { ...dto, user_id: userId },
     });
@@ -38,7 +54,12 @@ export class AddressesService {
   }
 
   async update(userId: string, addressId: string, dto: UpdateAddressDto) {
-    await this.assertOwnership(userId, addressId);
+    const current = await this.assertOwnership(userId, addressId);
+    // güncellemede yeni koordinat verildiyse onu, yoksa mevcut koordinatı kontrol et
+    await this.assertInDeliveryArea(
+      dto.latitude ?? current.latitude,
+      dto.longitude ?? current.longitude,
+    );
     return this.prisma.addresses.update({
       where: { id: addressId },
       data: dto,

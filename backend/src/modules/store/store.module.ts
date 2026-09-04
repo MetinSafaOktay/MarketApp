@@ -10,5 +10,6 @@ import { StoreController } from './store.controller';
 @Module({
   controllers: [StoreController],
   providers: [StoreService],
+  exports: [StoreService], // addresses / orders / cart teslimat bölgesi kontrolü için kullanır
 })
 export class StoreModule {}
