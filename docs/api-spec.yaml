@@ -1376,6 +1376,22 @@ components:
         district:
           type: string
           maxLength: 100
+        building_name:
+          type: string
+          maxLength: 120
+          example: Erenler Apartmanı
+        building_no:
+          type: string
+          maxLength: 20
+          example: 12/A
+        floor:
+          type: string
+          maxLength: 20
+          example: '3'
+        apartment_no:
+          type: string
+          maxLength: 20
+          example: '7'
         is_default:
           type: boolean
         latitude:
@@ -1391,6 +1407,10 @@ components:
         - full_address
         - city
         - district
+        - building_name
+        - building_no
+        - floor
+        - apartment_no
     UpdateAddressDto:
       type: object
       properties:
@@ -1406,6 +1426,22 @@ components:
         district:
           type: string
           maxLength: 100
+        building_name:
+          type: string
+          maxLength: 120
+          example: Erenler Apartmanı
+        building_no:
+          type: string
+          maxLength: 20
+          example: 12/A
+        floor:
+          type: string
+          maxLength: 20
+          example: '3'
+        apartment_no:
+          type: string
+          maxLength: 20
+          example: '7'
         is_default:
           type: boolean
         latitude:

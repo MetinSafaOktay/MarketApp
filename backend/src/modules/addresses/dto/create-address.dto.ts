@@ -6,6 +6,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -33,6 +34,33 @@ export class CreateAddressDto {
   @IsString()
   @MaxLength(100)
   district: string;
+
+  // Aşağıdaki 4 alan kullanıcı tarafından elle girilir (haritadan dolmaz) ve
+  // zorunludur.
+
+  @ApiProperty({ maxLength: 120, example: 'Erenler Apartmanı' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(120)
+  building_name: string;
+
+  @ApiProperty({ maxLength: 20, example: '12/A' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(20)
+  building_no: string;
+
+  @ApiProperty({ maxLength: 20, example: '3' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(20)
+  floor: string;
+
+  @ApiProperty({ maxLength: 20, example: '7' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(20)
+  apartment_no: string;
 
   @ApiPropertyOptional()
   @IsOptional()

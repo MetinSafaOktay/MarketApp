@@ -37,6 +37,10 @@ describe('AddressesService.create — teslimat bölgesi', () => {
     full_address: 'Erenler Mah. 1. Sk. No:1',
     city: 'Afyonkarahisar',
     district: 'Merkez',
+    building_name: 'Erenler Apartmanı',
+    building_no: '1',
+    floor: '2',
+    apartment_no: '4',
   };
   const STORE = { latitude: 38.7569, longitude: 30.5387, radiusKm: 5 };
 

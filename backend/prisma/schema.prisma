@@ -11,8 +11,12 @@ model addresses {
   user_id      String   @db.Uuid
   label        String   @db.VarChar(50)
   full_address String
-  city         String   @db.VarChar(100)
-  district     String   @db.VarChar(100)
+  city          String  @db.VarChar(100)
+  district      String  @db.VarChar(100)
+  building_name String  @default("")
+  building_no   String  @default("")
+  floor         String  @default("")
+  apartment_no  String  @default("")
   is_default   Boolean  @default(false)
   latitude     Float?
   longitude    Float?
