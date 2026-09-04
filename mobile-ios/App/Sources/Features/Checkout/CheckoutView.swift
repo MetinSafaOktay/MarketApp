@@ -212,6 +212,9 @@ private struct AddressRow: View {
                 Text(address.label).font(.subheadline.weight(.semibold))
                     .foregroundStyle(Palette.text)
                 Text(address.fullAddress).font(.footnote).foregroundStyle(Palette.textMuted)
+                if !address.buildingLine.isEmpty {
+                    Text(address.buildingLine).font(.caption).foregroundStyle(Palette.textMuted)
+                }
                 Text(address.summary).font(.caption).foregroundStyle(Palette.textMuted)
             }
             Spacer(minLength: 0)

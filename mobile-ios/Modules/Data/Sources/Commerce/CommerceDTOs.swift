@@ -104,6 +104,10 @@ struct AddressDTO: Decodable, Sendable {
     let fullAddress: String
     let city: String
     let district: String
+    let buildingName: String?
+    let buildingNo: String?
+    let floor: String?
+    let apartmentNo: String?
     let isDefault: Bool
     let latitude: Double?
     let longitude: Double?
@@ -117,6 +121,10 @@ enum AddressMapper {
             fullAddress: dto.fullAddress,
             city: dto.city,
             district: dto.district,
+            buildingName: dto.buildingName ?? "",
+            buildingNo: dto.buildingNo ?? "",
+            floor: dto.floor ?? "",
+            apartmentNo: dto.apartmentNo ?? "",
             isDefault: dto.isDefault,
             latitude: dto.latitude,
             longitude: dto.longitude

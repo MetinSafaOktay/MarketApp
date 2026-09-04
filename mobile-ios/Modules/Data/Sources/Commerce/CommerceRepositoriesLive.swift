@@ -119,15 +119,7 @@ public struct AddressRepositoryLive: AddressRepository {
     public func create(_ address: NewAddress) async throws -> Address {
         let dto: AddressDTO = try await client.send(.post(
             "/addresses",
-            json: Body(
-                label: address.label,
-                fullAddress: address.fullAddress,
-                city: address.city,
-                district: address.district,
-                isDefault: address.isDefault,
-                latitude: address.latitude,
-                longitude: address.longitude
-            ),
+            json: Body(address),
             auth: true
         ))
         return AddressMapper.map(dto)
@@ -137,15 +129,7 @@ public struct AddressRepositoryLive: AddressRepository {
         let dto: AddressDTO = try await client.send(Endpoint(
             path: "/addresses/\(id)",
             method: .patch,
-            body: JSONEncoder.api.encode(Body(
-                label: address.label,
-                fullAddress: address.fullAddress,
-                city: address.city,
-                district: address.district,
-                isDefault: address.isDefault,
-                latitude: address.latitude,
-                longitude: address.longitude
-            )),
+            body: JSONEncoder.api.encode(Body(address)),
             requiresAuth: true
         ))
         return AddressMapper.map(dto)
@@ -162,9 +146,27 @@ public struct AddressRepositoryLive: AddressRepository {
         let fullAddress: String
         let city: String
         let district: String
+        let buildingName: String
+        let buildingNo: String
+        let floor: String
+        let apartmentNo: String
         let isDefault: Bool
         let latitude: Double?
         let longitude: Double?
+
+        init(_ a: NewAddress) {
+            label = a.label
+            fullAddress = a.fullAddress
+            city = a.city
+            district = a.district
+            buildingName = a.buildingName
+            buildingNo = a.buildingNo
+            floor = a.floor
+            apartmentNo = a.apartmentNo
+            isDefault = a.isDefault
+            latitude = a.latitude
+            longitude = a.longitude
+        }
     }
 }
 

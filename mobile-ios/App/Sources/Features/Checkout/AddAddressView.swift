@@ -15,6 +15,10 @@ struct AddAddressView: View {
     @State private var fullAddress = ""
     @State private var city = "Afyonkarahisar"
     @State private var district = ""
+    @State private var buildingName = ""
+    @State private var buildingNo = ""
+    @State private var floor = ""
+    @State private var apartmentNo = ""
     @State private var makeDefault = true
     @State private var coordinate: CLLocationCoordinate2D?
     @State private var deliveryArea: DeliveryArea?
@@ -31,6 +35,10 @@ struct AddAddressView: View {
             _fullAddress = State(initialValue: a.fullAddress)
             _city = State(initialValue: a.city)
             _district = State(initialValue: a.district)
+            _buildingName = State(initialValue: a.buildingName)
+            _buildingNo = State(initialValue: a.buildingNo)
+            _floor = State(initialValue: a.floor)
+            _apartmentNo = State(initialValue: a.apartmentNo)
             _makeDefault = State(initialValue: a.isDefault)
             _touched = State(initialValue: ["fullAddress", "city", "district"])
             if let lat = a.latitude, let lng = a.longitude {
@@ -52,6 +60,8 @@ struct AddAddressView: View {
     private var canSave: Bool {
         !label.trimmed.isEmpty && !fullAddress.trimmed.isEmpty
             && !city.trimmed.isEmpty && !district.trimmed.isEmpty
+            && !buildingName.trimmed.isEmpty && !buildingNo.trimmed.isEmpty
+            && !floor.trimmed.isEmpty && !apartmentNo.trimmed.isEmpty
             && coordinate != nil && !outside && !isSaving
     }
 
@@ -88,6 +98,16 @@ struct AddAddressView: View {
                     .onChange(of: city) { touched.insert("city") }
                 TextField("İlçe", text: $district)
                     .onChange(of: district) { touched.insert("district") }
+            }
+            Section {
+                TextField("Bina adı", text: $buildingName)
+                TextField("Bina no", text: $buildingNo)
+                TextField("Kat", text: $floor)
+                TextField("Daire no", text: $apartmentNo)
+            } footer: {
+                Text("Bina, kat ve daire bilgisi haritadan doldurulmaz — elle girin.")
+            }
+            Section {
                 Toggle("Varsayılan adres yap", isOn: $makeDefault)
             }
             if let errorMessage {
@@ -123,6 +143,10 @@ struct AddAddressView: View {
             fullAddress: fullAddress.trimmed,
             city: city.trimmed,
             district: district.trimmed,
+            buildingName: buildingName.trimmed,
+            buildingNo: buildingNo.trimmed,
+            floor: floor.trimmed,
+            apartmentNo: apartmentNo.trimmed,
             isDefault: makeDefault,
             latitude: coordinate.latitude,
             longitude: coordinate.longitude

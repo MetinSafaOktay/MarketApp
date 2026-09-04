@@ -191,16 +191,20 @@ struct StubAddress: AddressRepository {
     }
 
     func create(_ address: NewAddress) async throws -> Address {
-        Address(
-            id: "new", label: address.label, fullAddress: address.fullAddress,
-            city: address.city, district: address.district, isDefault: address.isDefault
-        )
+        Self.map(id: "new", address)
     }
 
     func update(id: String, _ address: NewAddress) async throws -> Address {
+        Self.map(id: id, address)
+    }
+
+    private static func map(id: String, _ address: NewAddress) -> Address {
         Address(
             id: id, label: address.label, fullAddress: address.fullAddress,
-            city: address.city, district: address.district, isDefault: address.isDefault
+            city: address.city, district: address.district,
+            buildingName: address.buildingName, buildingNo: address.buildingNo,
+            floor: address.floor, apartmentNo: address.apartmentNo,
+            isDefault: address.isDefault
         )
     }
 

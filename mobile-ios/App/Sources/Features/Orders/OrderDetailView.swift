@@ -90,6 +90,9 @@ private struct Inner: View {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(address.label).font(.subheadline.weight(.semibold))
                     Text(address.fullAddress).font(.footnote).foregroundStyle(Palette.textMuted)
+                    if !address.buildingLine.isEmpty {
+                        Text(address.buildingLine).font(.caption).foregroundStyle(Palette.textMuted)
+                    }
                     Text(address.summary).font(.caption).foregroundStyle(Palette.textMuted)
                 }
             }

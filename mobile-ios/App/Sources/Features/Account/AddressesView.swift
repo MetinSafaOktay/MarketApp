@@ -84,6 +84,10 @@ struct AddressesView: View {
                                 }
                                 Text(address.fullAddress).font(.footnote)
                                     .foregroundStyle(Palette.textMuted)
+                                if !address.buildingLine.isEmpty {
+                                    Text(address.buildingLine).font(.caption)
+                                        .foregroundStyle(Palette.textMuted)
+                                }
                                 Text(address.summary).font(.caption)
                                     .foregroundStyle(Palette.textMuted)
                             }
