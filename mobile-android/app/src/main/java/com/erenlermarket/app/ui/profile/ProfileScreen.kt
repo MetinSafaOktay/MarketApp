@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
@@ -46,6 +47,7 @@ fun ProfileScreen(
     onSignIn: () -> Unit,
     onOrders: () -> Unit,
     onWishlist: () -> Unit,
+    onAddresses: () -> Unit,
     onSettings: () -> Unit,
     onAdmin: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
@@ -82,6 +84,7 @@ fun ProfileScreen(
                     Modifier.padding(padding),
                     onOrders,
                     onWishlist,
+                    onAddresses,
                     onAdmin,
                     viewModel::signOut,
                 )
@@ -116,6 +119,7 @@ private fun SignedIn(
     modifier: Modifier,
     onOrders: () -> Unit,
     onWishlist: () -> Unit,
+    onAddresses: () -> Unit,
     onAdmin: () -> Unit,
     onSignOut: () -> Unit,
 ) {
@@ -150,6 +154,8 @@ private fun SignedIn(
             ProfileRow(Icons.Outlined.Receipt, "Siparişlerim", onOrders)
             HorizontalDivider()
             ProfileRow(Icons.Outlined.FavoriteBorder, "İstek listem", onWishlist)
+            HorizontalDivider()
+            ProfileRow(Icons.Outlined.LocationOn, "Adreslerim", onAddresses)
         }
 
         if (user.role == UserRole.ADMIN) {

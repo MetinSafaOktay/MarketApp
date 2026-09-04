@@ -2,7 +2,10 @@ package com.erenlermarket.app.ui.checkout
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -20,9 +23,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +57,12 @@ import org.maplibre.android.style.sources.GeoJsonSource
 import org.maplibre.geojson.Feature
 import org.maplibre.geojson.Point
 import org.maplibre.geojson.Polygon
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import java.util.Locale
+import kotlin.coroutines.resume
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -80,10 +91,53 @@ private fun circlePolygon(centerLat: Double, centerLng: Double, radiusKm: Double
     return Polygon.fromLngLats(listOf(ring))
 }
 
+/** Koordinattan çözülen adres — form bunlarla ön-doldurulur. */
+data class ResolvedAddress(
+    val fullAddress: String = "",
+    val city: String = "",
+    val district: String = "",
+)
+
+/** Cihaz geocoder'ı ile ters geocoding (Play Services). Sonuç yoksa null. */
+private suspend fun reverseGeocode(context: Context, lat: Double, lng: Double): ResolvedAddress? {
+    if (!Geocoder.isPresent()) return null
+    val geocoder = Geocoder(context, Locale("tr", "TR"))
+    val result: android.location.Address = try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            suspendCancellableCoroutine<android.location.Address?> { cont ->
+                geocoder.getFromLocation(lat, lng, 1) { list -> cont.resume(list.firstOrNull()) }
+            }
+        } else {
+            withContext(Dispatchers.IO) {
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
+            }
+        }
+    } catch (_: Exception) {
+        null
+    } ?: return null
+
+    val neighbourhood = result.subLocality.orEmpty()
+    val road = result.thoroughfare.orEmpty()
+    val houseNo = result.subThoroughfare.orEmpty()
+    val full = listOfNotNull(
+        neighbourhood.takeIf { it.isNotBlank() }?.let { "$it Mah." },
+        road.takeIf { it.isNotBlank() },
+        houseNo.takeIf { it.isNotBlank() }?.let { "No $it" },
+    ).joinToString(" ")
+
+    return ResolvedAddress(
+        fullAddress = full,
+        city = result.adminArea.orEmpty(),
+        district = result.subAdminArea ?: result.locality.orEmpty(),
+    )
+}
+
 /**
  * Adres için haritadan konum seçimi (MapLibre). Pin ekranın ortasında sabittir;
  * kullanıcı haritayı kaydırır, merkez koordinat `onChange`'e verilir. Teslimat
- * bölgesi (varsa) kesikli daire olarak çizilir.
+ * bölgesi (varsa) kesikli daire olarak çizilir. Pin durunca cihaz geocoder'ı ile
+ * ters geocode yapılıp `onResolved` çağrılır.
  */
 @SuppressLint("MissingPermission")
 @Composable
@@ -92,6 +146,7 @@ fun LocationPicker(
     onChange: (LatLng) -> Unit,
     area: DeliveryArea?,
     modifier: Modifier = Modifier,
+    onResolved: (ResolvedAddress) -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -99,6 +154,13 @@ fun LocationPicker(
 
     var center by remember { mutableStateOf(value ?: area?.let { LatLng(it.latitude, it.longitude) } ?: FALLBACK) }
     var permissionDenied by remember { mutableStateOf(false) }
+    val currentOnResolved by rememberUpdatedState(onResolved)
+
+    // Pin durunca ~800 ms sonra ters geocode.
+    LaunchedEffect(center) {
+        delay(800)
+        reverseGeocode(context, center.latitude, center.longitude)?.let(currentOnResolved)
+    }
 
     val fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f).toArgb()
     val lineColor = MaterialTheme.colorScheme.error.toArgb()

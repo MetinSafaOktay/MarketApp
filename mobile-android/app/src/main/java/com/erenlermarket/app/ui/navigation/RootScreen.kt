@@ -36,6 +36,7 @@ import com.erenlermarket.app.ui.admin.AdminHomeScreen
 import com.erenlermarket.app.ui.admin.AdminLowStockScreen
 import com.erenlermarket.app.ui.admin.AdminMessagesScreen
 import com.erenlermarket.app.ui.admin.AdminOrderDetailScreen
+import com.erenlermarket.app.ui.addresses.AddressesScreen
 import com.erenlermarket.app.ui.admin.AdminOrdersScreen
 import com.erenlermarket.app.ui.auth.AuthScreen
 import com.erenlermarket.app.ui.cart.CartScreen
@@ -154,6 +155,7 @@ fun RootScreen() {
                     onSignIn = toAuth,
                     onOrders = { navController.navigate(Routes.ORDERS) },
                     onWishlist = { navController.navigate(Routes.WISHLIST) },
+                    onAddresses = { navController.navigate(Routes.ADDRESSES) },
                     onSettings = { navController.navigate(Routes.SETTINGS) },
                     onAdmin = { navController.navigate(Routes.ADMIN) },
                 )
@@ -209,6 +211,9 @@ fun RootScreen() {
             }
             composable(Routes.WISHLIST) {
                 WishlistScreen(onBack = navController::popBackStack, onProduct = toProduct)
+            }
+            composable(Routes.ADDRESSES) {
+                AddressesScreen(onBack = navController::popBackStack)
             }
             composable(Routes.MESSAGES) {
                 MessagesScreen(onBack = navController::popBackStack)

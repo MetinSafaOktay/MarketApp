@@ -82,6 +82,10 @@ class AddressRepositoryImpl @Inject constructor(
         api.createAddress(address.toRequest()).toDomain()
     }
 
+    override suspend fun update(id: String, address: NewAddress): Address = apiCall {
+        api.updateAddress(id, address.toRequest()).toDomain()
+    }
+
     override suspend fun delete(id: String) = apiCall { api.deleteAddress(id) }
 }
 

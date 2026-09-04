@@ -26,6 +26,7 @@ interface WishlistRepository {
 interface AddressRepository {
     suspend fun addresses(): List<Address>
     suspend fun create(address: NewAddress): Address
+    suspend fun update(id: String, address: NewAddress): Address
     suspend fun delete(id: String)
 }
 

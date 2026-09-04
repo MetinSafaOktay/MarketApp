@@ -57,6 +57,9 @@ interface CommerceApi {
     @POST("addresses")
     suspend fun createAddress(@Body body: AddressRequest): AddressDto
 
+    @PATCH("addresses/{id}")
+    suspend fun updateAddress(@Path("id") id: String, @Body body: AddressRequest): AddressDto
+
     @DELETE("addresses/{id}")
     suspend fun deleteAddress(@Path("id") id: String)
 
