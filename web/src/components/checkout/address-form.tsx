@@ -8,7 +8,15 @@ import { haversineKm } from '@/lib/geo';
 import type { ResolvedAddress } from '@/lib/geo-api';
 import { LocationPicker, type LatLng } from '../location-picker-lazy';
 
-type FieldKey = 'label' | 'full_address' | 'city' | 'district';
+type FieldKey =
+  | 'label'
+  | 'full_address'
+  | 'city'
+  | 'district'
+  | 'building_name'
+  | 'building_no'
+  | 'floor'
+  | 'apartment_no';
 
 export function AddressForm({ onDone }: { onDone: () => void }) {
   const t = useTranslations('Checkout');
@@ -21,6 +29,10 @@ export function AddressForm({ onDone }: { onDone: () => void }) {
     full_address: '',
     city: '',
     district: '',
+    building_name: '',
+    building_no: '',
+    floor: '',
+    apartment_no: '',
   });
   const [touched, setTouched] = useState<Set<FieldKey>>(new Set());
   const [coords, setCoords] = useState<LatLng | null>(null);
@@ -35,10 +47,10 @@ export function AddressForm({ onDone }: { onDone: () => void }) {
   // Haritadan çözülen adres — kullanıcının elle değiştirmediği alanları doldur.
   function applyResolved(r: ResolvedAddress) {
     setFields((f) => ({
+      ...f,
       full_address: touched.has('full_address') || !r.full_address ? f.full_address : r.full_address,
       city: touched.has('city') || !r.city ? f.city : r.city,
       district: touched.has('district') || !r.district ? f.district : r.district,
-      label: f.label,
     }));
     if (r.full_address || r.city || r.district) setAutofilled(true);
   }
@@ -55,12 +67,23 @@ export function AddressForm({ onDone }: { onDone: () => void }) {
       setError('Lütfen haritadan konum seçin.');
       return;
     }
+    const building = {
+      building_name: fields.building_name.trim(),
+      building_no: fields.building_no.trim(),
+      floor: fields.floor.trim(),
+      apartment_no: fields.apartment_no.trim(),
+    };
+    if (!building.building_name || !building.building_no || !building.floor || !building.apartment_no) {
+      setError(t('buildingFieldsRequired'));
+      return;
+    }
     try {
       await add.mutateAsync({
         label: fields.label.trim(),
         full_address: fields.full_address.trim(),
         city: fields.city.trim(),
         district: fields.district.trim(),
+        ...building,
         latitude: coords.lat,
         longitude: coords.lng,
       });
@@ -104,6 +127,25 @@ export function AddressForm({ onDone }: { onDone: () => void }) {
           placeholder={t('district')}
           value={fields.district}
           onChange={(v) => set('district', v)}
+        />
+      </div>
+
+      <Input
+        placeholder={t('buildingName')}
+        value={fields.building_name}
+        onChange={(v) => set('building_name', v)}
+      />
+      <div className="grid grid-cols-3 gap-3">
+        <Input
+          placeholder={t('buildingNo')}
+          value={fields.building_no}
+          onChange={(v) => set('building_no', v)}
+        />
+        <Input placeholder={t('floor')} value={fields.floor} onChange={(v) => set('floor', v)} />
+        <Input
+          placeholder={t('apartmentNo')}
+          value={fields.apartment_no}
+          onChange={(v) => set('apartment_no', v)}
         />
       </div>
 

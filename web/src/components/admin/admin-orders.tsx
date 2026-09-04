@@ -6,7 +6,7 @@ import { ChevronRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { useAdminOrders, useUpdateOrderStatus } from '@/lib/use-admin';
 import { useOrder } from '@/lib/use-orders';
-import { formatPrice } from '@/lib/format';
+import { formatPrice, formatAddress } from '@/lib/format';
 import { OrderStatusBadge } from '@/components/orders/order-status-badge';
 import type { OrderStatus } from '@/lib/types';
 
@@ -152,8 +152,7 @@ export function AdminOrderDetail({
           <span>{formatPrice(order.total_amount, locale)}</span>
         </div>
         <p className="mt-3 text-text-muted" dir="auto">
-          {order.addresses.full_address}, {order.addresses.district}/
-          {order.addresses.city} ·{' '}
+          {formatAddress(order.addresses)} ·{' '}
           {order.payment_method === 'card' ? tco('card') : tco('cash')}
         </p>
       </section>

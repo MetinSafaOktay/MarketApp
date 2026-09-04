@@ -9,6 +9,7 @@ import {
   type AddressInput,
 } from '@/lib/use-addresses';
 import { useStore, deliveryAreaOf } from '@/lib/use-store';
+import { formatAddress } from '@/lib/format';
 import { haversineKm } from '@/lib/geo';
 import { LocationPicker, type LatLng } from '../location-picker-lazy';
 import type { Address } from '@/lib/types';
@@ -54,7 +55,7 @@ export function AddressesManager() {
                   {a.is_default && <Star className="size-3.5 fill-accent text-accent" />}
                 </span>
                 <span className="block text-text-muted" dir="auto">
-                  {a.full_address}, {a.district}/{a.city}
+                  {formatAddress(a)}
                 </span>
               </div>
               <button
@@ -95,6 +96,10 @@ function AddressFormRow({
     full_address: address?.full_address ?? '',
     city: address?.city ?? '',
     district: address?.district ?? '',
+    building_name: address?.building_name ?? '',
+    building_no: address?.building_no ?? '',
+    floor: address?.floor ?? '',
+    apartment_no: address?.apartment_no ?? '',
     is_default: address?.is_default ?? false,
   });
   const [coords, setCoords] = useState<LatLng | null>(
@@ -144,9 +149,26 @@ function AddressFormRow({
     }
     const input: AddressInput = {
       ...form,
+      label: form.label.trim(),
+      full_address: form.full_address.trim(),
+      city: form.city.trim(),
+      district: form.district.trim(),
+      building_name: form.building_name.trim(),
+      building_no: form.building_no.trim(),
+      floor: form.floor.trim(),
+      apartment_no: form.apartment_no.trim(),
       latitude: coords.lat,
       longitude: coords.lng,
     };
+    if (
+      !input.building_name ||
+      !input.building_no ||
+      !input.floor ||
+      !input.apartment_no
+    ) {
+      setError(t('buildingFieldsRequired'));
+      return;
+    }
     try {
       if (address) await update.mutateAsync({ id: address.id, input });
       else await create.mutateAsync(input);
@@ -177,6 +199,22 @@ function AddressFormRow({
       <div className="grid grid-cols-2 gap-3">
         <input placeholder={t('city')} required {...field('city')} className={inputCls} />
         <input placeholder={t('district')} required {...field('district')} className={inputCls} />
+      </div>
+      <input
+        placeholder={t('buildingName')}
+        required
+        {...field('building_name')}
+        className={inputCls}
+      />
+      <div className="grid grid-cols-3 gap-3">
+        <input placeholder={t('buildingNo')} required {...field('building_no')} className={inputCls} />
+        <input placeholder={t('floor')} required {...field('floor')} className={inputCls} />
+        <input
+          placeholder={t('apartmentNo')}
+          required
+          {...field('apartment_no')}
+          className={inputCls}
+        />
       </div>
       {outside && (
         <p className="text-xs text-danger">

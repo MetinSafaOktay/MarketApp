@@ -8,7 +8,7 @@ import { useRouter, Link } from '@/i18n/navigation';
 import { authedApi } from '@/lib/auth';
 import { useCart } from '@/lib/use-cart';
 import { useAddresses } from '@/lib/use-addresses';
-import { formatPrice } from '@/lib/format';
+import { formatPrice, formatAddress } from '@/lib/format';
 import { cn } from '@/lib/cn';
 import type { CheckoutPreview, Order } from '@/lib/types';
 import { AddressForm } from './address-form';
@@ -119,7 +119,7 @@ export function CheckoutView() {
                       {a.label}
                     </span>
                     <span className="block text-text-muted" dir="auto">
-                      {a.full_address}, {a.district}/{a.city}
+                      {formatAddress(a)}
                     </span>
                   </span>
                 </label>

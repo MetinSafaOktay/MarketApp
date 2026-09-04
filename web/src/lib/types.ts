@@ -54,6 +54,10 @@ export interface Address {
   full_address: string;
   city: string;
   district: string;
+  building_name: string;
+  building_no: string;
+  floor: string;
+  apartment_no: string;
   is_default: boolean;
   latitude: number | null;
   longitude: number | null;

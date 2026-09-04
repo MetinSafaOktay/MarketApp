@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { useOrder, useCancelOrder } from '@/lib/use-orders';
-import { formatPrice } from '@/lib/format';
+import { formatPrice, formatAddress } from '@/lib/format';
 import { OrderStatusBadge } from './order-status-badge';
 
 const CANCELLABLE = ['pending', 'confirmed'];
@@ -97,8 +97,7 @@ export function OrderDetail({ id }: { id: string }) {
       <section className="rounded-card border border-border bg-surface p-4 text-sm">
         <h2 className="mb-1 font-semibold">{tco('deliveryAddress')}</h2>
         <p className="text-text-muted" dir="auto">
-          {order.addresses.full_address}, {order.addresses.district}/
-          {order.addresses.city}
+          {formatAddress(order.addresses)}
         </p>
         <p className="mt-1 text-text-muted">
           {order.payment_method === 'card' ? tco('card') : tco('cash')}

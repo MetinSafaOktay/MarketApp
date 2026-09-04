@@ -21,6 +21,10 @@ export interface AddressInput {
   full_address: string;
   city: string;
   district: string;
+  building_name: string;
+  building_no: string;
+  floor: string;
+  apartment_no: string;
   is_default?: boolean;
   latitude?: number;
   longitude?: number;
