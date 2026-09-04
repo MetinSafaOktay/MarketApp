@@ -43,6 +43,10 @@ fun AddAddressDialog(
     var fullAddress by remember { mutableStateOf(editing?.fullAddress ?: "") }
     var city by remember { mutableStateOf(editing?.city ?: "Afyonkarahisar") }
     var district by remember { mutableStateOf(editing?.district ?: "") }
+    var buildingName by remember { mutableStateOf(editing?.buildingName ?: "") }
+    var buildingNo by remember { mutableStateOf(editing?.buildingNo ?: "") }
+    var floor by remember { mutableStateOf(editing?.floor ?: "") }
+    var apartmentNo by remember { mutableStateOf(editing?.apartmentNo ?: "") }
     var isDefault by remember { mutableStateOf(editing?.isDefault ?: false) }
     var coordinate by remember {
         mutableStateOf(
@@ -76,7 +80,10 @@ fun AddAddressDialog(
         !deliveryArea.contains(coordinate!!.latitude, coordinate!!.longitude)
 
     val valid = label.isNotBlank() && fullAddress.isNotBlank() &&
-        city.isNotBlank() && district.isNotBlank() && coordinate != null && !outside
+        city.isNotBlank() && district.isNotBlank() &&
+        buildingName.isNotBlank() && buildingNo.isNotBlank() &&
+        floor.isNotBlank() && apartmentNo.isNotBlank() &&
+        coordinate != null && !outside
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -104,6 +111,10 @@ fun AddAddressDialog(
                                     fullAddress = fullAddress.trim(),
                                     city = city.trim(),
                                     district = district.trim(),
+                                    buildingName = buildingName.trim(),
+                                    buildingNo = buildingNo.trim(),
+                                    floor = floor.trim(),
+                                    apartmentNo = apartmentNo.trim(),
                                     isDefault = isDefault,
                                     latitude = coordinate?.latitude,
                                     longitude = coordinate?.longitude,
@@ -145,6 +156,16 @@ fun AddAddressDialog(
                         district = it
                         touched.value = touched.value + "district"
                     }
+
+                    Text(
+                        "Bina, kat ve daire bilgisi haritadan doldurulmaz — elle girin.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Field(buildingName, "Bina adı") { buildingName = it }
+                    Field(buildingNo, "Bina no") { buildingNo = it }
+                    Field(floor, "Kat") { floor = it }
+                    Field(apartmentNo, "Daire no") { apartmentNo = it }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = isDefault, onCheckedChange = { isDefault = it })

@@ -94,6 +94,9 @@ fun OrderDetailScreen(
                         ) {
                             Text("Teslimat adresi", fontWeight = FontWeight.Bold)
                             Text(address.fullAddress, style = MaterialTheme.typography.bodyMedium)
+                            if (address.buildingLine.isNotEmpty()) {
+                                Text(address.buildingLine, style = MaterialTheme.typography.bodySmall)
+                            }
                             Text(address.summary, style = MaterialTheme.typography.bodySmall)
                         }
                     }

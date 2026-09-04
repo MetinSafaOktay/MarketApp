@@ -162,6 +162,13 @@ private fun AddressCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (address.buildingLine.isNotEmpty()) {
+                Text(
+                    address.buildingLine,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             Text(address.summary, style = MaterialTheme.typography.bodySmall)
         }
         IconButton(onClick = onEdit) { Icon(Icons.Outlined.Edit, "Düzenle") }

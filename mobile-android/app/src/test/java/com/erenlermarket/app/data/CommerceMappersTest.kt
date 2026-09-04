@@ -1,6 +1,9 @@
 package com.erenlermarket.app.data
 
 import com.erenlermarket.app.data.remote.toDomain
+import com.erenlermarket.app.data.remote.toRequest
+import com.erenlermarket.app.data.remote.dto.AddressDto
+import com.erenlermarket.app.domain.model.NewAddress
 import com.erenlermarket.app.domain.model.DiscountType
 import com.erenlermarket.app.domain.model.OrderStatus
 import com.erenlermarket.app.domain.model.PaymentMethod
@@ -76,6 +79,41 @@ class CommerceMappersTest {
         assertEquals("11112222", order.reference.lowercase())
         assertEquals("Ev", order.address?.label)
         assertEquals(1, order.statusHistory.size)
+    }
+
+    @Test
+    fun `address maps building fields and builds a building line`() {
+        val body = """
+            {"id":"a1","label":"Ev","full_address":"Basın Cd.","city":"Afyon","district":"Merkez",
+             "building_name":"Erenler Apt","building_no":"12","floor":"3","apartment_no":"7","is_default":false}
+        """.trimIndent()
+
+        val address = json.decodeFromString(AddressDto.serializer(), body).toDomain()
+
+        assertEquals("Erenler Apt", address.buildingName)
+        assertEquals("7", address.apartmentNo)
+        assertEquals("Erenler Apt, No 12, Kat 3, Daire 7", address.buildingLine)
+    }
+
+    @Test
+    fun `address without building fields has an empty building line`() {
+        val body = """
+            {"id":"a1","label":"Ev","full_address":"X","city":"Afyon","district":"Merkez","is_default":false}
+        """.trimIndent()
+        val address = json.decodeFromString(AddressDto.serializer(), body).toDomain()
+        assertTrue(address.buildingLine.isEmpty())
+    }
+
+    @Test
+    fun `new address request trims and forwards building fields`() {
+        val req = NewAddress(
+            label = "Ev", fullAddress = "X", city = "Afyon", district = "Merkez",
+            buildingName = " Erenler Apt ", buildingNo = " 12 ", floor = " 3 ", apartmentNo = " 7 ",
+        ).toRequest()
+        assertEquals("Erenler Apt", req.buildingName)
+        assertEquals("12", req.buildingNo)
+        assertEquals("3", req.floor)
+        assertEquals("7", req.apartmentNo)
     }
 
     @Test

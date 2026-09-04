@@ -166,6 +166,13 @@ private fun AddressSection(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    if (address.buildingLine.isNotEmpty()) {
+                        Text(
+                            address.buildingLine,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     Text(address.summary, style = MaterialTheme.typography.bodySmall)
                 }
             }

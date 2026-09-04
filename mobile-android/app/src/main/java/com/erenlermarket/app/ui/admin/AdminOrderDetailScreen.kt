@@ -148,6 +148,13 @@ private fun CustomerCard(order: Order) {
         }
         order.address?.let {
             Text(it.fullAddress, style = MaterialTheme.typography.bodySmall)
+            if (it.buildingLine.isNotEmpty()) {
+                Text(
+                    it.buildingLine,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             Text(it.summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
