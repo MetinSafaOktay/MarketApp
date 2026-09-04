@@ -52,6 +52,9 @@ fun StoreProfileDto.toDomain(): StoreProfile = StoreProfile(
     address = address?.takeIf { it.isNotBlank() },
     logoUrl = logoUrl,
     coverImageUrl = coverImageUrl,
+    latitude = latitude,
+    longitude = longitude,
+    deliveryRadiusKm = deliveryRadiusKm,
 )
 
 fun AnnouncementDto.toDomain(): Announcement = Announcement(

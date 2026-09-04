@@ -14,7 +14,7 @@ interface CartRepository {
     suspend fun updateQuantity(productId: String, quantity: Int)
     suspend fun removeItem(productId: String)
     suspend fun clear()
-    suspend fun checkoutPreview(couponCode: String?): CheckoutPreview
+    suspend fun checkoutPreview(couponCode: String?, addressId: String? = null): CheckoutPreview
 }
 
 interface WishlistRepository {

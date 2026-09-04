@@ -103,6 +103,13 @@ fun CheckoutScreen(
                     onSelect = viewModel::selectAddress,
                     onAdd = { addingAddress = true },
                 )
+                state.deliveryAreaError?.let {
+                    Text(
+                        it,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
                 PaymentSection(state.paymentMethod, viewModel::setPaymentMethod)
                 CouponSection(
                     input = state.couponInput,
@@ -122,6 +129,7 @@ fun CheckoutScreen(
 
     if (addingAddress) {
         AddAddressDialog(
+            deliveryArea = state.deliveryArea,
             onDismiss = { addingAddress = false },
             onSave = { viewModel.addAddress(it) { addingAddress = false } },
         )

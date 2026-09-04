@@ -7,9 +7,11 @@ import com.erenlermarket.app.domain.model.CheckoutPreview
 import com.erenlermarket.app.domain.model.Order
 import com.erenlermarket.app.domain.model.OrderStatus
 import com.erenlermarket.app.domain.model.PaymentMethod
+import com.erenlermarket.app.domain.model.StoreProfile
 import com.erenlermarket.app.domain.repository.AddressRepository
 import com.erenlermarket.app.domain.repository.CartRepository
 import com.erenlermarket.app.domain.repository.OrderRepository
+import com.erenlermarket.app.domain.repository.StorefrontRepository
 import com.erenlermarket.app.util.MainDispatcherRule
 import com.erenlermarket.app.util.testProduct
 import io.mockk.coEvery
@@ -36,6 +38,7 @@ class CheckoutViewModelTest {
     private val cartRepository = mockk<CartRepository>()
     private val addressRepository = mockk<AddressRepository>()
     private val orderRepository = mockk<OrderRepository>()
+    private val storefrontRepository = mockk<StorefrontRepository>()
 
     private val address = Address("a1", "Ev", "Merkez Mah.", "Afyon", "Merkez", isDefault = true)
     private val preview = CheckoutPreview(
@@ -50,13 +53,19 @@ class CheckoutViewModelTest {
 
     private fun viewModel(): CheckoutViewModel {
         every { cartStore.items } returns MutableStateFlow(listOf(CartItem("p1", testProduct(), 1)))
-        return CheckoutViewModel(cartStore, cartRepository, addressRepository, orderRepository)
+        coEvery { storefrontRepository.storeProfile() } returns StoreProfile(
+            name = "Erenler", city = null, tagline = null, description = null,
+            phone = null, address = null, logoUrl = null, coverImageUrl = null,
+        )
+        return CheckoutViewModel(
+            cartStore, cartRepository, addressRepository, orderRepository, storefrontRepository,
+        )
     }
 
     @Test
     fun `load selects the default address and fetches a preview`() = runTest {
         coEvery { addressRepository.addresses() } returns listOf(address)
-        coEvery { cartRepository.checkoutPreview(null) } returns preview
+        coEvery { cartRepository.checkoutPreview(null, any()) } returns preview
 
         val vm = viewModel()
         advanceUntilIdle()
@@ -69,8 +78,8 @@ class CheckoutViewModelTest {
     @Test
     fun `applying a coupon re-fetches the preview with the code`() = runTest {
         coEvery { addressRepository.addresses() } returns listOf(address)
-        coEvery { cartRepository.checkoutPreview(null) } returns preview
-        coEvery { cartRepository.checkoutPreview("HOSGELDIN") } returns preview.copy(
+        coEvery { cartRepository.checkoutPreview(null, any()) } returns preview
+        coEvery { cartRepository.checkoutPreview("HOSGELDIN", any()) } returns preview.copy(
             discountAmount = BigDecimal.ONE,
             total = BigDecimal("9"),
         )
@@ -82,13 +91,13 @@ class CheckoutViewModelTest {
         advanceUntilIdle()
 
         assertEquals(BigDecimal("9"), vm.state.value.preview?.total)
-        coVerify { cartRepository.checkoutPreview("HOSGELDIN") }
+        coVerify { cartRepository.checkoutPreview("HOSGELDIN", any()) }
     }
 
     @Test
     fun `placing an order posts the cart items and reports the id`() = runTest {
         coEvery { addressRepository.addresses() } returns listOf(address)
-        coEvery { cartRepository.checkoutPreview(null) } returns preview
+        coEvery { cartRepository.checkoutPreview(null, any()) } returns preview
         coEvery { cartStore.refresh() } returns Unit
         val order = Order(
             id = "order-1",

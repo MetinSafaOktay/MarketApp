@@ -42,8 +42,16 @@ class CartRepositoryImpl @Inject constructor(
 
     override suspend fun clear() = apiCall { api.clearCart() }
 
-    override suspend fun checkoutPreview(couponCode: String?): CheckoutPreview = apiCall {
-        api.checkoutPreview(CheckoutPreviewRequest(couponCode?.trim()?.ifBlank { null })).toDomain()
+    override suspend fun checkoutPreview(
+        couponCode: String?,
+        addressId: String?,
+    ): CheckoutPreview = apiCall {
+        api.checkoutPreview(
+            CheckoutPreviewRequest(
+                couponCode = couponCode?.trim()?.ifBlank { null },
+                addressId = addressId,
+            ),
+        ).toDomain()
     }
 }
 

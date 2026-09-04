@@ -29,6 +29,8 @@ fun AddressDto.toDomain(): Address = Address(
     city = city,
     district = district,
     isDefault = isDefault,
+    latitude = latitude,
+    longitude = longitude,
 )
 
 fun NewAddress.toRequest() = com.erenlermarket.app.data.remote.dto.AddressRequest(
@@ -37,6 +39,8 @@ fun NewAddress.toRequest() = com.erenlermarket.app.data.remote.dto.AddressReques
     city = city.trim(),
     district = district.trim(),
     isDefault = isDefault,
+    latitude = latitude,
+    longitude = longitude,
 )
 
 fun CheckoutPreviewDto.toDomain(): CheckoutPreview = CheckoutPreview(
@@ -67,6 +71,8 @@ fun CheckoutPreviewDto.toDomain(): CheckoutPreview = CheckoutPreview(
     },
     couponError = couponError,
     hasStockIssues = hasStockIssues,
+    deliveryAreaOk = deliveryAreaOk,
+    deliveryAreaError = deliveryAreaError,
 )
 
 fun OrderDto.toDomain(): Order = Order(

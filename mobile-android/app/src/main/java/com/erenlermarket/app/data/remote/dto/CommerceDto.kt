@@ -40,6 +40,7 @@ data class ProductRefRequest(
 @Serializable
 data class CheckoutPreviewRequest(
     @SerialName("coupon_code") val couponCode: String? = null,
+    @SerialName("address_id") val addressId: String? = null,
 )
 
 // --- Checkout preview ---
@@ -71,6 +72,8 @@ data class CheckoutPreviewDto(
     val coupon: CheckoutCouponDto? = null,
     @SerialName("coupon_error") val couponError: String? = null,
     @SerialName("has_stock_issues") val hasStockIssues: Boolean = false,
+    @SerialName("delivery_area_ok") val deliveryAreaOk: Boolean = true,
+    @SerialName("delivery_area_error") val deliveryAreaError: String? = null,
 )
 
 // --- Adres ---
@@ -83,6 +86,8 @@ data class AddressDto(
     val city: String,
     val district: String,
     @SerialName("is_default") val isDefault: Boolean = false,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 )
 
 @Serializable
@@ -92,6 +97,8 @@ data class AddressRequest(
     val city: String,
     val district: String,
     @SerialName("is_default") val isDefault: Boolean = false,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 )
 
 // --- Sipariş ---

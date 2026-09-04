@@ -6,12 +6,14 @@ import com.erenlermarket.app.data.remote.ApiException
 import com.erenlermarket.app.data.session.CartStore
 import com.erenlermarket.app.domain.model.Address
 import com.erenlermarket.app.domain.model.CheckoutPreview
+import com.erenlermarket.app.domain.model.DeliveryArea
 import com.erenlermarket.app.domain.model.NewAddress
 import com.erenlermarket.app.domain.model.PaymentMethod
 import com.erenlermarket.app.domain.model.PlaceOrderInput
 import com.erenlermarket.app.domain.repository.AddressRepository
 import com.erenlermarket.app.domain.repository.CartRepository
 import com.erenlermarket.app.domain.repository.OrderRepository
+import com.erenlermarket.app.domain.repository.StorefrontRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,15 +31,20 @@ data class CheckoutUiState(
     val paymentMethod: PaymentMethod = PaymentMethod.CASH_ON_DELIVERY,
     val couponInput: String = "",
     val preview: CheckoutPreview? = null,
+    val deliveryArea: DeliveryArea? = null,
     val applyingCoupon: Boolean = false,
     val placing: Boolean = false,
     val error: String? = null,
 ) {
+    val deliveryAreaError: String? get() = preview?.takeIf { !it.deliveryAreaOk }?.deliveryAreaError
+
     val canPlaceOrder: Boolean
         get() = phase == CheckoutPhase.Ready &&
             selectedAddressId != null &&
             !placing &&
-            preview?.let { it.lines.isNotEmpty() && !it.hasStockIssues } == true
+            preview?.let {
+                it.lines.isNotEmpty() && !it.hasStockIssues && it.deliveryAreaOk
+            } == true
 }
 
 @HiltViewModel
@@ -46,6 +53,7 @@ class CheckoutViewModel @Inject constructor(
     private val cartRepository: CartRepository,
     private val addressRepository: AddressRepository,
     private val orderRepository: OrderRepository,
+    private val storefrontRepository: StorefrontRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CheckoutUiState())
@@ -58,15 +66,18 @@ class CheckoutViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val addresses = addressRepository.addresses()
-                val preview = cartRepository.checkoutPreview(null)
+                val selected = _state.value.selectedAddressId
+                    ?: addresses.firstOrNull { a -> a.isDefault }?.id
+                    ?: addresses.firstOrNull()?.id
+                val preview = cartRepository.checkoutPreview(null, selected)
+                val area = runCatching { storefrontRepository.storeProfile().deliveryArea }.getOrNull()
                 _state.update {
                     it.copy(
                         phase = CheckoutPhase.Ready,
                         addresses = addresses,
-                        selectedAddressId = it.selectedAddressId
-                            ?: addresses.firstOrNull { a -> a.isDefault }?.id
-                            ?: addresses.firstOrNull()?.id,
+                        selectedAddressId = selected,
                         preview = preview,
+                        deliveryArea = area,
                     )
                 }
             } catch (error: ApiException) {
@@ -75,7 +86,19 @@ class CheckoutViewModel @Inject constructor(
         }
     }
 
-    fun selectAddress(id: String) = _state.update { it.copy(selectedAddressId = id) }
+    fun selectAddress(id: String) {
+        _state.update { it.copy(selectedAddressId = id) }
+        reloadPreview()
+    }
+
+    private fun reloadPreview() {
+        val s = _state.value
+        val code = s.couponInput.trim().ifBlank { null }
+        viewModelScope.launch {
+            runCatching { cartRepository.checkoutPreview(code, s.selectedAddressId) }
+                .onSuccess { preview -> _state.update { it.copy(preview = preview) } }
+        }
+    }
 
     fun setPaymentMethod(method: PaymentMethod) = _state.update { it.copy(paymentMethod = method) }
 
@@ -86,7 +109,7 @@ class CheckoutViewModel @Inject constructor(
         _state.update { it.copy(applyingCoupon = true) }
         viewModelScope.launch {
             try {
-                val preview = cartRepository.checkoutPreview(code)
+                val preview = cartRepository.checkoutPreview(code, _state.value.selectedAddressId)
                 _state.update { it.copy(applyingCoupon = false, preview = preview) }
             } catch (error: ApiException) {
                 _state.update { it.copy(applyingCoupon = false, error = error.message) }
@@ -109,6 +132,7 @@ class CheckoutViewModel @Inject constructor(
                         selectedAddressId = created.id,
                     )
                 }
+                reloadPreview()
                 onDone()
             } catch (error: ApiException) {
                 _state.update { it.copy(error = error.message) }

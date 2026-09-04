@@ -7,6 +7,8 @@ data class Address(
     val city: String,
     val district: String,
     val isDefault: Boolean,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 ) {
     val summary: String get() = "$district, $city"
 }
@@ -18,4 +20,6 @@ data class NewAddress(
     val city: String,
     val district: String,
     val isDefault: Boolean = false,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 )

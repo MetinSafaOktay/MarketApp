@@ -57,6 +57,9 @@ data class StoreProfileDto(
     val address: String? = null,
     @SerialName("logo_url") val logoUrl: String? = null,
     @SerialName("cover_image_url") val coverImageUrl: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    @SerialName("delivery_radius_km") val deliveryRadiusKm: Double? = null,
 )
 
 @Serializable

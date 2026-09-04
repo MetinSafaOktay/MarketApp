@@ -30,6 +30,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += listOf("tr", "en", "de", "fr", "ar", "nl")
+        // MapLibre yerel kütüphaneleri APK'yı şişiriyor; x86 (yalnızca eski
+        // emülatörler) hariç tutulur. Modern emülatörler arm64.
+        ndk { abiFilters += listOf("armeabi-v7a", "arm64-v8a") }
     }
 
     signingConfigs {
@@ -126,6 +129,9 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.maplibre.android)
+    implementation(libs.play.services.location)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

@@ -19,6 +19,8 @@ data class CheckoutPreview(
     val coupon: AppliedCoupon?,
     val couponError: String?,
     val hasStockIssues: Boolean,
+    val deliveryAreaOk: Boolean = true,
+    val deliveryAreaError: String? = null,
 ) {
     data class Line(
         val productId: String,
