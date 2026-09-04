@@ -4,11 +4,12 @@ import Domain
 import Networking
 import SwiftUI
 
-/// Yeni teslimat adresi formu.
+/// Teslimat adresi formu — yeni ekleme veya (`editing` verilirse) düzenleme.
 struct AddAddressView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.dismiss) private var dismiss
-    var onCreated: (Address) -> Void
+    var editing: Address?
+    var onSaved: (Address) -> Void
 
     @State private var label = ""
     @State private var fullAddress = ""
@@ -17,8 +18,28 @@ struct AddAddressView: View {
     @State private var makeDefault = true
     @State private var coordinate: CLLocationCoordinate2D?
     @State private var deliveryArea: DeliveryArea?
+    @State private var touched: Set<String> = []
+    @State private var autofilled = false
     @State private var isSaving = false
     @State private var errorMessage: String?
+
+    init(editing: Address? = nil, onSaved: @escaping (Address) -> Void) {
+        self.editing = editing
+        self.onSaved = onSaved
+        if let a = editing {
+            _label = State(initialValue: a.label)
+            _fullAddress = State(initialValue: a.fullAddress)
+            _city = State(initialValue: a.city)
+            _district = State(initialValue: a.district)
+            _makeDefault = State(initialValue: a.isDefault)
+            _touched = State(initialValue: ["fullAddress", "city", "district"])
+            if let lat = a.latitude, let lng = a.longitude {
+                _coordinate = State(
+                    initialValue: CLLocationCoordinate2D(latitude: lat, longitude: lng)
+                )
+            }
+        }
+    }
 
     private var outside: Bool {
         guard let deliveryArea, let coordinate else { return false }
@@ -34,27 +55,47 @@ struct AddAddressView: View {
             && coordinate != nil && !outside && !isSaving
     }
 
+    private func applyResolved(_ r: ResolvedAddress) {
+        if !touched.contains("fullAddress"), !r.fullAddress.isEmpty { fullAddress = r.fullAddress }
+        if !touched.contains("city"), !r.city.isEmpty { city = r.city }
+        if !touched.contains("district"), !r.district.isEmpty { district = r.district }
+        if !r.fullAddress.isEmpty || !r.city.isEmpty || !r.district.isEmpty { autofilled = true }
+    }
+
     var body: some View {
         Form {
             Section {
                 TextField("Adres başlığı (ev, iş...)", text: $label)
-                TextField("Açık adres", text: $fullAddress, axis: .vertical)
-                    .lineLimit(2 ... 4)
-                TextField("Şehir", text: $city)
-                TextField("İlçe", text: $district)
-                Toggle("Varsayılan adres yap", isOn: $makeDefault)
             }
             Section("Harita üzerinde konum") {
-                LocationPickerView(coordinate: $coordinate, area: deliveryArea)
-                    .listRowInsets(EdgeInsets())
-                    .padding(.vertical, Spacing.xs)
+                LocationPickerView(
+                    coordinate: $coordinate,
+                    area: deliveryArea,
+                    onResolved: applyResolved
+                )
+                .listRowInsets(EdgeInsets())
+                .padding(.vertical, Spacing.xs)
+                if autofilled {
+                    Text("Adres alanları haritadan dolduruldu — gerekirse düzeltin.")
+                        .font(.caption).foregroundStyle(Palette.textMuted)
+                }
+            }
+            Section {
+                TextField("Açık adres", text: $fullAddress, axis: .vertical)
+                    .lineLimit(2 ... 4)
+                    .onChange(of: fullAddress) { touched.insert("fullAddress") }
+                TextField("Şehir", text: $city)
+                    .onChange(of: city) { touched.insert("city") }
+                TextField("İlçe", text: $district)
+                    .onChange(of: district) { touched.insert("district") }
+                Toggle("Varsayılan adres yap", isOn: $makeDefault)
             }
             if let errorMessage {
                 Section { Text(errorMessage).foregroundStyle(Palette.danger).font(.footnote) }
             }
         }
         .tint(Palette.accent)
-        .navigationTitle("Yeni adres")
+        .navigationTitle(editing == nil ? "Yeni adres" : "Adresi düzenle")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             deliveryArea = (try? await deps.storefront.storeProfile(language: deps.language))?
@@ -77,17 +118,23 @@ struct AddAddressView: View {
         isSaving = true
         errorMessage = nil
         defer { isSaving = false }
+        let input = NewAddress(
+            label: label.trimmed,
+            fullAddress: fullAddress.trimmed,
+            city: city.trimmed,
+            district: district.trimmed,
+            isDefault: makeDefault,
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude
+        )
         do {
-            let address = try await deps.address.create(NewAddress(
-                label: label.trimmed,
-                fullAddress: fullAddress.trimmed,
-                city: city.trimmed,
-                district: district.trimmed,
-                isDefault: makeDefault,
-                latitude: coordinate.latitude,
-                longitude: coordinate.longitude
-            ))
-            onCreated(address)
+            let address =
+                if let editing {
+                    try await deps.address.update(id: editing.id, input)
+                } else {
+                    try await deps.address.create(input)
+                }
+            onSaved(address)
             dismiss()
         } catch {
             errorMessage = (error as? APIError)?.displayMessage ?? "Adres kaydedilemedi"

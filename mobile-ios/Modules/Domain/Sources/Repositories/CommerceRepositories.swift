@@ -22,6 +22,7 @@ public protocol WishlistRepository: Sendable {
 public protocol AddressRepository: Sendable {
     func addresses() async throws -> [Address]
     func create(_ address: NewAddress) async throws -> Address
+    func update(id: String, _ address: NewAddress) async throws -> Address
     func delete(id: String) async throws
 }
 

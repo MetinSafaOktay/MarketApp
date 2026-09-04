@@ -197,6 +197,13 @@ struct StubAddress: AddressRepository {
         )
     }
 
+    func update(id: String, _ address: NewAddress) async throws -> Address {
+        Address(
+            id: id, label: address.label, fullAddress: address.fullAddress,
+            city: address.city, district: address.district, isDefault: address.isDefault
+        )
+    }
+
     func delete(id _: String) async throws { }
 }
 

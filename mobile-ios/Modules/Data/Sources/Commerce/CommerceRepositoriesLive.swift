@@ -133,6 +133,24 @@ public struct AddressRepositoryLive: AddressRepository {
         return AddressMapper.map(dto)
     }
 
+    public func update(id: String, _ address: NewAddress) async throws -> Address {
+        let dto: AddressDTO = try await client.send(Endpoint(
+            path: "/addresses/\(id)",
+            method: .patch,
+            body: JSONEncoder.api.encode(Body(
+                label: address.label,
+                fullAddress: address.fullAddress,
+                city: address.city,
+                district: address.district,
+                isDefault: address.isDefault,
+                latitude: address.latitude,
+                longitude: address.longitude
+            )),
+            requiresAuth: true
+        ))
+        return AddressMapper.map(dto)
+    }
+
     public func delete(id: String) async throws {
         try await client.send(Endpoint(
             path: "/addresses/\(id)", method: .delete, requiresAuth: true

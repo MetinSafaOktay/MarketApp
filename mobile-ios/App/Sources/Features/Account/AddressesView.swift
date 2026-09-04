@@ -8,6 +8,7 @@ struct AddressesView: View {
     @State private var addresses: [Address] = []
     @State private var phase: Phase = .loading
     @State private var showingAdd = false
+    @State private var editing: Address?
 
     private enum Phase: Equatable { case loading, ready, failed(String) }
 
@@ -47,6 +48,13 @@ struct AddressesView: View {
                 }
             }
         }
+        .sheet(item: $editing) { address in
+            NavigationStack {
+                AddAddressView(editing: address) { updated in
+                    addresses = addresses.map { $0.id == updated.id ? updated : $0 }
+                }
+            }
+        }
         .task {
             if phase == .loading {
                 await load()
@@ -80,6 +88,13 @@ struct AddressesView: View {
                                     .foregroundStyle(Palette.textMuted)
                             }
                             Spacer(minLength: 0)
+                            Button {
+                                editing = address
+                            } label: {
+                                Image(systemName: "pencil").font(.subheadline)
+                            }
+                            .buttonStyle(.borderless)
+                            .tint(Palette.accent)
                             Button(role: .destructive) {
                                 Task { await delete(address) }
                             } label: {

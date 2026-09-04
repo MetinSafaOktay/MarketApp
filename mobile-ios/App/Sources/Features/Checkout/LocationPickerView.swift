@@ -5,12 +5,21 @@ import MapKit
 import Observation
 import SwiftUI
 
+/// Koordinattan çözülen adres — form bunlarla ön-doldurulur.
+struct ResolvedAddress {
+    var fullAddress = ""
+    var city = ""
+    var district = ""
+}
+
 /// Adres için haritadan konum seçimi. Pin ekranın ortasında sabittir; kullanıcı
 /// haritayı kaydırır, merkez koordinat `coordinate`'a yazılır. Teslimat bölgesi
-/// (varsa) kesikli daire olarak çizilir.
+/// (varsa) kesikli daire olarak çizilir. Pin durunca `CLGeocoder` ile ters
+/// geocode yapılıp `onResolved` çağrılır.
 struct LocationPickerView: View {
     @Binding var coordinate: CLLocationCoordinate2D?
     let area: DeliveryArea?
+    var onResolved: ((ResolvedAddress) -> Void)?
 
     // Konum bilinmiyorsa harita buraya ortalanır (Afyonkarahisar merkez).
     private static let fallback = CLLocationCoordinate2D(latitude: 38.7507, longitude: 30.5433)
@@ -18,10 +27,17 @@ struct LocationPickerView: View {
     @State private var camera: MapCameraPosition
     @State private var center: CLLocationCoordinate2D
     @State private var location = LocationProvider()
+    @State private var geocodeTask: Task<Void, Never>?
+    @State private var geocoder = CLGeocoder()
 
-    init(coordinate: Binding<CLLocationCoordinate2D?>, area: DeliveryArea?) {
+    init(
+        coordinate: Binding<CLLocationCoordinate2D?>,
+        area: DeliveryArea?,
+        onResolved: ((ResolvedAddress) -> Void)? = nil
+    ) {
         _coordinate = coordinate
         self.area = area
+        self.onResolved = onResolved
         let start =
             coordinate.wrappedValue
             ?? area.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) }
@@ -48,6 +64,41 @@ struct LocationPickerView: View {
         return distanceKm > area.radiusKm
     }
 
+    /// Pin durunca ~0.8 sn sonra ters geocode. Yeni hareket olursa iptal edilir.
+    private func scheduleReverseGeocode(_ coord: CLLocationCoordinate2D) {
+        guard onResolved != nil else { return }
+        geocodeTask?.cancel()
+        geocodeTask = Task {
+            try? await Task.sleep(for: .seconds(0.8))
+            guard !Task.isCancelled else { return }
+            geocoder.cancelGeocode()
+            let location = CLLocation(latitude: coord.latitude, longitude: coord.longitude)
+            let placemarks = try? await geocoder.reverseGeocodeLocation(
+                location, preferredLocale: Locale(identifier: "tr_TR")
+            )
+            guard !Task.isCancelled, let p = placemarks?.first else { return }
+
+            let neighbourhood = p.subLocality ?? ""
+            let road = p.thoroughfare ?? ""
+            let houseNumber = p.subThoroughfare ?? ""
+            let full = [
+                neighbourhood.isEmpty ? nil : "\(neighbourhood) Mah.",
+                road.isEmpty ? nil : road,
+                houseNumber.isEmpty ? nil : "No \(houseNumber)",
+            ]
+            .compactMap { $0 }
+            .joined(separator: " ")
+
+            onResolved?(
+                ResolvedAddress(
+                    fullAddress: full,
+                    city: p.administrativeArea ?? "",
+                    district: p.subAdministrativeArea ?? p.locality ?? ""
+                )
+            )
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             ZStack {
@@ -67,6 +118,7 @@ struct LocationPickerView: View {
                 .onMapCameraChange(frequency: .onEnd) { context in
                     center = context.region.center
                     coordinate = context.region.center
+                    scheduleReverseGeocode(context.region.center)
                 }
                 .frame(height: 240)
                 .clipShape(RoundedRectangle(cornerRadius: Radius.card))
