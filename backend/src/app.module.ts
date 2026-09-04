@@ -29,6 +29,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { PushModule } from './modules/push/push.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { GeoModule } from './modules/geo/geo.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { StorageModule } from './modules/storage/storage.module';
     PushModule,
     AdminModule,
     StorageModule,
+    GeoModule,
   ],
   controllers: [AppController],
   // APP_GUARD: bu guard TÜM route'larda otomatik çalışır (tek tek eklemeye gerek yok)

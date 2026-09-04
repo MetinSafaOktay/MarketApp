@@ -1275,6 +1275,27 @@ paths:
         - bearer: []
       tags:
         - uploads
+  /geo/reverse:
+    get:
+      operationId: GeoController_reverse
+      parameters:
+        - name: lat
+          required: true
+          in: query
+          schema:
+            example: 38.7569
+            type: number
+        - name: lng
+          required: true
+          in: query
+          schema:
+            example: 30.5387
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - geo
 info:
   title: Erenler Market API
   description: Erenler Market backend API dokümantasyonu
