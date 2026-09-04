@@ -5,6 +5,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { LocateFixed } from 'lucide-react';
 import { circlePolygon, haversineKm } from '@/lib/geo';
+import { reverseGeocode, type ResolvedAddress } from '@/lib/geo-api';
 import type { DeliveryArea } from '@/lib/use-store';
 
 // Ücretsiz, anahtarsız vektör tile stili.
@@ -17,10 +18,12 @@ export type LatLng = { lat: number; lng: number };
 export default function LocationPicker({
   value,
   onChange,
+  onResolved,
   area,
 }: {
   value: LatLng | null;
   onChange: (v: LatLng) => void;
+  onResolved?: (r: ResolvedAddress) => void;
   area: DeliveryArea | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,6 +31,16 @@ export default function LocationPicker({
   const [center, setCenter] = useState<LatLng | null>(value);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
+
+  // moveend closure `[]` deps ile kurulduğu için callback'ler ref üzerinden okunur.
+  const onChangeRef = useRef(onChange);
+  const onResolvedRef = useRef(onResolved);
+  const geocodeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+    onResolvedRef.current = onResolved;
+  });
 
   // Harita bir kez kurulur.
   useEffect(() => {
@@ -82,7 +95,17 @@ export default function LocationPicker({
       const c = map.getCenter();
       const next = { lat: c.lat, lng: c.lng };
       setCenter(next);
-      onChange(next);
+      onChangeRef.current(next);
+
+      // Pin durunca ~800 ms sonra ters geocode → formu ön-doldur.
+      if (geocodeTimer.current) clearTimeout(geocodeTimer.current);
+      geocodeTimer.current = setTimeout(() => {
+        reverseGeocode(next.lat, next.lng)
+          .then((r) => {
+            if (r.found) onResolvedRef.current?.(r);
+          })
+          .catch(() => {});
+      }, 800);
     };
     map.on('moveend', emit);
 
@@ -92,6 +115,7 @@ export default function LocationPicker({
 
     return () => {
       ro.disconnect();
+      if (geocodeTimer.current) clearTimeout(geocodeTimer.current);
       map.remove();
       mapRef.current = null;
     };

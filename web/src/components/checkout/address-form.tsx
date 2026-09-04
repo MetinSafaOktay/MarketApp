@@ -5,15 +5,43 @@ import { useState } from 'react';
 import { useAddAddress } from '@/lib/use-addresses';
 import { useStore, deliveryAreaOf } from '@/lib/use-store';
 import { haversineKm } from '@/lib/geo';
+import type { ResolvedAddress } from '@/lib/geo-api';
 import { LocationPicker, type LatLng } from '../location-picker-lazy';
+
+type FieldKey = 'label' | 'full_address' | 'city' | 'district';
 
 export function AddressForm({ onDone }: { onDone: () => void }) {
   const t = useTranslations('Checkout');
   const add = useAddAddress();
   const { data: store } = useStore();
   const area = deliveryAreaOf(store);
+
+  const [fields, setFields] = useState<Record<FieldKey, string>>({
+    label: '',
+    full_address: '',
+    city: '',
+    district: '',
+  });
+  const [touched, setTouched] = useState<Set<FieldKey>>(new Set());
   const [coords, setCoords] = useState<LatLng | null>(null);
+  const [autofilled, setAutofilled] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function set(key: FieldKey, value: string) {
+    setFields((f) => ({ ...f, [key]: value }));
+    setTouched((s) => new Set(s).add(key));
+  }
+
+  // Haritadan çözülen adres — kullanıcının elle değiştirmediği alanları doldur.
+  function applyResolved(r: ResolvedAddress) {
+    setFields((f) => ({
+      full_address: touched.has('full_address') || !r.full_address ? f.full_address : r.full_address,
+      city: touched.has('city') || !r.city ? f.city : r.city,
+      district: touched.has('district') || !r.district ? f.district : r.district,
+      label: f.label,
+    }));
+    if (r.full_address || r.city || r.district) setAutofilled(true);
+  }
 
   const outside =
     coords && area
@@ -27,13 +55,12 @@ export function AddressForm({ onDone }: { onDone: () => void }) {
       setError('Lütfen haritadan konum seçin.');
       return;
     }
-    const f = new FormData(e.currentTarget);
     try {
       await add.mutateAsync({
-        label: String(f.get('label')),
-        full_address: String(f.get('full_address')),
-        city: String(f.get('city')),
-        district: String(f.get('district')),
+        label: fields.label.trim(),
+        full_address: fields.full_address.trim(),
+        city: fields.city.trim(),
+        district: fields.district.trim(),
         latitude: coords.lat,
         longitude: coords.lng,
       });
@@ -48,14 +75,37 @@ export function AddressForm({ onDone }: { onDone: () => void }) {
       onSubmit={onSubmit}
       className="mt-3 space-y-3 rounded-lg border border-border bg-surface-2 p-3"
     >
-      <Input name="label" placeholder={t('addressLabel')} />
-      <Input name="full_address" placeholder={t('fullAddress')} />
-      <div className="grid grid-cols-2 gap-3">
-        <Input name="city" placeholder={t('city')} />
-        <Input name="district" placeholder={t('district')} />
-      </div>
+      <Input
+        placeholder={t('addressLabel')}
+        value={fields.label}
+        onChange={(v) => set('label', v)}
+      />
 
-      <LocationPicker value={coords} onChange={setCoords} area={area} />
+      <LocationPicker
+        value={coords}
+        onChange={setCoords}
+        onResolved={applyResolved}
+        area={area}
+      />
+      {autofilled && (
+        <p className="text-xs text-text-muted">
+          Adres alanları haritadan dolduruldu — gerekirse düzeltin.
+        </p>
+      )}
+
+      <Input
+        placeholder={t('fullAddress')}
+        value={fields.full_address}
+        onChange={(v) => set('full_address', v)}
+      />
+      <div className="grid grid-cols-2 gap-3">
+        <Input placeholder={t('city')} value={fields.city} onChange={(v) => set('city', v)} />
+        <Input
+          placeholder={t('district')}
+          value={fields.district}
+          onChange={(v) => set('district', v)}
+        />
+      </div>
 
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex gap-2">
@@ -78,11 +128,20 @@ export function AddressForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-function Input({ name, placeholder }: { name: string; placeholder: string }) {
+function Input({
+  placeholder,
+  value,
+  onChange,
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <input
-      name={name}
       placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
       required
       className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/40"
     />

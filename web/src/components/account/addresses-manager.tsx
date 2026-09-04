@@ -102,6 +102,11 @@ function AddressFormRow({
       ? { lat: address.latitude, lng: address.longitude }
       : null,
   );
+  const [touched, setTouched] = useState<Set<string>>(
+    // Düzenlemede mevcut değerler "kullanıcı girmiş" kabul edilir, ezilmez.
+    () => new Set(address ? ['full_address', 'city', 'district'] : []),
+  );
+  const [autofilled, setAutofilled] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const outside =
@@ -112,9 +117,22 @@ function AddressFormRow({
   function field(key: keyof AddressInput) {
     return {
       value: form[key] as string,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-        setForm((f) => ({ ...f, [key]: e.target.value })),
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm((f) => ({ ...f, [key]: e.target.value }));
+        setTouched((s) => new Set(s).add(key as string));
+      },
     };
+  }
+
+  function applyResolved(r: import('@/lib/geo-api').ResolvedAddress) {
+    setForm((f) => ({
+      ...f,
+      full_address:
+        touched.has('full_address') || !r.full_address ? f.full_address : r.full_address,
+      city: touched.has('city') || !r.city ? f.city : r.city,
+      district: touched.has('district') || !r.district ? f.district : r.district,
+    }));
+    if (r.full_address || r.city || r.district) setAutofilled(true);
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -144,12 +162,22 @@ function AddressFormRow({
       className="space-y-3 rounded-card border border-border bg-surface p-4 text-sm"
     >
       <input placeholder={t('label')} required {...field('label')} className={inputCls} />
+      <LocationPicker
+        value={coords}
+        onChange={setCoords}
+        onResolved={applyResolved}
+        area={area}
+      />
+      {autofilled && (
+        <p className="text-xs text-text-muted">
+          Adres alanları haritadan dolduruldu — gerekirse düzeltin.
+        </p>
+      )}
       <input placeholder={t('fullAddress')} required {...field('full_address')} className={inputCls} />
       <div className="grid grid-cols-2 gap-3">
         <input placeholder={t('city')} required {...field('city')} className={inputCls} />
         <input placeholder={t('district')} required {...field('district')} className={inputCls} />
       </div>
-      <LocationPicker value={coords} onChange={setCoords} area={area} />
       {outside && (
         <p className="text-xs text-danger">
           Seçilen konum teslimat bölgesinin dışında.
