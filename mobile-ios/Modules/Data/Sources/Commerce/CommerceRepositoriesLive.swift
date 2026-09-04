@@ -46,13 +46,16 @@ public struct CartRepositoryLive: CartRepository {
 
     public func checkoutPreview(
         couponCode: String?,
+        addressID: String?,
         language: String
     ) async throws -> CheckoutPreview {
         let dto: CheckoutPreviewDTO = try await client.send(Endpoint(
             path: "/cart/checkout-preview",
             method: .post,
             query: ["lang": language],
-            body: JSONEncoder.api.encode(CouponBody(couponCode: couponCode)),
+            body: JSONEncoder.api.encode(
+                CheckoutPreviewBody(couponCode: couponCode, addressID: addressID)
+            ),
             requiresAuth: true
         ))
         return CheckoutPreviewMapper.map(dto)
@@ -60,7 +63,14 @@ public struct CartRepositoryLive: CartRepository {
 
     private struct AddCartItemBody: Encodable { let productID: String; let quantity: Int }
     private struct QuantityBody: Encodable { let quantity: Int }
-    private struct CouponBody: Encodable { let couponCode: String? }
+    private struct CheckoutPreviewBody: Encodable {
+        let couponCode: String?
+        let addressID: String?
+        enum CodingKeys: String, CodingKey {
+            case couponCode
+            case addressID = "addressId"
+        }
+    }
 }
 
 // MARK: - Wishlist
@@ -114,7 +124,9 @@ public struct AddressRepositoryLive: AddressRepository {
                 fullAddress: address.fullAddress,
                 city: address.city,
                 district: address.district,
-                isDefault: address.isDefault
+                isDefault: address.isDefault,
+                latitude: address.latitude,
+                longitude: address.longitude
             ),
             auth: true
         ))
@@ -133,6 +145,8 @@ public struct AddressRepositoryLive: AddressRepository {
         let city: String
         let district: String
         let isDefault: Bool
+        let latitude: Double?
+        let longitude: Double?
     }
 }
 

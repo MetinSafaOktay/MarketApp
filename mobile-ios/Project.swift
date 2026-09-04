@@ -64,6 +64,8 @@ let project = Project(
                 "APIBaseURL": "$(API_BASE_URL)",
                 "CFBundleLocalizations": ["tr", "en", "de", "fr", "ar", "nl"],
                 "CFBundleDevelopmentRegion": "tr",
+                "NSLocationWhenInUseUsageDescription":
+                    "Teslimat adresinizi haritadan işaretlemek için konumunuz kullanılır.",
                 // Debug'da yerel HTTP backend'e izin ver (loopback/.local ile sınırlı).
                 "NSAppTransportSecurity": ["NSAllowsLocalNetworking": true]
             ]),

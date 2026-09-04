@@ -7,6 +7,8 @@ public struct Address: Identifiable, Equatable, Sendable {
     public let city: String
     public let district: String
     public let isDefault: Bool
+    public let latitude: Double?
+    public let longitude: Double?
 
     public init(
         id: String,
@@ -14,7 +16,9 @@ public struct Address: Identifiable, Equatable, Sendable {
         fullAddress: String,
         city: String,
         district: String,
-        isDefault: Bool
+        isDefault: Bool,
+        latitude: Double? = nil,
+        longitude: Double? = nil
     ) {
         self.id = id
         self.label = label
@@ -22,6 +26,8 @@ public struct Address: Identifiable, Equatable, Sendable {
         self.city = city
         self.district = district
         self.isDefault = isDefault
+        self.latitude = latitude
+        self.longitude = longitude
     }
 
     public var summary: String {
@@ -36,18 +42,24 @@ public struct NewAddress: Sendable, Equatable {
     public var city: String
     public var district: String
     public var isDefault: Bool
+    public var latitude: Double?
+    public var longitude: Double?
 
     public init(
         label: String,
         fullAddress: String,
         city: String,
         district: String,
-        isDefault: Bool = false
+        isDefault: Bool = false,
+        latitude: Double? = nil,
+        longitude: Double? = nil
     ) {
         self.label = label
         self.fullAddress = fullAddress
         self.city = city
         self.district = district
         self.isDefault = isDefault
+        self.latitude = latitude
+        self.longitude = longitude
     }
 }

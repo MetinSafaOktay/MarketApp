@@ -12,6 +12,9 @@ struct StoreProfileDTO: Decodable, Sendable {
     let address: String?
     let logoURL: String?
     let coverImageURL: String?
+    let latitude: Double?
+    let longitude: Double?
+    let deliveryRadiusKm: Double?
 }
 
 enum StoreProfileMapper {
@@ -24,7 +27,10 @@ enum StoreProfileMapper {
             phone: dto.phone?.nonEmpty,
             address: dto.address?.nonEmpty,
             logoURL: dto.logoURL.flatMap(URL.init(string:)),
-            coverImageURL: dto.coverImageURL.flatMap(URL.init(string:))
+            coverImageURL: dto.coverImageURL.flatMap(URL.init(string:)),
+            latitude: dto.latitude,
+            longitude: dto.longitude,
+            deliveryRadiusKm: dto.deliveryRadiusKm
         )
     }
 }

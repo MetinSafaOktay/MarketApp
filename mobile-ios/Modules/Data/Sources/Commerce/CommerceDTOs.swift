@@ -54,6 +54,14 @@ struct CheckoutPreviewDTO: Decodable, Sendable {
     let coupon: CheckoutCouponDTO?
     let couponError: String?
     let hasStockIssues: Bool?
+    let deliveryAreaOK: Bool?
+    let deliveryAreaError: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case items, subtotal, discountAmount, total, coupon, couponError, hasStockIssues
+        case deliveryAreaOK = "deliveryAreaOk"
+        case deliveryAreaError
+    }
 }
 
 enum CheckoutPreviewMapper {
@@ -81,7 +89,9 @@ enum CheckoutPreviewMapper {
                 )
             },
             couponError: dto.couponError,
-            hasStockIssues: dto.hasStockIssues ?? false
+            hasStockIssues: dto.hasStockIssues ?? false,
+            deliveryAreaOK: dto.deliveryAreaOK ?? true,
+            deliveryAreaError: dto.deliveryAreaError
         )
     }
 }
@@ -95,6 +105,8 @@ struct AddressDTO: Decodable, Sendable {
     let city: String
     let district: String
     let isDefault: Bool
+    let latitude: Double?
+    let longitude: Double?
 }
 
 enum AddressMapper {
@@ -105,7 +117,9 @@ enum AddressMapper {
             fullAddress: dto.fullAddress,
             city: dto.city,
             district: dto.district,
-            isDefault: dto.isDefault
+            isDefault: dto.isDefault,
+            latitude: dto.latitude,
+            longitude: dto.longitude
         )
     }
 }

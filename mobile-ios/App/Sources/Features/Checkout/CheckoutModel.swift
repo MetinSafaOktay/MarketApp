@@ -31,8 +31,13 @@ final class CheckoutModel {
     var canPlaceOrder: Bool {
         selectedAddressID != nil
             && !(preview?.hasStockIssues ?? true)
+            && (preview?.deliveryAreaOK ?? true)
             && !deps.cartStore.isEmpty
             && !isPlacing
+    }
+
+    var deliveryAreaError: String? {
+        preview?.deliveryAreaError
     }
 
     func load() async {
@@ -50,6 +55,12 @@ final class CheckoutModel {
     func addressAdded(_ address: Address) {
         addresses.insert(address, at: 0)
         selectedAddressID = address.id
+        Task { await reloadPreview() }
+    }
+
+    func selectAddress(_ id: String) {
+        selectedAddressID = id
+        Task { await reloadPreview() }
     }
 
     func applyCoupon() async {
@@ -67,6 +78,7 @@ final class CheckoutModel {
         let code = couponInput.trimmingCharacters(in: .whitespaces)
         preview = try? await deps.cart.checkoutPreview(
             couponCode: code.isEmpty ? nil : code,
+            addressID: selectedAddressID,
             language: deps.language
         )
     }

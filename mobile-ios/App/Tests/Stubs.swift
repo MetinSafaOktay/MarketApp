@@ -164,6 +164,7 @@ final class StubCart: CartRepository, @unchecked Sendable {
 
     func checkoutPreview(
         couponCode _: String?,
+        addressID _: String?,
         language _: String
     ) async throws -> CheckoutPreview {
         CheckoutPreview(

@@ -102,7 +102,7 @@ private struct Inner: View {
             } else {
                 ForEach(model.addresses) { address in
                     Button {
-                        model.selectedAddressID = address.id
+                        model.selectAddress(address.id)
                     } label: {
                         AddressRow(
                             address: address,
@@ -111,6 +111,11 @@ private struct Inner: View {
                     }
                     .buttonStyle(.plain)
                 }
+            }
+            if let deliveryAreaError = model.deliveryAreaError {
+                Text(deliveryAreaError)
+                    .font(.footnote).foregroundStyle(Palette.danger)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }

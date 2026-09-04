@@ -58,6 +58,8 @@ public struct CheckoutPreview: Equatable, Sendable {
     public let coupon: AppliedCoupon?
     public let couponError: String?
     public let hasStockIssues: Bool
+    public let deliveryAreaOK: Bool
+    public let deliveryAreaError: String?
 
     public init(
         lines: [Line],
@@ -66,7 +68,9 @@ public struct CheckoutPreview: Equatable, Sendable {
         total: Decimal,
         coupon: AppliedCoupon?,
         couponError: String?,
-        hasStockIssues: Bool
+        hasStockIssues: Bool,
+        deliveryAreaOK: Bool = true,
+        deliveryAreaError: String? = nil
     ) {
         self.lines = lines
         self.subtotal = subtotal
@@ -75,5 +79,7 @@ public struct CheckoutPreview: Equatable, Sendable {
         self.coupon = coupon
         self.couponError = couponError
         self.hasStockIssues = hasStockIssues
+        self.deliveryAreaOK = deliveryAreaOK
+        self.deliveryAreaError = deliveryAreaError
     }
 }

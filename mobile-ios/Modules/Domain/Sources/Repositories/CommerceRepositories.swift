@@ -5,7 +5,11 @@ public protocol CartRepository: Sendable {
     func updateQuantity(productID: String, quantity: Int) async throws
     func removeItem(productID: String) async throws
     func clear() async throws
-    func checkoutPreview(couponCode: String?, language: String) async throws -> CheckoutPreview
+    func checkoutPreview(
+    couponCode: String?,
+    addressID: String?,
+    language: String
+  ) async throws -> CheckoutPreview
 }
 
 /// İstek listesi.
